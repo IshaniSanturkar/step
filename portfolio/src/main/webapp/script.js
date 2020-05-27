@@ -12,17 +12,56 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/**
- * Adds a random greeting to the page.
- */
-function addRandomGreeting() {
-  const greetings =
-      ['Hello world!', '¡Hola Mundo!', '你好，世界！', 'Bonjour le monde!'];
+// Function that shows or hides the list of courses
+// for a particular semester upon user click
+function toggleCourseList(listObject) {
+    let semester = listObject.id;
+    let semCourseList = "courselist" + semester;
+    let lst = document.getElementById(semCourseList);
+    if(lst.style.display === "none" || lst.style.display === "")
+    {
+        lst.style.display = "block";
+    } else {
+        lst.style.display = "none";
+    }
+}
 
-  // Pick a random greeting.
-  const greeting = greetings[Math.floor(Math.random() * greetings.length)];
+// gets the number of the image currently being 
+// displayed on the slideshow
+function getImageNum() {
+    let currImg = document.getElementById("galleryimg");
+    let imgName = currImg.src;
+    const loc = "/images/life/"
+    let startOfImgNum = imgName.indexOf(loc) + loc.length;
+    let endOfImgNum = imgName.indexOf(".jpg");
+    let imgNum = Number(imgName.slice(startOfImgNum, endOfImgNum));
+    return imgNum;
+}
 
-  // Add it to the page.
-  const greetingContainer = document.getElementById('greeting-container');
-  greetingContainer.innerText = greeting;
+// function that changes slideshow's picture to the next 
+// picture when the user presses the next button
+function next() {
+    const loc = "/images/life/"
+    let imgNum = getImageNum();
+    let newImageNum = (imgNum + 1);
+    if(newImageNum === 17)
+    {
+        newImageNum = 1;
+    }
+    let newImgPath = loc + newImageNum + ".jpg";
+    document.getElementById("galleryimg").src = newImgPath;
+}
+
+// function that changes slideshow's picture to the previous 
+// picture when the user presses the previous button
+function prev() {
+    const loc = "/images/life/"
+    let imgNum = getImageNum();
+    let newImageNum = (imgNum - 1);
+    if(newImageNum === 0)
+    {
+        newImageNum = 16;
+    }
+    let newImgPath = loc + newImageNum + ".jpg";
+    document.getElementById("galleryimg").src = newImgPath;
 }
