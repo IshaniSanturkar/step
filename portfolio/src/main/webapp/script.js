@@ -26,3 +26,17 @@ function addRandomFact() {
   const factContainer = document.getElementById('fact-container');
   factContainer.innerText = fact;
 }
+
+function toggleCourseList(listObject) {
+    let semester = listObject.id;
+    let semCourseList = "courselist" + semester;
+    let lst = document.getElementById(semCourseList);
+    if(lst.style.display === "none" || lst.style.display === "")
+    {
+        lst.style.display = "block";
+    }
+    else
+    {
+        lst.style.display = "none";
+    }
+}

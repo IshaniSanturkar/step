@@ -7,3 +7,7 @@
 #fact-container {
   margin-top: 20px;
 }
+
+#courselistf18, #courselists19, #courselistf19, #courselists20  {
+    display: none;
+}
