@@ -1,15 +1,22 @@
-#content {
+body {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+#content{
   margin-left: auto;
   margin-right: auto;
   width: 1000px;
 }
 
-#fact-container {
-  margin-top: 20px;
+.image-thumbnails{
+  margin: auto;
+  width: 1000px;
+  height: 400px;
+  background-color: black;
 }
 
-#courselistf18, #courselists19, #courselistf19, #courselists20  {
-    display: none;
+#fact-container {
+  margin-top: 20px;
 }
 
 footer {
@@ -21,4 +28,47 @@ footer {
     height: 50px;
     width: 50px;
     padding: 5px 85px;
+}
+
+#projects {
+    list-style-type: none;
+    padding-left: 0px
+}
+
+a {
+    color: black
+}
+
+#courses {
+    list-style-type: square;
+}
+
+#courselistf18, #courselists19, #courselistf19, #courselists20  {
+    display: none;
+    padding-left: 25px;
+    list-style-type: none;
+}
+
+#nomos, #ibm, #studybuddy {
+    list-style-type: circle;
+    padding-left: 25px;
+}
+
+#galleryimg {
+    height: 100%;
+    display: block;
+    margin: auto;
+}
+
+#gallerybuttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+button {
+    min-height: 10px;
+    min-width: 100px;
+    margin: 10px;
+    font-family: inherit;
 }

@@ -12,20 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/**
- * Adds a random fact about me to the page.
- */
-function addRandomFact() {
-  const facts =
-      ['I\'m allergic to avocados', 'I was born on 9/11/2000', 'I moved to the US when I was 16', 'My sister and I are 8 years apart in age'];
-
-  // Pick a random fact.
-  const fact = facts[Math.floor(Math.random() * facts.length)];
-
-  // Add it to the page.
-  const factContainer = document.getElementById('fact-container');
-  factContainer.innerText = fact;
-}
 
 function toggleCourseList(listObject) {
     let semester = listObject.id;
@@ -39,4 +25,42 @@ function toggleCourseList(listObject) {
     {
         lst.style.display = "none";
     }
+}
+
+function next() {
+    let currImg = document.getElementById("galleryimg");
+    let imgName = currImg.src;
+    const loc = "/images/life/"
+    let startOfImgNum = imgName.indexOf(loc) + loc.length;
+    console.log(startOfImgNum);
+    let endOfImgNum = imgName.indexOf(".jpg");
+    console.log(imgName);
+    console.log(endOfImgNum);
+    let imgNum = Number(imgName.slice(startOfImgNum, endOfImgNum));
+    let newImageNum = (imgNum + 1);
+    if(newImageNum === 17)
+    {
+        newImageNum = 1;
+    }
+    let newImgPath = loc + newImageNum + ".jpg";
+    document.getElementById("galleryimg").src = newImgPath;
+}
+
+function prev() {
+    let currImg = document.getElementById("galleryimg");
+    let imgName = currImg.src;
+    const loc = "/images/life/"
+    let startOfImgNum = imgName.indexOf(loc) + loc.length;
+    console.log(startOfImgNum);
+    let endOfImgNum = imgName.indexOf(".jpg");
+    console.log(imgName);
+    console.log(endOfImgNum);
+    let imgNum = Number(imgName.slice(startOfImgNum, endOfImgNum));
+    let newImageNum = (imgNum - 1);
+    if(newImageNum === 0)
+    {
+        newImageNum = 16;
+    }
+    let newImgPath = loc + newImageNum + ".jpg";
+    document.getElementById("galleryimg").src = newImgPath;
 }
