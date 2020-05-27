@@ -21,25 +21,28 @@ function toggleCourseList(listObject) {
     if(lst.style.display === "none" || lst.style.display === "")
     {
         lst.style.display = "block";
-    }
-    else
-    {
+    } else {
         lst.style.display = "none";
     }
+}
+
+// gets the number of the image currently being 
+// displayed on the slideshow
+function getImageNum() {
+    let currImg = document.getElementById("galleryimg");
+    let imgName = currImg.src;
+    const loc = "/images/life/"
+    let startOfImgNum = imgName.indexOf(loc) + loc.length;
+    let endOfImgNum = imgName.indexOf(".jpg");
+    let imgNum = Number(imgName.slice(startOfImgNum, endOfImgNum));
+    return imgNum;
 }
 
 // function that changes slideshow's picture to the next 
 // picture when the user presses the next button
 function next() {
-    let currImg = document.getElementById("galleryimg");
-    let imgName = currImg.src;
     const loc = "/images/life/"
-    let startOfImgNum = imgName.indexOf(loc) + loc.length;
-    console.log(startOfImgNum);
-    let endOfImgNum = imgName.indexOf(".jpg");
-    console.log(imgName);
-    console.log(endOfImgNum);
-    let imgNum = Number(imgName.slice(startOfImgNum, endOfImgNum));
+    let imgNum = getImageNum();
     let newImageNum = (imgNum + 1);
     if(newImageNum === 17)
     {
@@ -52,15 +55,8 @@ function next() {
 // function that changes slideshow's picture to the previous 
 // picture when the user presses the previous button
 function prev() {
-    let currImg = document.getElementById("galleryimg");
-    let imgName = currImg.src;
     const loc = "/images/life/"
-    let startOfImgNum = imgName.indexOf(loc) + loc.length;
-    console.log(startOfImgNum);
-    let endOfImgNum = imgName.indexOf(".jpg");
-    console.log(imgName);
-    console.log(endOfImgNum);
-    let imgNum = Number(imgName.slice(startOfImgNum, endOfImgNum));
+    let imgNum = getImageNum();
     let newImageNum = (imgNum - 1);
     if(newImageNum === 0)
     {
