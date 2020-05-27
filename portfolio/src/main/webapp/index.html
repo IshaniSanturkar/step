@@ -7,14 +7,16 @@
     <script src="script.js"></script>
   </head>
   <body id="content">
+    <header>
+        <a class="headerelem" href="#intro-sec"><h3>About Me</h3></a>
+        <a class="headerelem" href="#project-sec"><h3>Projects</h3></a>
+        <a class="headerelem" href="#coursework-sec"><h3>Courses</h3></a>
+        <a class="headerelem" href="gallery.html"><h3>Gallery</h3></a>
+    </header>
     <h1>Ishani Santurkar</h1>
-    <section id="intro">
+    <section id="intro-sec">
       <h2>About Me</h2>
-      <div class=row>
-      <div class=column>
-      <img src="/images/me.jpg" alt="An image of Ishani Santurkar" align=right width=400 height=400>
-      </div>
-      <div class=column>
+      <img src="/images/me.jpg" alt="An image of Ishani Santurkar" align=right width=400 height=400/>
       <p>Hi there! My name is Ishani. I'm a rising junior studying Computer Science with a minor in Machine Learning at <a href="https://www.cmu.edu/">Carnegie Mellon University</a>. I live 
          in Cupertino, CA but I'm originally from Pune, India. </p>
       <p>At CMU, I have taken a wide variety of <a href="#coursework">courses</a> on topics such as Theoretical Computer Science, Data Structures and Algorithms, Computer Systems, Type Theory and
@@ -26,12 +28,10 @@
       <p>In the summer of 2019, I interned at the IBM TJ Watson Research Center in Yorktown Heights, NY on the Cloud Resource Management Team. As an intern, I contributed to the development
           of a Kubernetes Operator that handled the queueing, dispatching and resource management of Apache Spark jobs in a multi-cluster environment. I implemented features to make the operator
           more applicable to a wide range of use cases and to quickly detect job failures for redispatch. I also carried out performance testing for the operator. In the summer of 2020, I was a STEP 
-          Intern at Google.
+          Intern at Google.</p>
       <p>In my free time, I like reading fantasy novels, cooking and playing games. I love listening to music, especially Hindi music. Recently, I got into Bollywood Dance and I'm working on getting better at it.
-         My dad is a software engineer at SAP while my mom is a part-time teacher. My older sister Shibani is a PhD student at MIT. Click <a href="gallery.html">here</a> to see photos of my life!
-    </div>
-    </div>
-    <section id="projects">
+         My dad is a software engineer at SAP while my mom is a part-time teacher. My older sister Shibani is a PhD student at MIT. Click <a href="gallery.html">here</a> to see photos of my life!</p>
+    <section id="project-sec">
     <h2>Projects</h2>
     <ol id="projects">
         <li>
@@ -71,7 +71,7 @@
         </li>
     </ol>
     </section>
-    <section id="coursework">
+    <section id="coursework-sec">
     <h2>Courses</h2>
     <ul id="courses">
         <li id="f18" onclick="toggleCourseList(this)"><h3>Fall 2018</h3></li>
@@ -107,10 +107,10 @@
     </ul>
     </section>
     <footer>
-        <a href="https://www.linkedin.com/in/ishani-s-126b27143/"><img src="/images/linkedin.jpg" class="smlinks"></a>
-        <a href="http://github.com/IshaniSanturkar"><img src="/images/github.png" class="smlinks"></a>
-        <a href="mailto:ishani.santurkar@gmail.com"><img src="/images/gmail.png" class="smlinks"></a>
-        <a href="tel:+16692729041"><img src="/images/phone.jpg" class="smlinks"></a>
+        <a href="https://www.linkedin.com/in/ishani-s-126b27143/"><img src="/images/linkedin.jpg" class="footerelem"></a>
+        <a href="http://github.com/IshaniSanturkar"><img src="/images/github.png" class="footerelem"></a>
+        <a href="mailto:ishani.santurkar@gmail.com"><img src="/images/gmail.png" class="footerelem"></a>
+        <a href="tel:+16692729041"><img src="/images/phone.jpg" class="footerelem"></a>
     </footer>
   </body>
 </html>

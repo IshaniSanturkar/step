@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
+// Function that shows or hides the list of courses
+// for a particular semester upon user click
 function toggleCourseList(listObject) {
     let semester = listObject.id;
     let semCourseList = "courselist" + semester;
@@ -27,6 +28,8 @@ function toggleCourseList(listObject) {
     }
 }
 
+// function that changes slideshow's picture to the next 
+// picture when the user presses the next button
 function next() {
     let currImg = document.getElementById("galleryimg");
     let imgName = currImg.src;
@@ -46,6 +49,8 @@ function next() {
     document.getElementById("galleryimg").src = newImgPath;
 }
 
+// function that changes slideshow's picture to the previous 
+// picture when the user presses the previous button
 function prev() {
     let currImg = document.getElementById("galleryimg");
     let imgName = currImg.src;

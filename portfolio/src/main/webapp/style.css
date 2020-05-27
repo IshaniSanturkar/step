@@ -24,19 +24,13 @@ footer {
     background-color: gainsboro;
 }
 
-.smlinks {
-    height: 50px;
-    width: 50px;
-    padding: 5px 85px;
-}
-
 #projects {
     list-style-type: none;
     padding-left: 0px
 }
 
 a {
-    color: black
+    color: black;
 }
 
 #courses {
@@ -71,4 +65,26 @@ button {
     min-width: 100px;
     margin: 10px;
     font-family: inherit;
+}
+
+header {
+    height: 50px;
+    padding: 3px;
+    background-color: black;
+}
+
+.headerelem {
+    color: white;
+    margin: auto; 
+    padding: 5px 85px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.footerelem {
+    height: 50px;
+    width: 50px;
+    padding: 5px 85px;
 }
