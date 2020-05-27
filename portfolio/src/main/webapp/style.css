@@ -11,3 +11,14 @@
 #courselistf18, #courselists19, #courselistf19, #courselists20  {
     display: none;
 }
+
+footer {
+    padding: 3px;
+    background-color: gainsboro;
+}
+
+.smlinks {
+    height: 50px;
+    width: 50px;
+    padding: 5px 85px;
+}
