@@ -1,10 +1,16 @@
 body {
-   font-family: 'Montserrat', sans-serif;s
+   font-family: 'Montserrat', sans-serif;
 }
 
 #content{
   width: 1100px;
   margin: auto;
+  background-color:white;
+  color: black;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: teal;
 }
 
 .image-thumbnails{
@@ -20,16 +26,12 @@ body {
 
 footer {
     padding: 3px;
-    background-color: black;
+    background-color: teal;
 }
 
 #projects {
     list-style-type: none;
     padding-left: 0px
-}
-
-a {
-    color: black;
 }
 
 .up {
@@ -49,6 +51,9 @@ a {
     list-style-image: none;
 }
 
+a {
+    color: teal;
+}
 
 #nomos, #ibm, #studybuddy {
     list-style-type: circle;
@@ -83,7 +88,7 @@ button {
 header {
     height: 50px;
     padding: 3px;
-    background-color: black;
+    background-color: teal;
     display: flex;
     align-items: center;
 }
@@ -97,6 +102,7 @@ header {
  }
 
 .footerelem {
+    color: white;
     height: 50px;
     padding: 5px 85px;
     border-radius: 52%;
@@ -107,6 +113,22 @@ header {
 }
 
 section {
+    padding: 20px;
     font-size: 18px;
     min-height: 80vh;
+}
+
+.column {
+  float: left;
+  width: 50%;
+}
+
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+p {
+    margin: 0.5
 }
