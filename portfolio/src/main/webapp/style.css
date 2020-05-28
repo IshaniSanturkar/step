@@ -44,7 +44,6 @@ a {
 }
 
 #courselistf18, #courselists19, #courselistf19, #courselists20  {
-    display: none;
     padding-left: 25px;
     list-style-type: none;
     list-style-image: none;
@@ -104,5 +103,19 @@ header {
 }
 
 #imgofme {
-    border-radius: 50%
+    border-radius: 50%;
+    width: 400px;
+    height: 400px;
+}
+
+#introtext {
+    max-width: 600px;
+}
+
+.lstup {
+    display: none;
+}
+
+.lstdown {
+    display: block;
 }
