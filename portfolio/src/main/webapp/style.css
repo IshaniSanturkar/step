@@ -29,7 +29,7 @@ footer {
     background-color: teal;
 }
 
-#projects {
+.unindentedlist {
     list-style-type: none;
     padding-left: 0px
 }
@@ -45,8 +45,7 @@ footer {
 }
 
 #courselistf18, #courselists19, #courselistf19, #courselists20  {
-    display: none;
-    padding-left: 25px;
+    padding: 10px 25px;
     list-style-type: none;
     list-style-image: none;
 }
@@ -110,7 +109,13 @@ header {
 }
 
 #imgofme {
-    border-radius: 50%
+    border-radius: 50%;
+    width: 400px;
+    height: 400px;
+}
+
+#introtext {
+    max-width: 600px;
 }
 
 section {
@@ -138,10 +143,6 @@ p {
     margin: 0.5
 }
 
-.skilllist {
-    list-style-type: none;
-}
-
 .filledstar {
     height: 15px;
     width: 15px;
@@ -151,4 +152,33 @@ p {
 .emptystar {
     height: 15px;
     width: 15px;
+}
+
+.lstup {
+    display: none;
+}
+
+.lstdown {
+    display: block;
+}
+
+.subtext {
+    color: gray;
+}
+
+#courses {
+    font-size: 20px;
+}
+
+.projectimgcol {
+    width: 40%
+}
+
+.projectimg {
+    border: 1px solid black;
+    height: 350px;
+}
+
+.coursenum {
+    color: teal;
 }
