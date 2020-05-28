@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Ishani Santurkar's Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+  </head>
+  <body id="content">
+   <header>
+        <a class="headerelem" href="index.html"><h3>About Me</h3></a>
+        <a class="headerelem" href="projects.html"><h3>Projects</h3></a>
+        <a class="headerelem" href="education.html"><h3>Courses</h3></a>
+        <a class="headerelem" href="gallery.html"><h3>Gallery</h3></a>
+    </header>
+    <section id="project-sec">
+    <h1>Projects</h1>
+    <ol id="projects">
+        <li>
+        <h3><a href="https://github.com/ankushdas/Nomos">Nomos - CMU CS Department</a></h3>
+        <p>
+            Nomos is a programming language for smart contracts based on session types. As a part of this project, I:
+            <ul id="nomos">
+                <li> Wrote a parser, type checker and interpreter for the functional layer of Nomos.</li>
+                <li> Integrated this typechecker with that for the session-typed layer of Nomos to build a bidirectional typechecker for the combined language.</li>
+                <li> Developed the theory and implementation for the subtyping of Nomos.</li>
+                <li> Implemented several smart contracts such as a puzzle, a wallet and a bank account in Nomos.</li>
+            </ul>
+        </p>
+        </li>
+        <li>
+        <h3>Summer 2019 Internship Project - IBM Research</h3>
+        <p>
+            In this project, I leveraged Go, Kubernetes and Shell Scripts to:
+            <ul id="ibm">
+                <li> Build a Kubernetes operator that handles resource management, queueing and dispatching of Apache Spark jobs in a multi-cluster environment, with an emphasis on making the operator code as generic as possible.</li>
+                <li> Develop a Kubernetes "Failfast" operator that allows users to configure policies for marking jobs as failed and ready for redispatch.</li>
+                <li> Investigate and carry out performance testing on the Google Spark-on-k8s-Operator.</li>
+            </ul>
+        </p>
+        </li>
+        <li>
+        <h3><a href="https://github.com/vandanasub/TartanHacks2019">Study Buddy - Tartan Hacks 2019</a></h3>
+        <p>
+            In this project, we:
+            <ul id="studybuddy">
+                <li> Developed a SaaS application that scanned handwritten or typed notes, converted them into text and highlighted
+                     important phrases to allow readers to quickly extract key information from the document.</li>
+                <li> Utilized Bootstrap to automatically create and display flashcards of key concepts from the text.</li>
+            </ul><br>
+            The application was built in Python and deployed on Microsoft Azure. 
+        </p>
+        </li>
+    </ol>
+    </section>
+    <footer>
+        <a href="https://www.linkedin.com/in/ishani-s-126b27143/"><img src="/images/linkedin.jpg" class="footerelem"></a>
+        <a href="http://github.com/IshaniSanturkar"><img src="/images/github.png" class="footerelem"></a>
+        <a href="mailto:ishani.santurkar@gmail.com"><img src="/images/gmail.png" class="footerelem"></a>
+        <a href="tel:+16692729041"><img src="/images/phone.png" class="footerelem"></a>
+    </footer>
+  </body>
+</html>

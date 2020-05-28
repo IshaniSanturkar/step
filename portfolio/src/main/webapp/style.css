@@ -1,11 +1,10 @@
 body {
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+   font-family: 'Montserrat', sans-serif;s
 }
 
 #content{
-  margin-left: auto;
-  margin-right: auto;
   width: 1100px;
+  margin: auto;
 }
 
 .image-thumbnails{
@@ -21,7 +20,7 @@ body {
 
 footer {
     padding: 3px;
-    background-color: gainsboro;
+    background-color: black;
 }
 
 #projects {
@@ -85,24 +84,29 @@ header {
     height: 50px;
     padding: 3px;
     background-color: black;
+    display: flex;
+    align-items: center;
 }
 
-.headerelem {
+ .headerelem {
     color: white;
-    margin: auto; 
-    padding: 5px 85px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
     text-decoration: none;
-}
+    margin-left: 30px;
+    margin-right: 50px;
+    font-size: 20px;
+ }
 
 .footerelem {
     height: 50px;
-    width: 50px;
     padding: 5px 85px;
+    border-radius: 52%;
 }
 
 #imgofme {
     border-radius: 50%
+}
+
+section {
+    font-size: 18px;
+    min-height: 80vh;
 }
