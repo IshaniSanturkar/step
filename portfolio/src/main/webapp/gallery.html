@@ -16,6 +16,10 @@
         <button onclick="next()">Next</button>
         <button onclick="prev()">Previous</button>
       </div>
+      <div id="slider">
+          <label for="galleryslider">Speed of slideshow transition (1 sec - 10 sec)</label>
+          <input type="range" min="1" max="10" value="5" class="slider" id="galleryslider" onchange="sliderMoved()">
+      </div>
     </div>
   </body>
 </html>

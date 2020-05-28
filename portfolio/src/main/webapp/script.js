@@ -14,15 +14,23 @@
 
 // Function that shows or hides the list of courses
 // for a particular semester upon user click
+
+
+const loc = "/images/life/";
+let index = 1;
+let sliderSpeed=5000;
+
 function toggleCourseList(listObject) {
     let semester = listObject.id;
     let semCourseList = "courselist" + semester;
     let lst = document.getElementById(semCourseList);
-    if(lst.style.display === "none" || lst.style.display === "")
+    if(listObject.className === "up")
     {
         lst.style.display = "block";
+        document.getElementById(semester).className = "down";
     } else {
         lst.style.display = "none";
+        document.getElementById(semester).className = "up";
     }
 }
 
@@ -31,7 +39,6 @@ function toggleCourseList(listObject) {
 function getImageNum() {
     let currImg = document.getElementById("galleryimg");
     let imgName = currImg.src;
-    const loc = "/images/life/"
     let startOfImgNum = imgName.indexOf(loc) + loc.length;
     let endOfImgNum = imgName.indexOf(".jpg");
     let imgNum = Number(imgName.slice(startOfImgNum, endOfImgNum));
@@ -41,27 +48,54 @@ function getImageNum() {
 // function that changes slideshow's picture to the next 
 // picture when the user presses the next button
 function next() {
-    const loc = "/images/life/"
     let imgNum = getImageNum();
     let newImageNum = (imgNum + 1);
+    index++;
     if(newImageNum === 17)
     {
         newImageNum = 1;
+        index = 1;
     }
+    clearInterval(myTimer);
     let newImgPath = loc + newImageNum + ".jpg";
     document.getElementById("galleryimg").src = newImgPath;
+    myTimer = setInterval(loopOverImages, sliderSpeed);
 }
 
 // function that changes slideshow's picture to the previous 
 // picture when the user presses the previous button
 function prev() {
-    const loc = "/images/life/"
     let imgNum = getImageNum();
     let newImageNum = (imgNum - 1);
+    index--;
     if(newImageNum === 0)
     {
         newImageNum = 16;
+        index = 16;
     }
+    clearInterval(myTimer);
     let newImgPath = loc + newImageNum + ".jpg";
     document.getElementById("galleryimg").src = newImgPath;
+    myTimer = setInterval(loopOverImages, sliderSpeed);
+}
+
+
+function loopOverImages() 
+{
+    console.log(sliderSpeed);
+    index++;
+    if(index === 17)
+    {
+        index = 1;
+    }
+    let newImgPath = loc + index + ".jpg";
+    document.getElementById("galleryimg").src = newImgPath;
+}
+myTimer = setInterval(loopOverImages, sliderSpeed);
+
+function sliderMoved() {
+    let sliderValue = document.getElementById("galleryslider").value;
+    sliderSpeed = sliderValue * 1000;
+    clearInterval(myTimer);
+    myTimer = setInterval(loopOverImages, sliderSpeed);
 }
