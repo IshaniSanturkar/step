@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Function that shows or hides the list of courses
-// for a particular semester upon user click
 
 
 const loc = "/images/life/";
-let index = 1;
+let currImageNum = 1;
 let sliderSpeed=5000;
 
+// Function that shows or hides the list of courses
+// for a particular semester upon user click
 function toggleCourseList(listObject) {
     let semester = listObject.id;
     let semCourseList = "courselist" + semester;
@@ -34,30 +34,17 @@ function toggleCourseList(listObject) {
     }
 }
 
-// gets the number of the image currently being 
-// displayed on the slideshow
-function getImageNum() {
-    let currImg = document.getElementById("galleryimg");
-    let imgName = currImg.src;
-    let startOfImgNum = imgName.indexOf(loc) + loc.length;
-    let endOfImgNum = imgName.indexOf(".jpg");
-    let imgNum = Number(imgName.slice(startOfImgNum, endOfImgNum));
-    return imgNum;
-}
 
 // function that changes slideshow's picture to the next 
 // picture when the user presses the next button
 function next() {
-    let imgNum = getImageNum();
-    let newImageNum = (imgNum + 1);
-    index++;
-    if(newImageNum === 17)
+    currImageNum++;
+    if(currImageNum === 17)
     {
-        newImageNum = 1;
-        index = 1;
+        currImageNum = 1;
     }
     clearInterval(myTimer);
-    let newImgPath = loc + newImageNum + ".jpg";
+    let newImgPath = loc + currImageNum + ".jpg";
     document.getElementById("galleryimg").src = newImgPath;
     myTimer = setInterval(loopOverImages, sliderSpeed);
 }
@@ -65,34 +52,34 @@ function next() {
 // function that changes slideshow's picture to the previous 
 // picture when the user presses the previous button
 function prev() {
-    let imgNum = getImageNum();
-    let newImageNum = (imgNum - 1);
-    index--;
-    if(newImageNum === 0)
+    currImageNum--;
+    if(currImageNum === 0)
     {
-        newImageNum = 16;
-        index = 16;
+        currImageNum = 16;
     }
     clearInterval(myTimer);
-    let newImgPath = loc + newImageNum + ".jpg";
+    let newImgPath = loc + currImageNum + ".jpg";
     document.getElementById("galleryimg").src = newImgPath;
     myTimer = setInterval(loopOverImages, sliderSpeed);
 }
 
-
+// function that is called every sliderSpeed seconds
+// changes slideshow to display next image in list of 
+// images
 function loopOverImages() 
 {
-    console.log(sliderSpeed);
-    index++;
-    if(index === 17)
+    currImageNum++;
+    if(currImageNum === 17)
     {
-        index = 1;
+        currImageNum = 1;
     }
-    let newImgPath = loc + index + ".jpg";
+    let newImgPath = loc + currImageNum + ".jpg";
     document.getElementById("galleryimg").src = newImgPath;
 }
 myTimer = setInterval(loopOverImages, sliderSpeed);
 
+// modifies slider speed if user changes value
+// of slider on gallery page
 function sliderMoved() {
     let sliderValue = document.getElementById("galleryslider").value;
     sliderSpeed = sliderValue * 1000;
