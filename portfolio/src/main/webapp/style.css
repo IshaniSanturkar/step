@@ -53,9 +53,10 @@ footer {
 
 a {
     color: teal;
+    text-decoration: none;
 }
 
-#nomos, #ibm, #studybuddy {
+#nomos, #ibm, #studybuddy, #excel {
     list-style-type: circle;
     padding-left: 25px;
 }
@@ -116,6 +117,10 @@ section {
     padding: 20px;
     font-size: 18px;
     min-height: 80vh;
+}
+
+.row {
+    min-height: 435px;
 }
 
 .column {
