@@ -119,7 +119,7 @@ section {
     min-height: 80vh;
 }
 
-.row {
+.exp {
     min-height: 435px;
 }
 
@@ -136,4 +136,19 @@ section {
 
 p {
     margin: 0.5
+}
+
+.skilllist {
+    list-style-type: none;
+}
+
+.filledstar {
+    height: 15px;
+    width: 15px;
+}
+
+
+.emptystar {
+    height: 15px;
+    width: 15px;
 }
