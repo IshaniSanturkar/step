@@ -23,105 +23,105 @@ let paused = false;
 // Function that shows or hides the list of courses
 // for a particular semester upon user click
 function toggleCourseList(listObject) {
-    const semester = listObject.id;
-    const semCourseList = "courselist" + semester;
-    const lst = document.getElementById(semCourseList);
-    if(listObject.className === "up") {
-        lst.className = "lstdown";
-        listObject.className = "down";
-    } else {
-        lst.className = "lstup";
-        listObject.className = "up";
-    }
+  const semester = listObject.id;
+  const semCourseList = "courselist" + semester;
+  const lst = document.getElementById(semCourseList);
+  if (listObject.className === "up") {
+    lst.className = "lstdown";
+    listObject.className = "down";
+  } else {
+    lst.className = "lstup";
+    listObject.className = "up";
+  }
 }
 
 
-// function that changes slideshow's picture to the next 
+// function that changes slideshow's picture to the next
 // picture when the user presses the next button
 function next() {
-    if(!paused) {
-        clearInterval(myTimer);
-    }
-    currImageNum++;
-    if(currImageNum === 17) {
-        currImageNum = 1;
-    }
-    const newImgPath = loc + currImageNum + ".jpg";
-    document.getElementById("galleryimg").src = newImgPath;
-    if(!paused) {
-        myTimer = setInterval(loopOverImages, sliderSpeed);
-    }
+  if (!paused) {
+    clearInterval(myTimer);
+  }
+  currImageNum++;
+  if (currImageNum === 17) {
+    currImageNum = 1;
+  }
+  const newImgPath = loc + currImageNum + ".jpg";
+  document.getElementById("galleryimg").src = newImgPath;
+  if (!paused) {
+    myTimer = setInterval(loopOverImages, sliderSpeed);
+  }
 }
 
-// function that changes slideshow's picture to the previous 
+// function that changes slideshow's picture to the previous
 // picture when the user presses the previous button
 function prev() {
-    if(!paused) {
-        clearInterval(myTimer);
-    }
-    currImageNum--;
-    if(currImageNum === 0) {
-        currImageNum = 16;
-    }
-    const newImgPath = loc + currImageNum + ".jpg";
-    document.getElementById("galleryimg").src = newImgPath;
-    if(!paused) {
-        myTimer = setInterval(loopOverImages, sliderSpeed);
-    }
+  if (!paused) {
+    clearInterval(myTimer);
+  }
+  currImageNum--;
+  if (currImageNum === 0) {
+    currImageNum = 16;
+  }
+  const newImgPath = loc + currImageNum + ".jpg";
+  document.getElementById("galleryimg").src = newImgPath;
+  if (!paused) {
+    myTimer = setInterval(loopOverImages, sliderSpeed);
+  }
 }
 
 // function that is called every sliderSpeed seconds
-// changes slideshow to display next image in list of 
+// changes slideshow to display next image in list of
 // images
 function loopOverImages() {
-    if(!paused) {
-        currImageNum++;
-        if(currImageNum === 17) {
-            currImageNum = 1;
-        }
-        const newImgPath = loc + currImageNum + ".jpg";
-        document.getElementById("galleryimg").src = newImgPath;
+  if (!paused) {
+    currImageNum++;
+    if (currImageNum === 17) {
+      currImageNum = 1;
     }
+    const newImgPath = loc + currImageNum + ".jpg";
+    document.getElementById("galleryimg").src = newImgPath;
+  }
 }
 
 // modifies slider speed if user changes value
 // of slider on gallery page
 function sliderMoved() {
-    if(!paused) {
-        clearInterval(myTimer);
-    }
-    const sliderValue = document.getElementById("galleryslider").value;
-    sliderSpeed = sliderValue * 1000;
-    if(!paused) {
-        myTimer = setInterval(loopOverImages, sliderSpeed);
-    }
+  if (!paused) {
+    clearInterval(myTimer);
+  }
+  const sliderValue = document.getElementById("galleryslider").value;
+  sliderSpeed = sliderValue * 1000;
+  if (!paused) {
+    myTimer = setInterval(loopOverImages, sliderSpeed);
+  }
 }
 
 
 //function to pause or resume slideshow when user clicks
 //on that window
 function togglePause() {
-    if(paused === true) {
-        const statusImg = document.getElementById("pauseplay")
-        statusImg.src = "/images/play.png";
-        statusImg.style.display = "block";
-        window.setTimeout(function () {
-            $("#pauseplay").fadeOut();
-            statusImg.style.display = "none";
-        }, 250);
-        myTimer = setInterval(loopOverImages, sliderSpeed);
-        paused = false;
-    } else {
-        console.log("Hi");
-        clearInterval(myTimer);
-        const statusImg = document.getElementById("pauseplay")
-        statusImg.src = "/images/pause.png";
-        statusImg.style.display = "block";
-        window.setTimeout(function () {
-            $("#pauseplay").fadeOut();
-            statusImg.style.display = "none";
-        }, 500);
-        paused = true;
-    }
+  if (paused === true) {
+    const statusImg = document.getElementById("pauseplay")
+    statusImg.src = "/images/play.png";
+    statusImg.style.display = "block";
+    window.setTimeout(function () {
+      $("#pauseplay").fadeOut();
+      statusImg.style.display = "none";
+    }, 250);
+    myTimer = setInterval(loopOverImages, sliderSpeed);
+    paused = false;
+  } else {
+    console.log("Hi");
+    clearInterval(myTimer);
+    const statusImg = document.getElementById("pauseplay")
+    statusImg.src = "/images/pause.png";
+    statusImg.style.display = "block";
+    window.setTimeout(function () {
+      $("#pauseplay").fadeOut();
+      statusImg.style.display = "none";
+    }, 500);
+    paused = true;
+  }
 }
 
