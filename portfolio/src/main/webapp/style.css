@@ -112,6 +112,7 @@ header {
     border-radius: 50%;
     width: 400px;
     height: 400px;
+    float: right;
 }
 
 #introtext {
@@ -171,6 +172,7 @@ p {
 }
 
 .projectimgcol {
+    float: left;
     width: 40%
 }
 
