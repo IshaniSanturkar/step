@@ -124,4 +124,3 @@ function togglePause() {
     paused = true;
   }
 }
-
