@@ -15,9 +15,33 @@ h1, h2, h3, h4, h5, h6 {
 
 .image-thumbnails{
   margin: auto;
-  width: 1000px;
-  height: 400px;
+  width: 533px;
+  height: 400px; 
+  position: relative;
   background-color: black;
+}
+
+.image-thumbnails img {
+    height: 100%;
+    width: auto;
+}
+
+#nextbutton {
+    display: inline-block;
+    color: white;
+    font-size: 50px;
+    position: absolute;
+    top: 50%;
+    left: 96%;
+}
+
+#prevbutton {
+    display: inline-block;
+    color: white;
+    font-size: 50px;
+    position: absolute;
+    top: 50%;
+    left: 2%;
 }
 
 #fact-container {
@@ -72,7 +96,7 @@ a {
     justify-content: center;
 }
 
-#slider {
+.galleryitem {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -87,23 +111,28 @@ button {
 
 header {
     height: 50px;
-    padding: 3px;
     background-color: teal;
     display: flex;
     align-items: center;
+    justify-content: center;
 }
 
  .headerelem {
     color: white;
     text-decoration: none;
-    margin-left: 30px;
-    margin-right: 50px;
     font-size: 20px;
+    min-width: 275px;
+    height: 100%;
+ }
+
+ .current {
+    background-color: black;
  }
 
 .footerelem {
     color: white;
     height: 50px;
+    width: 50px;
     padding: 5px 85px;
     border-radius: 52%;
 }
@@ -171,14 +200,28 @@ p {
 }
 
 .projectimgcol {
-    width: 40%
+    width: 50%
 }
 
 .projectimg {
-    border: 1px solid black;
-    height: 350px;
+    /* border: 1px solid black; */
+    height: 300px;
+    width: 450px;
 }
 
 .coursenum {
     color: teal;
+}
+
+.institution {
+    width: 35%;
+}
+
+#pauseplay {
+    display: none;
+    position: absolute;
+    top: 40%;
+    left: 40%;
+    width: 100px;
+    height: 100px;
 }

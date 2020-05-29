@@ -5,6 +5,7 @@
     <title>Ishani's Image Gallery</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
      <script src="script.js"></script>
   </head>
   <body id="content">
@@ -12,18 +13,19 @@
         <a class="headerelem" href="index.html">About Me</a>
         <a class="headerelem" href="projects.html">Skills and Experiences</a>
         <a class="headerelem" href="education.html">Education</a>
-        <a class="headerelem" href="gallery.html">Gallery</a>
+        <a class="headerelem current" href="gallery.html">Gallery</a>
     </header>
     <section id="gallery-sec">
       <h1>Gallery</h1>
       <div class="image-thumbnails">
-        <img id="galleryimg" src="images/life/1.jpg"/>
+        <img id="galleryimg" src="images/life/1.jpg" onclick="togglePause()"/>
+        <a href="#" id="nextbutton" onclick="next()">&#8250;</a>
+        <a href="#" id="prevbutton" onclick="prev()">&#8249;</a>
+        <img id="pauseplay" src="/images/play.png"/>
       </div>
-      <div id="gallerybuttons">
-        <button onclick="next()">Next</button>
-        <button onclick="prev()">Previous</button>
-      </div>
-      <div id="slider">
+      <br>
+      <p class="galleryitem">Click on the slideshow window to pause it</p>
+      <div class="galleryitem">
           <label for="galleryslider">Speed of slideshow transition (1 sec - 10 sec)</label>
           <input type="range" min="1" max="10" value="5" class="slider" id="galleryslider" onchange="sliderMoved()">
       </div>
