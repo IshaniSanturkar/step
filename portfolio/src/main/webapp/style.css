@@ -136,7 +136,7 @@ header {
   height: 50px;
   width: 50px;
   padding: 5px 85px;
-  border-radius: 52%;
+  border-radius: 50%;
 }
 
 #imgofme {
@@ -207,8 +207,9 @@ p {
 }
 
 .projectimg {
-  height: 300px;
-  width: 450px;
+  padding-top: 20px;
+  height: 275px;
+  width: 400px;
 }
 
 .coursenum {
@@ -216,7 +217,9 @@ p {
 }
 
 .institution {
-  width: 35%;
+  width: 30%;
+  border-right: 2px solid teal;
+  height: 430px;
 }
 
 #pauseplay {
@@ -226,4 +229,19 @@ p {
   left: 40%;
   width: 100px;
   height: 100px;
+}
+
+.information {
+  padding-left: 40px;
+}
+
+#tino::after, #cmu::after {
+  display: inline-block;
+  content: "";
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  position: absolute;
+  left: 35.6%;
+  background-color: teal;
 }
