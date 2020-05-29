@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
-
 const loc = "/images/life/";
 let currImageNum = 1;
 let sliderSpeed = 5000;
@@ -34,7 +32,6 @@ function toggleCourseList(listObject) {
     listObject.className = "up";
   }
 }
-
 
 // function that changes slideshow's picture to the next
 // picture when the user presses the next button
@@ -97,7 +94,6 @@ function sliderMoved() {
   }
 }
 
-
 //function to pause or resume slideshow when user clicks
 //on that window
 function togglePause() {
@@ -108,11 +104,10 @@ function togglePause() {
     window.setTimeout(function () {
       $("#pauseplay").fadeOut();
       statusImg.style.display = "none";
-    }, 250);
+    }, 500);
     myTimer = setInterval(loopOverImages, sliderSpeed);
     paused = false;
   } else {
-    console.log("Hi");
     clearInterval(myTimer);
     const statusImg = document.getElementById("pauseplay")
     statusImg.src = "/images/pause.png";
@@ -124,4 +119,3 @@ function togglePause() {
     paused = true;
   }
 }
-
