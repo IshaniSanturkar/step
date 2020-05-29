@@ -1,47 +1,47 @@
 body {
-   font-family: 'Montserrat', sans-serif;
+  font-family: 'Montserrat', sans-serif;
 }
 
-#content{
+#content {
   width: 1100px;
   margin: auto;
-  background-color:white;
+  background-color: white;
   color: black;
 }
 
 h1, h2, h3, h4, h5, h6 {
-    color: teal;
+  color: teal;
 }
 
-.image-thumbnails{
+.image-thumbnails {
   margin: auto;
   width: 533px;
-  height: 400px; 
+  height: 400px;
   position: relative;
   background-color: black;
 }
 
 .image-thumbnails img {
-    height: 100%;
-    width: auto;
+  height: 100%;
+  width: auto;
 }
 
 #nextbutton {
-    display: inline-block;
-    color: white;
-    font-size: 50px;
-    position: absolute;
-    top: 50%;
-    left: 96%;
+  display: inline-block;
+  color: white;
+  font-size: 50px;
+  position: absolute;
+  top: 50%;
+  left: 96%;
 }
 
 #prevbutton {
-    display: inline-block;
-    color: white;
-    font-size: 50px;
-    position: absolute;
-    top: 50%;
-    left: 2%;
+  display: inline-block;
+  color: white;
+  font-size: 50px;
+  position: absolute;
+  top: 50%;
+  left: 2%;
 }
 
 #fact-container {
@@ -49,115 +49,115 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 footer {
-    padding: 3px;
-    background-color: teal;
+  padding: 3px;
+  background-color: teal;
 }
 
 .unindentedlist {
-    list-style-type: none;
-    padding-left: 0px
+  list-style-type: none;
+  padding-left: 0px
 }
 
 .up {
-    list-style-image: url(images/bullet-right.png);
-    list-style-type: none;
+  list-style-image: url(images/bullet-right.png);
+  list-style-type: none;
 }
 
 .down {
-    list-style-image: url(images/bullet-down.png);
-    list-style-type: none;
+  list-style-image: url(images/bullet-down.png);
+  list-style-type: none;
 }
 
-#courselistf18, #courselists19, #courselistf19, #courselists20  {
-    padding: 10px 25px;
-    list-style-type: none;
-    list-style-image: none;
+#courselistf18, #courselists19, #courselistf19, #courselists20 {
+  padding: 10px 25px;
+  list-style-type: none;
+  list-style-image: none;
 }
 
 a {
-    color: teal;
-    text-decoration: none;
+  color: teal;
+  text-decoration: none;
 }
 
 #nomos, #ibm, #studybuddy, #excel {
-    list-style-type: circle;
-    padding-left: 25px;
+  list-style-type: circle;
+  padding-left: 25px;
 }
 
 #galleryimg {
-    height: 100%;
-    display: block;
-    margin: auto;
+  height: 100%;
+  display: block;
+  margin: auto;
 }
 
 #gallerybuttons {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .galleryitem {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 button {
-    min-height: 10px;
-    min-width: 100px;
-    margin: 10px;
-    font-family: inherit;
+  min-height: 10px;
+  min-width: 100px;
+  margin: 10px;
+  font-family: inherit;
 }
 
 header {
-    height: 50px;
-    padding: 3px;
-    background-color: teal;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  height: 50px;
+  padding: 3px;
+  background-color: teal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
- .headerelem {
-    align-content: center;
-    padding: 13px;
-    color: white;
-    text-decoration: none;
-    font-size: 20px;
-    min-width: 248px;
- }
+.headerelem {
+  align-content: center;
+  padding: 13px;
+  color: white;
+  text-decoration: none;
+  font-size: 20px;
+  min-width: 248px;
+}
 
- .current {
-    background-color: rgb(0, 77, 77);
- }
+.current {
+  background-color: rgb(0, 77, 77);
+}
 
 .footerelem {
-    color: white;
-    height: 50px;
-    width: 50px;
-    padding: 5px 85px;
-    border-radius: 50%;
+  color: white;
+  height: 50px;
+  width: 50px;
+  padding: 5px 85px;
+  border-radius: 50%;
 }
 
 #imgofme {
-    border-radius: 50%;
-    width: 400px;
-    height: 400px;
-    float: right;
+  border-radius: 50%;
+  width: 400px;
+  height: 400px;
+  float: right;
 }
 
 #introtext {
-    max-width: 600px;
+  max-width: 600px;
 }
 
 section {
-    padding: 20px;
-    font-size: 18px;
-    min-height: 80vh;
+  padding: 20px;
+  font-size: 18px;
+  min-height: 80vh;
 }
 
 .exp {
-    min-height: 435px;
+  min-height: 435px;
 }
 
 .column {
@@ -172,77 +172,76 @@ section {
 }
 
 p {
-    margin: 0.5
+  margin: 0.5
 }
 
 .filledstar {
-    height: 15px;
-    width: 15px;
+  height: 15px;
+  width: 15px;
 }
 
-
 .emptystar {
-    height: 15px;
-    width: 15px;
+  height: 15px;
+  width: 15px;
 }
 
 .lstup {
-    display: none;
+  display: none;
 }
 
 .lstdown {
-    display: block;
+  display: block;
 }
 
 .subtext {
-    color: gray;
+  color: gray;
 }
 
 #courses {
-    font-size: 20px;
+  font-size: 20px;
 }
 
 .projectimgcol {
-    width: 50%;
-    float: left;
+  width: 50%;
+  float: left;
 }
 
 .projectimg {
-    padding-top: 20px;
-    height: 275px;
-    width: 400px;
+  padding-top: 20px;
+  height: 275px;
+  width: 400px;
 }
 
 .coursenum {
-    color: teal;
+  color: teal;
 }
 
 .institution {
-    width: 30%;
-    border-right:  2px solid teal;
-    height: 430px;
+  width: 30%;
+  border-right: 2px solid teal;
+  height: 430px;
 }
 
 #pauseplay {
-    display: none;
-    position: absolute;
-    top: 40%;
-    left: 40%;
-    width: 100px;
-    height: 100px;
+  display: none;
+  position: absolute;
+  top: 40%;
+  left: 40%;
+  width: 100px;
+  height: 100px;
 }
 
 .information {
-    padding-left: 40px;
+  padding-left: 40px;
 }
 
 #tino::after, #cmu::after {
-    display: inline-block;
-    content: "";
-    width:20px;
-    height: 20px;
-    border-radius: 50%;
-    position: absolute;
-    left: 35.6%;
-    background-color: teal;
+  display: inline-block;
+  content: "";
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  position: absolute;
+  left: 35.6%;
+  background-color: teal;
 }
