@@ -1,14 +1,19 @@
 body {
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  font-family: 'Montserrat', sans-serif;
 }
 
-#content{
-  margin-left: auto;
-  margin-right: auto;
+#content {
   width: 1100px;
+  margin: auto;
+  background-color: white;
+  color: black;
 }
 
-.image-thumbnails{
+h1, h2, h3, h4, h5, h6 {
+  color: teal;
+}
+
+.image-thumbnails {
   margin: auto;
   width: 1000px;
   height: 400px;
@@ -20,103 +25,161 @@ body {
 }
 
 footer {
-    padding: 3px;
-    background-color: gainsboro;
+  padding: 3px;
+  background-color: teal;
 }
 
-#projects {
-    list-style-type: none;
-    padding-left: 0px
-}
-
-a {
-    color: black;
+.unindentedlist {
+  list-style-type: none;
+  padding-left: 0px
 }
 
 .up {
-    list-style-image: url(images/bullet-right.png);
-    list-style-type: none;
+  list-style-image: url(images/bullet-right.png);
+  list-style-type: none;
 }
 
 .down {
-    list-style-image: url(images/bullet-down.png);
-    list-style-type: none;
+  list-style-image: url(images/bullet-down.png);
+  list-style-type: none;
 }
 
-#courselistf18, #courselists19, #courselistf19, #courselists20  {
-    padding-left: 25px;
-    list-style-type: none;
-    list-style-image: none;
+#courselistf18, #courselists19, #courselistf19, #courselists20 {
+  padding: 10px 25px;
+  list-style-type: none;
+  list-style-image: none;
 }
 
+a {
+  color: teal;
+  text-decoration: none;
+}
 
-#nomos, #ibm, #studybuddy {
-    list-style-type: circle;
-    padding-left: 25px;
+#nomos, #ibm, #studybuddy, #excel {
+  list-style-type: circle;
+  padding-left: 25px;
 }
 
 #galleryimg {
-    height: 100%;
-    display: block;
-    margin: auto;
+  height: 100%;
+  display: block;
+  margin: auto;
 }
 
 #gallerybuttons {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #slider {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 button {
-    min-height: 10px;
-    min-width: 100px;
-    margin: 10px;
-    font-family: inherit;
+  min-height: 10px;
+  min-width: 100px;
+  margin: 10px;
+  font-family: inherit;
 }
 
 header {
-    height: 50px;
-    padding: 3px;
-    background-color: black;
+  height: 50px;
+  padding: 3px;
+  background-color: teal;
+  display: flex;
+  align-items: center;
 }
 
 .headerelem {
-    color: white;
-    margin: auto; 
-    padding: 5px 85px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
+  color: white;
+  text-decoration: none;
+  margin-left: 30px;
+  margin-right: 50px;
+  font-size: 20px;
 }
 
 .footerelem {
-    height: 50px;
-    width: 50px;
-    padding: 5px 85px;
+  color: white;
+  height: 50px;
+  padding: 5px 85px;
+  border-radius: 52%;
 }
 
 #imgofme {
-    border-radius: 50%;
-    width: 400px;
-    height: 400px;
-    float: right;
+  border-radius: 50%;
+  width: 400px;
+  height: 400px;
+  float: right;
 }
 
 #introtext {
-    max-width: 600px;
+  max-width: 600px;
+}
+
+section {
+  padding: 20px;
+  font-size: 18px;
+  min-height: 80vh;
+}
+
+.exp {
+  min-height: 435px;
+}
+
+.column {
+  float: left;
+  width: 50%;
+}
+
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+p {
+  margin: 0.5
+}
+
+.filledstar {
+  height: 15px;
+  width: 15px;
+}
+
+.emptystar {
+  height: 15px;
+  width: 15px;
 }
 
 .lstup {
-    display: none;
+  display: none;
 }
 
 .lstdown {
-    display: block;
+  display: block;
+}
+
+.subtext {
+  color: gray;
+}
+
+#courses {
+  font-size: 20px;
+}
+
+.projectimgcol {
+  float: left;
+  width: 40%
+}
+
+.projectimg {
+  border: 1px solid black;
+  height: 350px;
+}
+
+.coursenum {
+  color: teal;
 }
