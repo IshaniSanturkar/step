@@ -14,16 +14,16 @@
 
 package com.google.sps.servlets;
 
-public class UserComment {
-  String name;
-  String email;
-  String comment;
-  String timestamp;
+import com.google.auto.value.AutoValue;
 
-  public UserComment(String name, String email, String comment, String timestamp) {
-    this.name = name;
-    this.email = email;
-    this.comment = comment;
-    this.timestamp = timestamp;
+@AutoValue 
+abstract class UserComment {
+  static UserComment create(String name, String email, String timestamp, String comment) {
+    return new AutoValue_UserComment(name, email, timestamp, comment);
   }
+
+  abstract String name();
+  abstract String email();
+  abstract String comment();
+  abstract String timestamp();
 }

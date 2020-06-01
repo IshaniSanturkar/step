@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
 
-  ArrayList<UserComment> userComments = new ArrayList<>();
+  private final ArrayList<UserComment> userComments = new ArrayList<>();
 
   /*
    * Called when a client submits a GET request to the /data URL
@@ -53,7 +53,8 @@ public class DataServlet extends HttpServlet {
       String userEmail = getFieldFromResponse(request, "email", "janedoe@gmail.com");
       Date date = new Date();
       String currDate = date.toString();
-      UserComment comment = new UserComment(userName, userEmail, userComment, currDate);
+      String userDate = getFieldFromResponse(request, "time", currDate);
+      UserComment comment = UserComment.create(userName, userEmail, userComment, userDate);
       userComments.add(comment);
     }
     response.sendRedirect("index.html");
@@ -63,7 +64,7 @@ public class DataServlet extends HttpServlet {
    * Extracts the value of fieldName attribute from request object if present
    * and returns defaultValue if it is not
    */
-  public String getFieldFromResponse(HttpServletRequest request, String fieldName, String defaultValue) {
+  private String getFieldFromResponse(HttpServletRequest request, String fieldName, String defaultValue) {
     String fieldValue = request.getParameter(fieldName);
     if(fieldValue == null) {
       return defaultValue;

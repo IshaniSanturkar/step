@@ -42,7 +42,7 @@
     <div class="row">
       <div class="column">
         <h3>Submit a new comment</h3>
-        <form action="/data" method="POST">
+        <form action="/data" method="POST" onsubmit="inputClientTime(this)">
           <label for="user_name">Name:</label>
           <br /><br />
           <input type="text" id="user_name" name="name">
@@ -50,6 +50,8 @@
           <label for="user_email">Email ID:</label>
           <br /><br />
           <input type="email" id="user_email" name="email">
+          <br /><br />
+          <input type="hidden" id="user_time" name="time">
           <br /><br />
           <label for="user_comment">Comment:</label>
           <br /><br />
