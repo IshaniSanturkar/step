@@ -117,21 +117,21 @@ function togglePause() {
 }
 
 // function that fetches data from the /data URL and displays it on the page
-function loadComments () {
-    fetch('/data').then(response => response.json()).then(comments => {
-        const commentList = document.getElementById('comments');
-        while(commentList.lastChild) {
-            commentList.removeChild(commentList.lastChild);
-        }
-        for(const index in comments) {
-            commentList.appendChild(createListElement(comments[index]));
-        }
-    });
+function loadComments() {
+  fetch('/data').then(response => response.json()).then(comments => {
+    const commentList = document.getElementById('comments');
+    while (commentList.lastChild) {
+      commentList.removeChild(commentList.lastChild);
+    }
+    for (const index in comments) {
+      commentList.appendChild(createListElement(comments[index]));
+    }
+  });
 }
 
 // create a list element with the given text
 function createListElement(txt) {
-    const listElem = document.createElement("li");
-    listElem.innerText = txt;
-    return listElem;
+  const listElem = document.createElement("li");
+  listElem.innerText = txt;
+  return listElem;
 }
