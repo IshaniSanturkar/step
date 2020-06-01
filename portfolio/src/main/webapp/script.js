@@ -122,8 +122,18 @@ function togglePause() {
 
 // function that fetches data from the /data URL
 // and displays it on the page
-function loadHelloMessage () {
-    fetch('/data').then(response => response.text()).then(msg => {
-    document.getElementById('hellomessage').innerHTML = msg;
+function loadComments () {
+    fetch('/data').then(response => response.json()).then(comments => {
+        const commentList = document.getElementById('comments');
+        commentList.innerHTML = '';
+        commentList.appendChild(createListElement(comments[0]));
+        commentList.appendChild(createListElement(comments[1]));
+        commentList.appendChild(createListElement(comments[2]));
     });
+}
+
+function createListElement(txt) {
+    const listElem = document.createElement("li");
+    listElem.innerText = txt;
+    return listElem;
 }
