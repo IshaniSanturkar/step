@@ -2,7 +2,7 @@ body {
   font-family: 'Montserrat', sans-serif;
 }
 
-#intro-sec, #education-sec, #project-sec, #gallery-sec {
+#intro-sec, #education-sec, #project-sec, #gallery-sec, #comment-sec {
   width: 1100px;
   margin: auto;
   background-color: white;
@@ -249,4 +249,14 @@ p {
   position: absolute;
   left: 35.1%;
   background-color: teal;
+}
+
+#comment-sec {
+    background-color: lightgray;
+    margin-bottom: 40px;
+}
+
+#user_comment {
+    min-height: 100px;
+    min-width: 350px;
 }
