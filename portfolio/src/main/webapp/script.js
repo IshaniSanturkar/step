@@ -18,8 +18,7 @@ let sliderSpeed = 5000;
 let myTimer = setInterval(loopOverImages, sliderSpeed);
 let paused = false;
 
-// Function that shows or hides the list of courses
-// for a particular semester upon user click
+// Shows or hides the list of courses for a particular semester upon user click
 function toggleCourseList(listObject) {
   const semester = listObject.id;
   const semCourseList = "courselist" + semester;
@@ -33,8 +32,7 @@ function toggleCourseList(listObject) {
   }
 }
 
-// function that changes slideshow's picture to the next
-// picture when the user presses the next button
+// Changes slideshow's picture to the next picture when the user presses the next button
 function next() {
   if (!paused) {
     clearInterval(myTimer);
@@ -50,8 +48,7 @@ function next() {
   }
 }
 
-// function that changes slideshow's picture to the previous
-// picture when the user presses the previous button
+// Changes slideshow's picture to the previous picture when the user presses the previous button
 function prev() {
   if (!paused) {
     clearInterval(myTimer);
@@ -67,9 +64,7 @@ function prev() {
   }
 }
 
-// function that is called every sliderSpeed seconds
-// changes slideshow to display next image in list of
-// images
+// Is called every sliderSpeed seconds, changes slideshow to display next image in list of images
 function loopOverImages() {
   if (!paused) {
     currImageNum++;
@@ -81,8 +76,7 @@ function loopOverImages() {
   }
 }
 
-// modifies slider speed if user changes value
-// of slider on gallery page
+// Modifies slider speed if user changes value of slider on gallery page
 function sliderMoved() {
   if (!paused) {
     clearInterval(myTimer);
@@ -94,8 +88,7 @@ function sliderMoved() {
   }
 }
 
-//function to pause or resume slideshow when user clicks
-//on that window
+// Pauses or resumes slideshow when user clicks on that window
 function togglePause() {
   if (paused === true) {
     const statusImg = document.getElementById("pauseplay")
@@ -118,4 +111,24 @@ function togglePause() {
     }, 500);
     paused = true;
   }
+}
+
+// Fetches data from the /data URL and displays it on the page
+function loadComments() {
+  fetch('/data').then(response => response.json()).then(comments => {
+    const commentList = document.getElementById('comments');
+    while (commentList.lastChild) {
+      commentList.removeChild(commentList.lastChild);
+    }
+    for (const comment of comments) {
+      commentList.appendChild(createListElement(comment));
+    }
+  });
+}
+
+// Creates a list element with the given text
+function createListElement(txt) {
+  const listElem = document.createElement("li");
+  listElem.innerText = txt;
+  return listElem;
 }
