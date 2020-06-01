@@ -260,3 +260,18 @@ p {
     min-height: 100px;
     min-width: 350px;
 }
+
+#comments {
+    list-style-type: none;
+    padding-left: 0px;
+}
+
+.comment {
+    min-height: 30px;
+    margin: 10px;
+    background-color: rgb(166, 166, 166);
+}
+
+.comment_metadata {
+    font-size: 15px;
+}

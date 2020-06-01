@@ -14,20 +14,24 @@
 
 package com.google.sps.servlets;
 
+import com.google.gson.Gson;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import com.google.gson.Gson;
 
-/** Servlet that returns some example content. TODO: modify this file to handle comments data */
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
 
-  ArrayList<String> userComments = new ArrayList<>();
+  ArrayList<UserComment> userComments = new ArrayList<>();
 
+  /*
+   * Called when a client submits a GET request to the /data URL
+   * Displays all recorded user comments on page
+   */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     Gson gson = new Gson();
@@ -36,12 +40,35 @@ public class DataServlet extends HttpServlet {
     response.getWriter().println(json);
   }
 
+  /*
+   * Called when a client submits a POST request to the /data URL
+   * Adds submitted comment to internal record if the comment is
+   * non-empty. Then, the page is reloaded.
+   */
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    String userComment = request.getParameter("comment");
-    if(userComment != null && userComment.length() != 0) {
-      userComments.add(userComment);
+    String userComment = getFieldFromResponse(request, "comment", "");
+    if(userComment.length() != 0) {
+      String userName = getFieldFromResponse(request, "name", "Anonymous");
+      String userEmail = getFieldFromResponse(request, "email", "janedoe@gmail.com");
+      Date date = new Date();
+      String currDate = date.toString();
+      UserComment comment = new UserComment(userName, userEmail, userComment, currDate);
+      userComments.add(comment);
     }
     response.sendRedirect("index.html");
+  }
+
+  /*
+   * Extracts the value of fieldName attribute from request object if present
+   * and returns defaultValue if it is not
+   */
+  public String getFieldFromResponse(HttpServletRequest request, String fieldName, String defaultValue) {
+    String fieldValue = request.getParameter(fieldName);
+    if(fieldValue == null) {
+      return defaultValue;
+    } else {
+      return fieldValue;
+    }
   }
 }

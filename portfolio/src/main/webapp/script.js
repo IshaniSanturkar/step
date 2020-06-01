@@ -126,9 +126,29 @@ function loadComments() {
   });
 }
 
-// Creates a list element with the given text
-function createListElement(txt) {
+// Creates a list element with the given comment text and metadata (name, timestamp etc.)
+function createListElement(comment) {
   const listElem = document.createElement("li");
-  listElem.innerText = txt;
+  const metadata = formatCommentMetadata(comment);
+  const quote = formatCommentText(comment);
+  listElem.appendChild(metadata);
+  listElem.appendChild(quote);
+  listElem.className = "comment";
   return listElem;
+}
+
+// Formats comment name and timestamp into an HTML p element
+function formatCommentMetadata(comment) {
+  const metadata = comment['name'] + ' at ' + comment['timestamp'] + ' said:';
+  const pElem = document.createElement("p");
+  pElem.innerText = metadata;
+  pElem.className = "comment_metadata";
+  return pElem;
+}
+
+// Formats comment text into an HTML blockquote element
+function formatCommentText(comment) {
+  const quote = document.createElement("blockquote");
+  quote.innerText = comment['comment'];
+  return quote;
 }
