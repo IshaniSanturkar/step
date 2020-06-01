@@ -28,7 +28,7 @@ public class DataServlet extends HttpServlet {
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    ArrayList<String> userComments = new ArrayList<String>();
+    ArrayList<String> userComments = new ArrayList<>();
     userComments.add("Nice website");
     userComments.add("I like the teal color scheme");
     userComments.add("Could be improved");

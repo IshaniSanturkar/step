@@ -18,8 +18,7 @@ let sliderSpeed = 5000;
 let myTimer = setInterval(loopOverImages, sliderSpeed);
 let paused = false;
 
-// Function that shows or hides the list of courses
-// for a particular semester upon user click
+// Function that shows or hides the list of courses for a particular semester upon user click
 function toggleCourseList(listObject) {
   const semester = listObject.id;
   const semCourseList = "courselist" + semester;
@@ -33,8 +32,7 @@ function toggleCourseList(listObject) {
   }
 }
 
-// function that changes slideshow's picture to the next
-// picture when the user presses the next button
+// function that changes slideshow's picture to the next picture when the user presses the next button
 function next() {
   if (!paused) {
     clearInterval(myTimer);
@@ -50,8 +48,8 @@ function next() {
   }
 }
 
-// function that changes slideshow's picture to the previous
-// picture when the user presses the previous button
+/* function that changes slideshow's picture to the previous
+   picture when the user presses the previous button */
 function prev() {
   if (!paused) {
     clearInterval(myTimer);
@@ -67,9 +65,9 @@ function prev() {
   }
 }
 
-// function that is called every sliderSpeed seconds
-// changes slideshow to display next image in list of
-// images
+/* function that is called every sliderSpeed seconds
+   changes slideshow to display next image in list of
+   images */
 function loopOverImages() {
   if (!paused) {
     currImageNum++;
@@ -81,8 +79,7 @@ function loopOverImages() {
   }
 }
 
-// modifies slider speed if user changes value
-// of slider on gallery page
+// modifies slider speed if user changes value of slider on gallery page
 function sliderMoved() {
   if (!paused) {
     clearInterval(myTimer);
@@ -94,8 +91,7 @@ function sliderMoved() {
   }
 }
 
-//function to pause or resume slideshow when user clicks
-//on that window
+// function to pause or resume slideshow when user clicks on that window
 function togglePause() {
   if (paused === true) {
     const statusImg = document.getElementById("pauseplay")
@@ -120,18 +116,20 @@ function togglePause() {
   }
 }
 
-// function that fetches data from the /data URL
-// and displays it on the page
+// function that fetches data from the /data URL and displays it on the page
 function loadComments () {
     fetch('/data').then(response => response.json()).then(comments => {
         const commentList = document.getElementById('comments');
-        commentList.innerHTML = '';
-        commentList.appendChild(createListElement(comments[0]));
-        commentList.appendChild(createListElement(comments[1]));
-        commentList.appendChild(createListElement(comments[2]));
+        while(commentList.lastChild) {
+            commentList.removeChild(commentList.lastChild);
+        }
+        for(const index in comments) {
+            commentList.appendChild(createListElement(comments[index]));
+        }
     });
 }
 
+// create a list element with the given text
 function createListElement(txt) {
     const listElem = document.createElement("li");
     listElem.innerText = txt;
