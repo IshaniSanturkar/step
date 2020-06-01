@@ -15,15 +15,15 @@
 package com.google.sps.servlets;
 
 public class UserComment {
-    String name;
-    String email;
-    String comment;
-    String timestamp;
+  String name;
+  String email;
+  String comment;
+  String timestamp;
 
-    public UserComment(String name, String email, String comment, String timestamp) {
-        this.name = name;
-        this.email = email;
-        this.comment = comment;
-        this.timestamp = timestamp;
-    }
+  public UserComment(String name, String email, String comment, String timestamp) {
+    this.name = name;
+    this.email = email;
+    this.comment = comment;
+    this.timestamp = timestamp;
+  }
 }
