@@ -119,3 +119,11 @@ function togglePause() {
     paused = true;
   }
 }
+
+// function that fetches data from the /data URL
+// and displays it on the page
+function loadHelloMessage () {
+    fetch('/data').then(response => response.text()).then(msg => {
+    document.getElementById('hellomessage').innerHTML = msg;
+    });
+}
