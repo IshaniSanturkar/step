@@ -123,8 +123,8 @@ function loadComments() {
     while (commentList.lastChild) {
       commentList.removeChild(commentList.lastChild);
     }
-    for (const index in comments) {
-      commentList.appendChild(createListElement(comments[index]));
+    for (const comment of comments) {
+      commentList.appendChild(createListElement(comment));
     }
   });
 }
