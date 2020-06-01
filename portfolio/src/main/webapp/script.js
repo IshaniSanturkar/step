@@ -48,8 +48,10 @@ function next() {
   }
 }
 
-/* function that changes slideshow's picture to the previous
-   picture when the user presses the previous button */
+/**
+ * function that changes slideshow's picture to the previous
+ * picture when the user presses the previous button
+ */
 function prev() {
   if (!paused) {
     clearInterval(myTimer);
@@ -65,9 +67,10 @@ function prev() {
   }
 }
 
-/* function that is called every sliderSpeed seconds
-   changes slideshow to display next image in list of
-   images */
+/** 
+ * function that is called every sliderSpeed seconds
+ * changes slideshow to display next image in list of images
+ */
 function loopOverImages() {
   if (!paused) {
     currImageNum++;
