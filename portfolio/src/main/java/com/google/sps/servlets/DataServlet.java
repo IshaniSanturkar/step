@@ -20,10 +20,19 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.SortDirection;
+import java.nio.charset.StandardCharsets;
+
+import com.google.common.base.Splitter;
 import com.google.gson.Gson;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.net.URLDecoder;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -33,6 +42,7 @@ import javax.servlet.http.HttpServletResponse;
 public class DataServlet extends HttpServlet {
 
   private final ArrayList<UserComment> userComments = new ArrayList<>();
+  private final String defaultMaxComment = "20";
 
   /*
    * Called when a client submits a GET request to the /data URL
@@ -40,19 +50,24 @@ public class DataServlet extends HttpServlet {
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    int maxCommentDisplay = Integer.parseInt(getFieldFromResponse(request, "maxcomments", defaultMaxComment));
     Query query = new Query("Comment").addSort("time", SortDirection.DESCENDING);
 
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery results = datastore.prepare(query);
 
+    int displayed = 0;
     ArrayList<UserComment> comments = new ArrayList<>();
     for (Entity entity : results.asIterable()) {
+      if(displayed == maxCommentDisplay) {
+          break;
+      }
+      displayed++;
       long id = entity.getKey().getId();
       String name = (String) entity.getProperty("name");
       String email = (String) entity.getProperty("email");
       String time = (String) entity.getProperty("time");
       String comment = (String) entity.getProperty("comment");
-
       UserComment userComment = UserComment.create(name, email, comment, time);
       comments.add(userComment);
     }
@@ -61,11 +76,6 @@ public class DataServlet extends HttpServlet {
 
     response.setContentType("application/json;");
     response.getWriter().println(gson.toJson(comments));
-    
-    // Gson gson = new Gson();
-    // String json = gson.toJson(userComments);
-    // response.setContentType("application/json;");
-    // response.getWriter().println(json);
   }
 
   /*
@@ -75,37 +85,39 @@ public class DataServlet extends HttpServlet {
    */
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    String userComment = getFieldFromResponse(request, "comment", "");
+    String parsedBody = getBody(request);
+    String trimmedBody = parsedBody.substring(1, parsedBody.length() - 1);
+    Map<String, String> immutableMap = Splitter.on('&').trimResults().withKeyValueSeparator('=').split(trimmedBody);
+    HashMap<String, String> mutableMap = new HashMap<>();
+    for (String key : immutableMap.keySet()) {
+            String decodedVal = java.net.URLDecoder.decode(immutableMap.get(key), StandardCharsets.UTF_8.name());
+            mutableMap.put(key, decodedVal);
+    }
+    String userComment = getFieldFromMap(mutableMap, "comment", "");
     if(userComment.length() != 0) {
-      String userName = getFieldFromResponse(request, "name", "Anonymous");
-      String userEmail = getFieldFromResponse(request, "email", "janedoe@gmail.com");
+      String userName = getFieldFromMap(mutableMap, "name", "Anonymous");
+      String userEmail = getFieldFromMap(mutableMap, "email", "janedoe@gmail.com");
       Date date = new Date();
       String currDate = date.toString();
-      String userDate = getFieldFromResponse(request, "time", currDate);
+      String userDate = getFieldFromMap(mutableMap, "timestamp", currDate);
       addToDatastore(userName, userEmail, userDate, userComment);
       UserComment comment = UserComment.create(userName, userEmail, userComment, userDate);
       userComments.add(comment);
     }
-    response.sendRedirect("index.html");
   }
+
 
   /*
    * Extracts the value of fieldName attribute from request object if present
    * and returns defaultValue if it is not
    */
-  private String getFieldFromResponse(HttpServletRequest request, String fieldName, String defaultValue) {
-    String[] defaultArr = {defaultValue};
-    String[] fieldValues = request.getParameterMap().getOrDefault(fieldName, defaultArr);
-    if(fieldValues.length > 1) {
-      throw new IllegalArgumentException("Found multiple values for single key in form");
-    } else {
-      String userValue = fieldValues[0];
-      if(userValue.length() == 0) {
-        return defaultValue;
-      } else {
-        return userValue;
-      }
+  private String getFieldFromMap(Map<String, String> valueMap, String fieldName, String defaultValue) {
+    String fieldValue = valueMap.getOrDefault(fieldName, defaultValue);
+    if(fieldValue.length() == 0)
+    {
+        fieldValue = defaultValue;
     }
+    return fieldValue;
   }
 
   private void addToDatastore(String name, String email, String dateTime, String comment) {
@@ -117,4 +129,56 @@ public class DataServlet extends HttpServlet {
     commentEntity.setProperty("comment", comment);
     datastore.put(commentEntity);
   }
+
+  public static String getBody(HttpServletRequest request) throws IOException {
+
+    String body = null;
+    StringBuilder stringBuilder = new StringBuilder();
+    BufferedReader bufferedReader = null;
+
+    try {
+        InputStream inputStream = request.getInputStream();
+        if (inputStream != null) {
+            bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            char[] charBuffer = new char[128];
+            int bytesRead = -1;
+            while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
+                stringBuilder.append(charBuffer, 0, bytesRead);
+            }
+        } else {
+            stringBuilder.append("");
+        }
+    } catch (IOException ex) {
+        throw ex;
+    } finally {
+        if (bufferedReader != null) {
+            try {
+                bufferedReader.close();
+            } catch (IOException ex) {
+                throw ex;
+            }
+        }
+    }
+
+    body = stringBuilder.toString();
+    return body;
 }
+
+private String getFieldFromResponse(HttpServletRequest request, String fieldName, String defaultValue) {
+        String[] defaultArr = {defaultValue};
+        String[] fieldValues = request.getParameterMap().getOrDefault(fieldName, defaultArr);
+        if(fieldValues.length > 1) {
+        throw new IllegalArgumentException("Found multiple values for single key in form");
+        } else {
+        String userValue = fieldValues[0];
+        if(userValue.length() == 0) {
+            return defaultValue;
+        } else {
+            return userValue;
+        }
+        }
+    }
+}
+
+
+

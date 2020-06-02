@@ -115,7 +115,9 @@ function togglePause() {
 
 // Fetches data from the /data URL and displays it on the page
 function loadComments() {
-  fetch("/data").then(response => response.json()).then(comments => {
+  const maxcomments = document.getElementById("numcomments").value;
+  const fetchString = `/data?maxcomments=${maxcomments}`;
+  fetch(fetchString).then(response => response.json()).then(comments => {
     const commentList = document.getElementById("comments");
     while (commentList.lastChild) {
       commentList.removeChild(commentList.lastChild);
@@ -155,6 +157,18 @@ function formatCommentText(comment) {
 
 // Sets value of form submission time to current time in client's timezone
 function inputClientTime(form) {
-  const today = new Date();
-  form.time.value = today.toLocaleString();
+    const today = new Date();
+    form.timestamp.value = today.toLocaleString();
+    var formData = JSON.stringify($("#newcommentform").serialize());
+    fetch('/data', {
+        method: 'POST', // or 'PUT'
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: formData,
+        })
+        .then(response => {
+            loadComments(); 
+            document.getElementById("newcommentform").reset()
+            });
 }
