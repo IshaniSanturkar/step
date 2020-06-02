@@ -14,6 +14,12 @@
 
 package com.google.sps.servlets;
 
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,10 +40,32 @@ public class DataServlet extends HttpServlet {
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    Query query = new Query("Comment").addSort("time", SortDirection.DESCENDING);
+
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    PreparedQuery results = datastore.prepare(query);
+
+    ArrayList<UserComment> comments = new ArrayList<>();
+    for (Entity entity : results.asIterable()) {
+      long id = entity.getKey().getId();
+      String name = (String) entity.getProperty("name");
+      String email = (String) entity.getProperty("email");
+      String time = (String) entity.getProperty("time");
+      String comment = (String) entity.getProperty("comment");
+
+      UserComment userComment = UserComment.create(name, email, comment, time);
+      comments.add(userComment);
+    }
+
     Gson gson = new Gson();
-    String json = gson.toJson(userComments);
+
     response.setContentType("application/json;");
-    response.getWriter().println(json);
+    response.getWriter().println(gson.toJson(comments));
+    
+    // Gson gson = new Gson();
+    // String json = gson.toJson(userComments);
+    // response.setContentType("application/json;");
+    // response.getWriter().println(json);
   }
 
   /*
@@ -54,6 +82,7 @@ public class DataServlet extends HttpServlet {
       Date date = new Date();
       String currDate = date.toString();
       String userDate = getFieldFromResponse(request, "time", currDate);
+      addToDatastore(userName, userEmail, userDate, userComment);
       UserComment comment = UserComment.create(userName, userEmail, userComment, userDate);
       userComments.add(comment);
     }
@@ -65,11 +94,27 @@ public class DataServlet extends HttpServlet {
    * and returns defaultValue if it is not
    */
   private String getFieldFromResponse(HttpServletRequest request, String fieldName, String defaultValue) {
-    String fieldValue = request.getParameter(fieldName);
-    if(fieldValue == null) {
-      return defaultValue;
+    String[] defaultArr = {defaultValue};
+    String[] fieldValues = request.getParameterMap().getOrDefault(fieldName, defaultArr);
+    if(fieldValues.length > 1) {
+      throw new IllegalArgumentException("Found multiple values for single key in form");
     } else {
-      return fieldValue;
+      String userValue = fieldValues[0];
+      if(userValue.length() == 0) {
+        return defaultValue;
+      } else {
+        return userValue;
+      }
     }
+  }
+
+  private void addToDatastore(String name, String email, String dateTime, String comment) {
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    Entity commentEntity = new Entity("Comment");
+    commentEntity.setProperty("name", name);
+    commentEntity.setProperty("email", email);
+    commentEntity.setProperty("time", dateTime);
+    commentEntity.setProperty("comment", comment);
+    datastore.put(commentEntity);
   }
 }
