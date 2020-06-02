@@ -155,20 +155,23 @@ function formatCommentText(comment) {
   return quote;
 }
 
-// Sets value of form submission time to current time in client's timezone
-function inputClientTime(form) {
-    const today = new Date();
-    form.timestamp.value = today.toISOString();
-    var formData = JSON.stringify($("#newcommentform").serialize());
-    fetch('/data', {
-        method: 'POST', // or 'PUT'
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: formData,
-        })
-        .then(response => {
-            loadComments(); 
-            document.getElementById("newcommentform").reset()
-            });
+/**
+ * Sets value of form submission time to current time in client's timezone,
+ * posts form data to server, reloads comments section and then clears
+ * form in preparation for next entry
+ */
+function onsubmit(form) {
+  const today = new Date();
+  form.timestamp.value = today.toISOString();
+  var formData = JSON.stringify($("#newcommentform").serialize());
+  fetch('/data', {
+    method: 'POST', // or 'PUT'
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: formData,
+  }).then(response => {
+      loadComments();
+      document.getElementById("newcommentform").reset()
+    });
 }

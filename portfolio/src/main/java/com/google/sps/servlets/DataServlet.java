@@ -84,7 +84,7 @@ public class DataServlet extends HttpServlet {
   /*
    * Called when a client submits a POST request to the /data URL
    * Adds submitted comment to internal record if the comment is
-   * non-empty. Then, the page is reloaded.
+   * non-empty. 
    */
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -93,8 +93,8 @@ public class DataServlet extends HttpServlet {
     Map<String, String> immutableMap = Splitter.on('&').trimResults().withKeyValueSeparator('=').split(trimmedBody);
     HashMap<String, String> mutableMap = new HashMap<>();
     for (String key : immutableMap.keySet()) {
-            String decodedVal = java.net.URLDecoder.decode(immutableMap.get(key), StandardCharsets.UTF_8.name());
-            mutableMap.put(key, decodedVal);
+      String decodedVal = java.net.URLDecoder.decode(immutableMap.get(key), StandardCharsets.UTF_8.name());
+      mutableMap.put(key, decodedVal);
     }
     String userComment = getFieldFromMap(mutableMap, "comment", "");
     if(userComment.length() != 0) {
@@ -112,10 +112,9 @@ public class DataServlet extends HttpServlet {
     }
   }
 
-
   /*
-   * Extracts the value of fieldName attribute from request object if present
-   * and returns defaultValue if it is not
+   * Extracts the value of fieldName attribute from valueMap if present
+   * and returns defaultValue if it is not or the value is empty
    */
   private String getFieldFromMap(Map<String, String> valueMap, String fieldName, String defaultValue) {
     String fieldValue = valueMap.getOrDefault(fieldName, defaultValue);
@@ -126,6 +125,7 @@ public class DataServlet extends HttpServlet {
     return fieldValue;
   }
 
+  // Adds a comment with the given metadata to the database  
   private void addToDatastore(String name, String email, String dateTime, String comment) {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     Entity commentEntity = new Entity("Comment");
@@ -136,54 +136,57 @@ public class DataServlet extends HttpServlet {
     datastore.put(commentEntity);
   }
 
+  // Parses body of POST request into string
   public static String getBody(HttpServletRequest request) throws IOException {
-
     String body = null;
     StringBuilder stringBuilder = new StringBuilder();
     BufferedReader bufferedReader = null;
-
     try {
-        InputStream inputStream = request.getInputStream();
-        if (inputStream != null) {
-            bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-            char[] charBuffer = new char[128];
-            int bytesRead = -1;
-            while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
-                stringBuilder.append(charBuffer, 0, bytesRead);
-            }
-        } else {
-            stringBuilder.append("");
+      InputStream inputStream = request.getInputStream();
+      if (inputStream != null) {
+        bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+        char[] charBuffer = new char[128];
+        int bytesRead = -1;
+        while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
+          stringBuilder.append(charBuffer, 0, bytesRead);
         }
+      } else {
+        stringBuilder.append("");
+      }
     } catch (IOException ex) {
-        throw ex;
+      throw ex;
     } finally {
-        if (bufferedReader != null) {
-            try {
-                bufferedReader.close();
-            } catch (IOException ex) {
-                throw ex;
-            }
+      if (bufferedReader != null) {
+        try {
+          bufferedReader.close();
+        } catch (IOException ex) {
+          throw ex;
         }
+      }
     }
 
     body = stringBuilder.toString();
     return body;
-}
+  }
 
-private String getFieldFromResponse(HttpServletRequest request, String fieldName, String defaultValue) {
-        String[] defaultArr = {defaultValue};
-        String[] fieldValues = request.getParameterMap().getOrDefault(fieldName, defaultArr);
-        if(fieldValues.length > 1) {
-        throw new IllegalArgumentException("Found multiple values for single key in form");
-        } else {
-        String userValue = fieldValues[0];
-        if(userValue.length() == 0) {
-            return defaultValue;
-        } else {
-            return userValue;
-        }
-        }
+  /*
+   * Get value for fieldName for request if present. Return defaultValue if fieldName is not present
+   * or the associated value is empty. Raise an exception if fieldName is mapped to multiple values.
+   */
+  private String getFieldFromResponse(HttpServletRequest request, String fieldName, String defaultValue) {
+    String[] defaultArr = {defaultValue};
+    String[] fieldValues = request.getParameterMap().getOrDefault(fieldName, defaultArr);
+    if(fieldValues.length > 1) {
+      throw new IllegalArgumentException("Found multiple values for single key in form");
+    } else {
+      String userValue = fieldValues[0];
+      if(userValue.length() == 0) {
+        return defaultValue;
+      } else {
+        return userValue;
+      }
     }
+  }
 }
 
 
