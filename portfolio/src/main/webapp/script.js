@@ -158,7 +158,7 @@ function formatCommentText(comment) {
 // Sets value of form submission time to current time in client's timezone
 function inputClientTime(form) {
     const today = new Date();
-    form.timestamp.value = today.toLocaleString();
+    form.timestamp.value = today.toISOString();
     var formData = JSON.stringify($("#newcommentform").serialize());
     fetch('/data', {
         method: 'POST', // or 'PUT'
