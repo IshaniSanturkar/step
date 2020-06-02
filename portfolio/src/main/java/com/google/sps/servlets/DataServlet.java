@@ -62,14 +62,20 @@ public class DataServlet extends HttpServlet {
 
   /*
    * Extracts the value of fieldName attribute from request object if present
-   * and returns defaultValue if it is not
+   * and returns defaultValue if it is not or it is empty
    */
-  private String getFieldFromResponse(HttpServletRequest request, String fieldName, String defaultValue) {
-    String fieldValue = request.getParameter(fieldName);
-    if(fieldValue == null) {
-      return defaultValue;
+    private String getFieldFromResponse(HttpServletRequest request, String fieldName, String defaultValue) {
+    String[] defaultArr = {defaultValue};
+    String[] fieldValues = request.getParameterMap().getOrDefault(fieldName, defaultArr);
+    if(fieldValues.length > 1) {
+      throw new IllegalArgumentException("Found multiple values for single key in form");
     } else {
-      return fieldValue;
+      String userValue = fieldValues[0];
+      if(userValue.length() == 0) {
+        return defaultValue;
+      } else {
+        return userValue;
+      }
     }
   }
 }
