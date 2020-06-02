@@ -14,27 +14,68 @@
 
 package com.google.sps.servlets;
 
+import com.google.gson.Gson;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import com.google.gson.Gson;
 
-/** Servlet that returns some example content. TODO: modify this file to handle comments data */
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
 
+  private final ArrayList<UserComment> userComments = new ArrayList<>();
+
+  /*
+   * Called when a client submits a GET request to the /data URL
+   * Displays all recorded user comments on page
+   */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    ArrayList<String> userComments = new ArrayList<>();
-    userComments.add("Nice website");
-    userComments.add("I like the teal color scheme");
-    userComments.add("Could be improved");
     Gson gson = new Gson();
     String json = gson.toJson(userComments);
     response.setContentType("application/json;");
     response.getWriter().println(json);
+  }
+
+  /*
+   * Called when a client submits a POST request to the /data URL
+   * Adds submitted comment to internal record if the comment is
+   * non-empty. Then, the page is reloaded.
+   */
+  @Override
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    String userComment = getFieldFromResponse(request, "comment", "");
+    if(userComment.length() != 0) {
+      String userName = getFieldFromResponse(request, "name", "Anonymous");
+      String userEmail = getFieldFromResponse(request, "email", "janedoe@gmail.com");
+      Date date = new Date();
+      String currDate = date.toString();
+      String userDate = getFieldFromResponse(request, "time", currDate);
+      UserComment comment = UserComment.create(userName, userEmail, userComment, userDate);
+      userComments.add(comment);
+    }
+    response.sendRedirect("index.html");
+  }
+
+  /*
+   * Extracts the value of fieldName attribute from request object if present
+   * and returns defaultValue if it is not or it is empty
+   */
+    private String getFieldFromResponse(HttpServletRequest request, String fieldName, String defaultValue) {
+    String[] defaultArr = {defaultValue};
+    String[] fieldValues = request.getParameterMap().getOrDefault(fieldName, defaultArr);
+    if(fieldValues.length > 1) {
+      throw new IllegalArgumentException("Found multiple values for single key in form");
+    } else {
+      String userValue = fieldValues[0];
+      if(userValue.length() == 0) {
+        return defaultValue;
+      } else {
+        return userValue;
+      }
+    }
   }
 }
