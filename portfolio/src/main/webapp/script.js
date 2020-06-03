@@ -164,17 +164,19 @@ function formatCommentText(comment) {
 function submitForm(form) {
   const today = new Date();
   form.timestamp.value = today.getTime();
-  const formData = JSON.stringify($("#newcommentform").serialize());
+  const formData = {};
+  const dataArray = $("#newcommentform").serializeArray();
+  dataArray.forEach(entry => formData[entry.name] = entry.value);
   fetch('/data', {
     method: 'POST', 
     headers: {
       'Content-Type': 'application/json',
     },
-    body: formData,
+    body: JSON.stringify(formData),
   }).then(response => {
       loadComments();
-    }).then(response => 
-    document.getElementById("newcommentform").reset());
+      document.getElementById("newcommentform").reset();
+  });
 }
 
 function clearComments() {
@@ -184,5 +186,5 @@ function clearComments() {
       'Content-Type' : 'application/json',
     },
     body: ''
-  }).then(response => loadComments()).then(response => false);
+  }).then(response => loadComments());
 }
