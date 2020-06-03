@@ -174,8 +174,8 @@ function submitForm(form) {
     },
     body: JSON.stringify(formData),
   }).then(response => {
-      loadComments();
-      document.getElementById("newcommentform").reset();
+    loadComments();
+    document.getElementById("newcommentform").reset();
   });
 }
 
@@ -183,7 +183,7 @@ function clearComments() {
   fetch("/delete-data", {
     method: 'POST',
     headers: {
-      'Content-Type' : 'application/json',
+      'Content-Type': 'application/json',
     },
     body: ''
   }).then(response => loadComments());
