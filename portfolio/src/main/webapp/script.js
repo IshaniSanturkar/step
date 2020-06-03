@@ -141,7 +141,8 @@ function createListElement(comment) {
 
 // Formats comment name and timestamp into an HTML p element
 function formatCommentMetadata(comment) {
-  const metadata = `${comment["name"]} at ${comment["timestamp"]} said`;
+  let date = new Date(parseInt(comment["timestamp"], 10));
+  const metadata = `${comment["name"]} at ${date.toLocaleString()} said`;
   const pElem = document.createElement("p");
   pElem.innerText = metadata;
   pElem.className = "comment_metadata";
@@ -160,18 +161,18 @@ function formatCommentText(comment) {
  * posts form data to server, reloads comments section and then clears
  * form in preparation for next entry
  */
-function onsubmit(form) {
+function submitForm(form) {
   const today = new Date();
-  form.timestamp.value = today.toISOString();
-  var formData = JSON.stringify($("#newcommentform").serialize());
+  form.timestamp.value = today.getTime();
+  const formData = JSON.stringify($("#newcommentform").serialize());
   fetch('/data', {
-    method: 'POST', // or 'PUT'
+    method: 'POST', 
     headers: {
       'Content-Type': 'application/json',
     },
     body: formData,
   }).then(response => {
       loadComments();
-      document.getElementById("newcommentform").reset()
-    });
+    }).then(response => 
+    document.getElementById("newcommentform").reset());
 }

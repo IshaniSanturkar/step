@@ -20,6 +20,8 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.SortDirection;
+import com.google.common.io.CharStreams;
+
 import java.nio.charset.StandardCharsets;
 
 import com.google.common.base.Splitter;
@@ -44,7 +46,6 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
 
-  private final ArrayList<UserComment> userComments = new ArrayList<>();
   private final String defaultMaxComment = "20";
 
   /*
@@ -69,14 +70,13 @@ public class DataServlet extends HttpServlet {
       long id = entity.getKey().getId();
       String name = (String) entity.getProperty("name");
       String email = (String) entity.getProperty("email");
-      String time = (String) entity.getProperty("time");
+      String time =  String.valueOf(entity.getProperty("time"));
       String comment = (String) entity.getProperty("comment");
       UserComment userComment = UserComment.create(name, email, comment, time);
       comments.add(userComment);
     }
 
     Gson gson = new Gson();
-
     response.setContentType("application/json;");
     response.getWriter().println(gson.toJson(comments));
   }
@@ -88,8 +88,10 @@ public class DataServlet extends HttpServlet {
    */
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    String parsedBody = getBody(request);
+    String parsedBody = CharStreams.toString(request.getReader());
     String trimmedBody = parsedBody.substring(1, parsedBody.length() - 1);
+
+
     Map<String, String> immutableMap = Splitter.on('&').trimResults().withKeyValueSeparator('=').split(trimmedBody);
     HashMap<String, String> mutableMap = new HashMap<>();
     for (String key : immutableMap.keySet()) {
@@ -100,15 +102,9 @@ public class DataServlet extends HttpServlet {
     if(userComment.length() != 0) {
       String userName = getFieldFromMap(mutableMap, "name", "Anonymous");
       String userEmail = getFieldFromMap(mutableMap, "email", "janedoe@gmail.com");
-      Date date = new Date();
-      TimeZone tz = TimeZone.getTimeZone("UTC");
-      DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'"); 
-      df.setTimeZone(tz);
-      String currDate = df.format(date).toString();
-      String userDate = getFieldFromMap(mutableMap, "timestamp", currDate);
+      String currDate = String.valueOf(System.currentTimeMillis());
+      long userDate = Long.parseLong(getFieldFromMap(mutableMap, "timestamp", currDate));
       addToDatastore(userName, userEmail, userDate, userComment);
-      UserComment comment = UserComment.create(userName, userEmail, userComment, userDate);
-      userComments.add(comment);
     }
   }
 
@@ -126,7 +122,7 @@ public class DataServlet extends HttpServlet {
   }
 
   // Adds a comment with the given metadata to the database  
-  private void addToDatastore(String name, String email, String dateTime, String comment) {
+  private void addToDatastore(String name, String email, long dateTime, String comment) {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     Entity commentEntity = new Entity("Comment");
     commentEntity.setProperty("name", name);
@@ -134,39 +130,6 @@ public class DataServlet extends HttpServlet {
     commentEntity.setProperty("time", dateTime);
     commentEntity.setProperty("comment", comment);
     datastore.put(commentEntity);
-  }
-
-  // Parses body of POST request into string
-  public static String getBody(HttpServletRequest request) throws IOException {
-    String body = null;
-    StringBuilder stringBuilder = new StringBuilder();
-    BufferedReader bufferedReader = null;
-    try {
-      InputStream inputStream = request.getInputStream();
-      if (inputStream != null) {
-        bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-        char[] charBuffer = new char[128];
-        int bytesRead = -1;
-        while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
-          stringBuilder.append(charBuffer, 0, bytesRead);
-        }
-      } else {
-        stringBuilder.append("");
-      }
-    } catch (IOException ex) {
-      throw ex;
-    } finally {
-      if (bufferedReader != null) {
-        try {
-          bufferedReader.close();
-        } catch (IOException ex) {
-          throw ex;
-        }
-      }
-    }
-
-    body = stringBuilder.toString();
-    return body;
   }
 
   /*

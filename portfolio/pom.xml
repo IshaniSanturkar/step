@@ -17,10 +17,10 @@
   </properties>
 
   <dependencies>
-  <dependency>
-    <groupId>com.google.guava</groupId>
-    <artifactId>guava</artifactId>
-    <version>29.0-jre</version>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>29.0-jre</version>
     </dependency>
     <dependency>
       <groupId>com.google.appengine</groupId>
@@ -50,9 +50,9 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-        <groupId>org.json</groupId>
-        <artifactId>json</artifactId>
-        <version>20090211</version>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+      <version>20090211</version>
     </dependency>
   </dependencies>
 
