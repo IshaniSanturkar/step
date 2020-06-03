@@ -176,3 +176,13 @@ function submitForm(form) {
     }).then(response => 
     document.getElementById("newcommentform").reset());
 }
+
+function clearComments() {
+  fetch("/delete-data", {
+    method: 'POST',
+    headers: {
+      'Content-Type' : 'application/json',
+    },
+    body: ''
+  }).then(response => loadComments()).then(response => false);
+}
