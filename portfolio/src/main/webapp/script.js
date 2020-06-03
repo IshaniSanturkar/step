@@ -141,7 +141,7 @@ function createListElement(comment) {
 
 // Formats comment name and timestamp into an HTML p element
 function formatCommentMetadata(comment) {
-  let date = new Date(parseInt(comment["timestamp"], 10));
+  let date = new Date(comment["timestamp"]);
   const metadata = `${comment["name"]} at ${date.toLocaleString()} said`;
   const pElem = document.createElement("p");
   pElem.innerText = metadata;
