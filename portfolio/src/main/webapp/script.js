@@ -139,8 +139,10 @@ function createListElement(comment) {
   const listElem = document.createElement("li");
   const metadata = formatCommentMetadata(comment);
   const quote = formatCommentText(comment);
+  const reply = formatCommentReply(comment);
   listElem.appendChild(metadata);
   listElem.appendChild(quote);
+  listElem.appendChild(reply);
   listElem.className = "comment";
   return listElem;
 }
@@ -160,6 +162,19 @@ function formatCommentText(comment) {
   const quote = document.createElement("blockquote");
   quote.innerText = comment["comment"];
   return quote;
+}
+
+function formatCommentReply(comment) {
+  const replyDiv = document.createElement("div");
+  replyDiv.className = "replydiv";
+  const replyBar = document.createElement("textarea");
+  replyBar.className = "replybar";
+  const replyButton = document.createElement("button");
+  replyButton.innerText = "Reply";
+  replyButton.className = "replybutton";
+  replyDiv.appendChild(replyBar);
+  replyDiv.appendChild(replyButton);
+  return replyDiv;
 }
 
 /**

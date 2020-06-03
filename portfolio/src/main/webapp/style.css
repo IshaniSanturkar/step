@@ -278,20 +278,33 @@ p {
 
 
 #commentform {
-    width: 40%;
+  width: 40%;
 }
 
 #commenthistory {
-    width:60%;
+  width:60%;
 }
 
 #sortorder {
-    width: 20px;
-    height: 20px;
-    align-content: center;
+  width: 20px;
+  height: 20px;
+  align-content: center;
 }
 
 .commentparam {
-    margin-left: 20px;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+.replydiv {
+    margin-left: 10px;
     margin-right: 20px;
+}
+
+.replybar {
+    width: 80%;
+}
+
+.replybutton {
+    float:right;
 }
