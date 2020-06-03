@@ -46,14 +46,26 @@ public class DataServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     int maxCommentDisplay = Integer.parseInt(getFieldFromResponse(request, "maxcomments", defaultMaxComment));
+    String sortMetric = getFieldFromResponse(request, "metric", "time");
+    String sortOrder = getFieldFromResponse(request, "order", "des");
 
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-    Query<Entity> query =
+    Query<Entity> query;
+    if(sortOrder.equals("des")) {
+      query =
         Query.newEntityQueryBuilder()
           .setKind("Comment")
-          .setOrderBy(StructuredQuery.OrderBy.desc("time"))
+          .setOrderBy(StructuredQuery.OrderBy.desc(sortMetric))
           .setLimit(maxCommentDisplay)
           .build();
+    } else {
+      query =
+        Query.newEntityQueryBuilder()
+          .setKind("Comment")
+          .setOrderBy(StructuredQuery.OrderBy.asc(sortMetric))
+          .setLimit(maxCommentDisplay)
+          .build();
+    }
     QueryResults<Entity> results = datastore.run(query);
 
     ArrayList<UserComment> comments = new ArrayList<>();

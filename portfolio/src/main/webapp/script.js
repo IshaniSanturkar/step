@@ -113,10 +113,16 @@ function togglePause() {
   }
 }
 
-// Fetches data from the /data URL and displays it on the page
+/**
+ * Retrieves parameters related to comment ordering and display,
+ * submits a GET request to /data, receives the response
+ * and displays it on the page
+ */ 
 function loadComments() {
   const maxcomments = document.getElementById("numcomments").value;
-  const fetchString = `/data?maxcomments=${maxcomments}`;
+  const sortMetric = document.getElementById("sortby").value;
+  const sortOrder = document.getElementById("sortorder").className;
+  const fetchString = `/data?maxcomments=${maxcomments}&metric=${sortMetric}&order=${sortOrder}`;
   fetch(fetchString).then(response => response.json()).then(comments => {
     const commentList = document.getElementById("comments");
     while (commentList.lastChild) {
@@ -179,6 +185,10 @@ function submitForm(form) {
   });
 }
 
+/**
+ * Submits a post request to /delete-data to delete all comments,
+ * then reloads the comments section
+ */ 
 function clearComments() {
   fetch("/delete-data", {
     method: 'POST',
@@ -187,4 +197,20 @@ function clearComments() {
     },
     body: ''
   }).then(response => loadComments());
+}
+
+/**
+ * Toggles sort order button between ascending and descending on click
+ * and then reloads comment section to effect the change
+ */
+function changeSortOrder() {
+  const sortOrderButton = document.getElementById("sortorder");
+  if(sortOrderButton.className === "des") {
+    sortOrderButton.className = "asc";
+    sortOrderButton.innerHTML = '&uarr;';
+  } else {
+    sortOrderButton.className = "des";
+    sortOrderButton.innerHTML = '&darr;';
+  }
+  loadComments();
 }
