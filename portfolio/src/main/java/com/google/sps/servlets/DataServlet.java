@@ -13,31 +13,22 @@
 // limitations under the License.
 
 package com.google.sps.servlets;
-
-import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.PreparedQuery;
-import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.datastore.Query.SortDirection;
+import com.google.cloud.datastore.Datastore;
+import com.google.cloud.datastore.DatastoreOptions;
+import com.google.cloud.datastore.Entity;
+import com.google.cloud.datastore.FullEntity;
+import com.google.cloud.datastore.IncompleteKey;
+import com.google.cloud.datastore.KeyFactory;
+import com.google.cloud.datastore.Query;
+import com.google.cloud.datastore.QueryResults;
+import com.google.cloud.datastore.StructuredQuery;
 import com.google.common.io.CharStreams;
-
-import java.nio.charset.StandardCharsets;
-
-import com.google.common.base.Splitter;
 import com.google.gson.Gson;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TimeZone;
-import java.net.URLDecoder;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -55,23 +46,24 @@ public class DataServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     int maxCommentDisplay = Integer.parseInt(getFieldFromResponse(request, "maxcomments", defaultMaxComment));
-    Query query = new Query("Comment").addSort("time", SortDirection.DESCENDING);
 
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    PreparedQuery results = datastore.prepare(query);
+    Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+    Query<Entity> query =
+        Query.newEntityQueryBuilder()
+          .setKind("Comment")
+          .setOrderBy(StructuredQuery.OrderBy.desc("time"))
+          .setLimit(maxCommentDisplay)
+          .build();
+    QueryResults<Entity> results = datastore.run(query);
 
-    int displayed = 0;
     ArrayList<UserComment> comments = new ArrayList<>();
-    for (Entity entity : results.asIterable()) {
-      if(displayed == maxCommentDisplay) {
-          break;
-      }
-      displayed++;
+    while(results.hasNext()) {
+      Entity entity = results.next();
       long id = entity.getKey().getId();
-      String name = (String) entity.getProperty("name");
-      String email = (String) entity.getProperty("email");
-      String time =  String.valueOf(entity.getProperty("time"));
-      String comment = (String) entity.getProperty("comment");
+      String name = entity.getString("name");
+      String email = entity.getString("email");
+      String time =  String.valueOf(entity.getLong("time"));
+      String comment = entity.getString("comment");
       UserComment userComment = UserComment.create(name, email, comment, time);
       comments.add(userComment);
     }
@@ -89,47 +81,51 @@ public class DataServlet extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String parsedBody = CharStreams.toString(request.getReader());
-    String trimmedBody = parsedBody.substring(1, parsedBody.length() - 1);
 
+    JsonParser parser = new JsonParser();
+    JsonElement parsedJson = parser.parse(parsedBody);
+    JsonObject jsonObject = parsedJson.getAsJsonObject();
 
-    Map<String, String> immutableMap = Splitter.on('&').trimResults().withKeyValueSeparator('=').split(trimmedBody);
-    HashMap<String, String> mutableMap = new HashMap<>();
-    for (String key : immutableMap.keySet()) {
-      String decodedVal = java.net.URLDecoder.decode(immutableMap.get(key), StandardCharsets.UTF_8.name());
-      mutableMap.put(key, decodedVal);
-    }
-    String userComment = getFieldFromMap(mutableMap, "comment", "");
+    String userComment = getFieldFromJsonObject(jsonObject, "comment", "");
     if(userComment.length() != 0) {
-      String userName = getFieldFromMap(mutableMap, "name", "Anonymous");
-      String userEmail = getFieldFromMap(mutableMap, "email", "janedoe@gmail.com");
+      String userName = getFieldFromJsonObject(jsonObject, "name", "Anonymous");
+      String userEmail = getFieldFromJsonObject(jsonObject, "email", "janedoe@gmail.com");
       String currDate = String.valueOf(System.currentTimeMillis());
-      long userDate = Long.parseLong(getFieldFromMap(mutableMap, "timestamp", currDate));
+      long userDate = Long.parseLong(getFieldFromJsonObject(jsonObject, "timestamp", currDate));
       addToDatastore(userName, userEmail, userDate, userComment);
     }
   }
 
   /*
-   * Extracts the value of fieldName attribute from valueMap if present
+   * Extracts the value of fieldName attribute from jsonObject if present
    * and returns defaultValue if it is not or the value is empty
    */
-  private String getFieldFromMap(Map<String, String> valueMap, String fieldName, String defaultValue) {
-    String fieldValue = valueMap.getOrDefault(fieldName, defaultValue);
-    if(fieldValue.length() == 0)
-    {
-        fieldValue = defaultValue;
+  public String getFieldFromJsonObject(JsonObject jsonObject, String fieldName, String defaultValue) {
+    if(jsonObject.has(fieldName)) {
+      String fieldValue = jsonObject.get(fieldName).getAsString();
+      if(fieldValue.length() == 0) {
+        return defaultValue;
+      } else {
+        return fieldValue;
+      }
+    } else {
+      return defaultValue;
     }
-    return fieldValue;
   }
 
   // Adds a comment with the given metadata to the database  
   private void addToDatastore(String name, String email, long dateTime, String comment) {
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    Entity commentEntity = new Entity("Comment");
-    commentEntity.setProperty("name", name);
-    commentEntity.setProperty("email", email);
-    commentEntity.setProperty("time", dateTime);
-    commentEntity.setProperty("comment", comment);
-    datastore.put(commentEntity);
+    Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+    KeyFactory keyFactory = datastore.newKeyFactory().setKind("Comment");
+    IncompleteKey key = keyFactory.setKind("Comment").newKey();
+    FullEntity<IncompleteKey> thisComment =
+        FullEntity.newBuilder(key)
+          .set("name", name)
+          .set("email", email)
+          .set("time", dateTime)
+          .set("comment", comment)
+          .build();
+    datastore.add(thisComment);
   }
 
   /*
