@@ -21,6 +21,7 @@ import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
+import com.google.common.collect.Iterators;
 import java.io.IOException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -37,16 +38,12 @@ public class DeleteServlet extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-    Query<Entity> query =
-      Query.newEntityQueryBuilder()
+    Query<Key> query =
+      Query.newKeyQueryBuilder()
         .setKind("Comment")
         .build();
-    QueryResults<Entity> results = datastore.run(query);
-    while(results.hasNext()) {
-      Entity entity = results.next();
-      Key entityKey = entity.getKey();
-      datastore.delete(entityKey);
-    }
+    Key[] keys = Iterators.toArray(datastore.run(query), Key.class);
+    datastore.delete(keys);
   }
 }
 
