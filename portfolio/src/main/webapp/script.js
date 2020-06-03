@@ -174,7 +174,7 @@ function submitForm(form) {
   const dataArray = $("#newcommentform").serializeArray();
   dataArray.forEach(entry => formData[entry.name] = entry.value);
   fetch('/data', {
-    method: 'POST', 
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
@@ -205,7 +205,7 @@ function clearComments() {
  */
 function changeSortOrder() {
   const sortOrderButton = document.getElementById("sortorder");
-  if(sortOrderButton.className === "des") {
+  if (sortOrderButton.className === "des") {
     sortOrderButton.className = "asc";
     sortOrderButton.innerHTML = '&uarr;';
   } else {
