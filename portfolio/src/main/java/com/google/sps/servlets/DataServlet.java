@@ -57,7 +57,7 @@ public class DataServlet extends HttpServlet {
     QueryResults<Entity> results = datastore.run(query);
 
     ArrayList<UserComment> comments = new ArrayList<>();
-    while(results.hasNext()) {
+    while (results.hasNext()) {
       Entity entity = results.next();
       long id = entity.getKey().getId();
       String name = entity.getString("name");
@@ -87,7 +87,7 @@ public class DataServlet extends HttpServlet {
     JsonObject jsonObject = parsedJson.getAsJsonObject();
 
     String userComment = getFieldFromJsonObject(jsonObject, "comment", "");
-    if(userComment.length() != 0) {
+    if (userComment.length() != 0) {
       String userName = getFieldFromJsonObject(jsonObject, "name", "Anonymous");
       String userEmail = getFieldFromJsonObject(jsonObject, "email", "janedoe@gmail.com");
       String currDate = String.valueOf(System.currentTimeMillis());
@@ -100,17 +100,12 @@ public class DataServlet extends HttpServlet {
    * Extracts the value of fieldName attribute from jsonObject if present
    * and returns defaultValue if it is not or the value is empty
    */
-  public String getFieldFromJsonObject(JsonObject jsonObject, String fieldName, String defaultValue) {
-    if(jsonObject.has(fieldName)) {
+  private String getFieldFromJsonObject(JsonObject jsonObject, String fieldName, String defaultValue) {
+    if (jsonObject.has(fieldName)) {
       String fieldValue = jsonObject.get(fieldName).getAsString();
-      if(fieldValue.length() == 0) {
-        return defaultValue;
-      } else {
-        return fieldValue;
-      }
-    } else {
-      return defaultValue;
+      return (fieldValue.length() == 0) ? defaultValue : fieldValue;
     }
+    return defaultValue;
   }
 
   // Adds a comment with the given metadata to the database  
@@ -135,11 +130,11 @@ public class DataServlet extends HttpServlet {
   private String getFieldFromResponse(HttpServletRequest request, String fieldName, String defaultValue) {
     String[] defaultArr = {defaultValue};
     String[] fieldValues = request.getParameterMap().getOrDefault(fieldName, defaultArr);
-    if(fieldValues.length > 1) {
+    if (fieldValues.length > 1) {
       throw new IllegalArgumentException("Found multiple values for single key in form");
     } else {
       String userValue = fieldValues[0];
-      if(userValue.length() == 0) {
+      if (userValue.length() == 0) {
         return defaultValue;
       } else {
         return userValue;

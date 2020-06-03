@@ -168,7 +168,7 @@ function submitForm(form) {
   const dataArray = $("#newcommentform").serializeArray();
   dataArray.forEach(entry => formData[entry.name] = entry.value);
   fetch('/data', {
-    method: 'POST', 
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
