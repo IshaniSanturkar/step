@@ -168,13 +168,13 @@ function submitForm(form) {
   const dataArray = $("#newcommentform").serializeArray();
   dataArray.forEach(entry => formData[entry.name] = entry.value);
   fetch('/data', {
-    method: 'POST', 
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(formData),
   }).then(response => {
-      loadComments();
-      document.getElementById("newcommentform").reset();
+    loadComments();
+    document.getElementById("newcommentform").reset();
   });
 }
