@@ -149,7 +149,7 @@ function createListElement(comment) {
 
 // Formats comment name and timestamp into an HTML p element
 function formatCommentMetadata(comment) {
-  let date = new Date(parseInt(comment["timestamp"], 10));
+  let date = new Date(comment["timestamp"]);
   const metadata = `${comment["name"]} at ${date.toLocaleString()} said`;
   const pElem = document.createElement("p");
   pElem.innerText = metadata;
@@ -189,14 +189,14 @@ function submitForm(form) {
   const dataArray = $("#newcommentform").serializeArray();
   dataArray.forEach(entry => formData[entry.name] = entry.value);
   fetch('/data', {
-    method: 'POST', 
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(formData),
   }).then(response => {
-      loadComments();
-      document.getElementById("newcommentform").reset();
+    loadComments();
+    document.getElementById("newcommentform").reset();
   });
 }
 
@@ -208,7 +208,7 @@ function clearComments() {
   fetch("/delete-data", {
     method: 'POST',
     headers: {
-      'Content-Type' : 'application/json',
+      'Content-Type': 'application/json',
     },
     body: ''
   }).then(response => loadComments());
