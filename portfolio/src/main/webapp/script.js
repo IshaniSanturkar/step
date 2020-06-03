@@ -115,7 +115,9 @@ function togglePause() {
 
 // Fetches data from the /data URL and displays it on the page
 function loadComments() {
-  fetch("/data").then(response => response.json()).then(comments => {
+  const maxcomments = document.getElementById("numcomments").value;
+  const fetchString = `/data?maxcomments=${maxcomments}`;
+  fetch(fetchString).then(response => response.json()).then(comments => {
     const commentList = document.getElementById("comments");
     while (commentList.lastChild) {
       commentList.removeChild(commentList.lastChild);
@@ -139,7 +141,8 @@ function createListElement(comment) {
 
 // Formats comment name and timestamp into an HTML p element
 function formatCommentMetadata(comment) {
-  const metadata = `${comment["name"]} at ${comment["timestamp"]} said`;
+  let date = new Date(parseInt(comment["timestamp"], 10));
+  const metadata = `${comment["name"]} at ${date.toLocaleString()} said`;
   const pElem = document.createElement("p");
   pElem.innerText = metadata;
   pElem.className = "comment_metadata";
@@ -153,8 +156,25 @@ function formatCommentText(comment) {
   return quote;
 }
 
-// Sets value of form submission time to current time in client's timezone
-function inputClientTime(form) {
+/**
+ * Sets value of form submission time to current time in client's timezone,
+ * posts form data to server, reloads comments section and then clears
+ * form in preparation for next entry
+ */
+function submitForm(form) {
   const today = new Date();
-  form.time.value = today.toLocaleString();
+  form.timestamp.value = today.getTime();
+  const formData = {};
+  const dataArray = $("#newcommentform").serializeArray();
+  dataArray.forEach(entry => formData[entry.name] = entry.value);
+  fetch('/data', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(formData),
+  }).then(response => {
+    loadComments();
+    document.getElementById("newcommentform").reset();
+  });
 }

@@ -18,8 +18,8 @@ import com.google.auto.value.AutoValue;
 
 @AutoValue 
 abstract class UserComment {
-  static UserComment create(String name, String email, String timestamp, String comment) {
-    return new AutoValue_UserComment(name, email, timestamp, comment);
+  static UserComment create(String name, String email, String comment, String timestamp) {
+    return new AutoValue_UserComment(name, email, comment, timestamp);
   }
 
   abstract String name();
