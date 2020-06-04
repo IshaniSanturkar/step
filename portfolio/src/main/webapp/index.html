@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="UTF-8">
   <title>Ishani Santurkar</title>
@@ -9,6 +10,7 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="script.js"></script>
 </head>
+
 <body id="content" onload="loadComments()">
   <header>
     <a class="headerelem current" href="index.html">About Me</a>
@@ -83,7 +85,7 @@
         <span class="commentparam">
           <button onclick="clearComments()">Clear</button>
         </span>
-        <ul id="comments"></ul>
+        <ul id="toplevelcomments" class="comments"></ul>
       </div>
     </div>
   </section>
