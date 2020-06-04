@@ -121,8 +121,13 @@ function togglePause() {
 function loadComments() {
   const maxcomments = document.getElementById("numcomments").value;
   const sortMetric = document.getElementById("sortby").value;
-  const sortOrder = document.getElementById("sortorder").className;
-  const fetchString = `/data?metric=${sortMetric}&order=${sortOrder}`;
+  let sortOrder = "";
+  if (document.getElementById("sortorder").classList.contains("desc")) {
+    sortOrder = "desc";
+  } else {
+    sortOrder = "asc";
+  }
+  const fetchString = `/data?maxcomments=${maxcomments}&metric=${sortMetric}&order=${sortOrder}`;
   fetch(fetchString).then(response => response.json()).then(comments => {
     const commentList = document.getElementById("toplevelcomments");
     while (commentList.lastChild) {
@@ -288,12 +293,12 @@ function clearComments() {
  */
 function changeSortOrder() {
   const sortOrderButton = document.getElementById("sortorder");
-  if (sortOrderButton.className === "des") {
-    sortOrderButton.className = "asc";
-    sortOrderButton.innerHTML = '&uarr;';
+  if (sortOrderButton.classList.contains("desc")) {
+    sortOrderButton.classList.replace("desc", "asc");
+    sortOrderButton.innerText = "arrow_drop_up";
   } else {
-    sortOrderButton.className = "des";
-    sortOrderButton.innerHTML = '&darr;';
+    sortOrderButton.classList.replace("asc", "desc");
+    sortOrderButton.innerText = "arrow_drop_down";
   }
   loadComments();
 }
