@@ -141,7 +141,7 @@ function createListElement(comment) {
 
 // Formats comment name and timestamp into an HTML p element
 function formatCommentMetadata(comment) {
-  let date = new Date(parseInt(comment["timestamp"], 10));
+  let date = new Date(comment["timestamp"]);
   const metadata = `${comment["name"]} at ${date.toLocaleString()} said`;
   const pElem = document.createElement("p");
   pElem.innerText = metadata;
@@ -177,4 +177,14 @@ function submitForm(form) {
     loadComments();
     document.getElementById("newcommentform").reset();
   });
+}
+
+function clearComments() {
+  fetch("/delete-data", {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: ''
+  }).then(response => loadComments());
 }
