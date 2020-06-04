@@ -15,15 +15,18 @@
 package com.google.sps.servlets;
 
 import com.google.auto.value.AutoValue;
+// import java.util.ArrayList;
 
 @AutoValue 
 abstract class UserComment {
-  static UserComment create(String name, String email, String comment, long timestamp) {
-    return new AutoValue_UserComment(name, email, comment, timestamp);
+  static UserComment create(String name, String email, String comment, long timestamp, long id, long parentId) {
+    return new AutoValue_UserComment(name, email, comment, timestamp, id, parentId);
   }
 
   abstract String name();
   abstract String email();
   abstract String comment();
   abstract long timestamp();
+  abstract long id();
+  abstract long parentId();
 }

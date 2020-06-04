@@ -94,7 +94,7 @@ function togglePause() {
     const statusImg = document.getElementById("pauseplay")
     statusImg.src = "/images/play.png";
     statusImg.style.display = "block";
-    window.setTimeout(function () {
+    window.setTimeout(function() {
       $("#pauseplay").fadeOut();
       statusImg.style.display = "none";
     }, 500);
@@ -105,7 +105,7 @@ function togglePause() {
     const statusImg = document.getElementById("pauseplay")
     statusImg.src = "/images/pause.png";
     statusImg.style.display = "block";
-    window.setTimeout(function () {
+    window.setTimeout(function() {
       $("#pauseplay").fadeOut();
       statusImg.style.display = "none";
     }, 500);
@@ -117,7 +117,7 @@ function togglePause() {
  * Retrieves parameters related to comment ordering and display,
  * submits a GET request to /data, receives the response
  * and displays it on the page
- */ 
+ */
 function loadComments() {
   const maxcomments = document.getElementById("numcomments").value;
   const sortMetric = document.getElementById("sortby").value;
@@ -128,10 +128,27 @@ function loadComments() {
     while (commentList.lastChild) {
       commentList.removeChild(commentList.lastChild);
     }
+    console.log(comments);
+    const commentTree = locateChildren(comments);
+    console.log(commentTree);
     for (const comment of comments) {
       commentList.appendChild(createListElement(comment));
     }
   });
+}
+
+function locateChildren(comments) {
+  for(let i = 0; i < comments.length; i++) {
+    comments[i]["children"] = [];
+    for(let j = 0; j < comments.length; j++) {
+      console.log('curr id' + comments[i]["id"]);
+      console.log('child parent id' + comments[j]["parentId"]);
+      if(comments[j]["parentId"] === comments[i]["id"]) {
+        comments[i]["children"].push(comments[j]);
+      }
+    }
+  }
+  return comments;
 }
 
 // Creates a list element with the given comment text and metadata (name, timestamp etc.)
@@ -169,12 +186,32 @@ function formatCommentReply(comment) {
   replyDiv.className = "replydiv";
   const replyBar = document.createElement("textarea");
   replyBar.className = "replybar";
+  replyBar.id = `${comment["id"]}-bar`;
   const replyButton = document.createElement("button");
   replyButton.innerText = "Reply";
   replyButton.className = "replybutton";
+  replyButton.onclick = () => replyTo(comment);
   replyDiv.appendChild(replyBar);
   replyDiv.appendChild(replyButton);
   return replyDiv;
+}
+
+function replyTo(comment) {
+  const replyId = `${comment["id"]}-bar`;
+  const replyContent = document.getElementById(replyId).value;
+  const replyObj = {};
+  replyObj["comment"] = replyContent;
+  replyObj["parentid"] = comment["id"];
+  fetch('/reply', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(replyObj),
+  }).then(response => {
+    loadComments();
+    document.getElementById("replyId").reset();
+  });
 }
 
 /**
@@ -203,7 +240,7 @@ function submitForm(form) {
 /**
  * Submits a post request to /delete-data to delete all comments,
  * then reloads the comments section
- */ 
+ */
 function clearComments() {
   fetch("/delete-data", {
     method: 'POST',
@@ -220,7 +257,7 @@ function clearComments() {
  */
 function changeSortOrder() {
   const sortOrderButton = document.getElementById("sortorder");
-  if(sortOrderButton.className === "des") {
+  if (sortOrderButton.className === "des") {
     sortOrderButton.className = "asc";
     sortOrderButton.innerHTML = '&uarr;';
   } else {

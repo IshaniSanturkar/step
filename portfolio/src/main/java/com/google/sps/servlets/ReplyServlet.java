@@ -18,7 +18,9 @@ import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.FullEntity;
 import com.google.cloud.datastore.IncompleteKey;
+import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.KeyFactory;
+import com.google.cloud.datastore.PathElement;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.StructuredQuery;
@@ -34,57 +36,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet("/data")
-public class DataServlet extends HttpServlet {
-
-  private final String defaultMaxComment = "20";
-
-  /*
-   * Called when a client submits a GET request to the /data URL
-   * Displays all recorded user comments on page
-   */
-  @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    int maxCommentDisplay = Integer.parseInt(getFieldFromResponse(request, "maxcomments", defaultMaxComment));
-    String sortMetric = getFieldFromResponse(request, "metric", "time");
-    String sortOrder = getFieldFromResponse(request, "order", "des");
-
-    Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-    Query<Entity> query;
-    if(sortOrder.equals("des")) {
-      query =
-        Query.newEntityQueryBuilder()
-          .setKind("Comment")
-          .setOrderBy(StructuredQuery.OrderBy.desc(sortMetric))
-          .setLimit(maxCommentDisplay)
-          .build();
-    } else {
-      query =
-        Query.newEntityQueryBuilder()
-          .setKind("Comment")
-          .setOrderBy(StructuredQuery.OrderBy.asc(sortMetric))
-          .setLimit(maxCommentDisplay)
-          .build();
-    }
-    QueryResults<Entity> results = datastore.run(query);
-
-    ArrayList<UserComment> comments = new ArrayList<>();
-    while (results.hasNext()) {
-      Entity entity = results.next();
-      long id = entity.getKey().getId();
-      String name = entity.getString("name");
-      String email = entity.getString("email");
-      long time =  entity.getLong("time");
-      String comment = entity.getString("comment");
-      long parentId = entity.getLong("parentid");
-      UserComment userComment = UserComment.create(name, email, comment, time, id, parentId);
-      comments.add(userComment);
-    }
-
-    Gson gson = new Gson();
-    response.setContentType("application/json;");
-    response.getWriter().println(gson.toJson(comments));
-  }
+@WebServlet("/reply")
+public class ReplyServlet extends HttpServlet {
 
   /*
    * Called when a client submits a POST request to the /data URL
@@ -105,7 +58,8 @@ public class DataServlet extends HttpServlet {
       String userEmail = getFieldFromJsonObject(jsonObject, "email", "janedoe@gmail.com");
       String currDate = String.valueOf(System.currentTimeMillis());
       long userDate = Long.parseLong(getFieldFromJsonObject(jsonObject, "timestamp", currDate));
-      addToDatastore(userName, userEmail, userDate, userComment);
+      long parentId = Long.parseLong(getFieldFromJsonObject(jsonObject, "parentid", "-1"));
+      addToDatastore(userName, userEmail, userDate, userComment, parentId);
     }
   }
 
@@ -122,7 +76,10 @@ public class DataServlet extends HttpServlet {
   }
 
   // Adds a comment with the given metadata to the database  
-  private void addToDatastore(String name, String email, long dateTime, String comment) {
+  private void addToDatastore(String name, String email, long dateTime, String comment, long parentId) {
+    if (parentId == -1) {
+        return;
+    }
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     KeyFactory keyFactory = datastore.newKeyFactory().setKind("Comment");
     IncompleteKey key = keyFactory.setKind("Comment").newKey();
@@ -132,7 +89,7 @@ public class DataServlet extends HttpServlet {
           .set("email", email)
           .set("time", dateTime)
           .set("comment", comment)
-          .set("parentid", 0)
+          .set("parentid", parentId)
           .build();
     datastore.add(thisComment);
   }
