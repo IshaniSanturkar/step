@@ -176,7 +176,6 @@ function constructReplyTree(comment, commentTree, margin) {
     const newMargin = margin + 20;
     for (const child of children) {
       const subTree = constructReplyTree(child, commentTree, newMargin);
-      console.log(subTree);
       replyTree.appendChild(subTree);
     }
     replyTree.style.marginLeft = `${margin}px`;
