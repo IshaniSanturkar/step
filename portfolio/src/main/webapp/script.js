@@ -122,33 +122,62 @@ function loadComments() {
   const maxcomments = document.getElementById("numcomments").value;
   const sortMetric = document.getElementById("sortby").value;
   const sortOrder = document.getElementById("sortorder").className;
-  const fetchString = `/data?maxcomments=${maxcomments}&metric=${sortMetric}&order=${sortOrder}`;
+  const fetchString = `/data?metric=${sortMetric}&order=${sortOrder}`;
   fetch(fetchString).then(response => response.json()).then(comments => {
-    const commentList = document.getElementById("comments");
+    const commentList = document.getElementById("toplevelcomments");
     while (commentList.lastChild) {
       commentList.removeChild(commentList.lastChild);
     }
-    console.log(comments);
     const commentTree = locateChildren(comments);
-    console.log(commentTree);
-    for (const comment of comments) {
-      commentList.appendChild(createListElement(comment));
+    let numDisplayed = 0;
+    for (commentId in commentTree) {
+      if(numDisplayed == maxcomments) {
+        break;
+      }
+      let comment = commentTree[commentId];
+      if (comment["parentId"] === 0) {
+        numDisplayed++;
+        commentList.appendChild(constructReplyTree(comment, commentTree, 40));
+      }
     }
+    commentList.style.marginLeft = "20px";
   });
 }
 
 function locateChildren(comments) {
+  let commentTree = {};
   for(let i = 0; i < comments.length; i++) {
-    comments[i]["children"] = [];
+    let id = comments[i]["id"];
+    commentTree[id] = comments[i];
+    commentTree[id]["children"] = [];
     for(let j = 0; j < comments.length; j++) {
-      console.log('curr id' + comments[i]["id"]);
-      console.log('child parent id' + comments[j]["parentId"]);
       if(comments[j]["parentId"] === comments[i]["id"]) {
-        comments[i]["children"].push(comments[j]);
+        commentTree[id]["children"].push(comments[j]);
       }
     }
   }
-  return comments;
+  return commentTree;
+}
+
+function constructReplyTree(comment, commentTree, margin) {
+  let children = commentTree[comment["id"]]["children"];
+  if (children.length === 0) {
+    let thisReply = createListElement(comment);
+    return thisReply;
+  } else {
+    let thisReply = createListElement(comment);
+    let replyTree = document.createElement("ul");
+    replyTree.className = "comments";
+    const newMargin = margin + 20;
+    for (const child of children) {
+      const subTree = constructReplyTree(child, commentTree, newMargin);
+      console.log(subTree);
+      replyTree.appendChild(subTree);
+    }
+    replyTree.style.marginLeft = `${margin}px`;
+    thisReply.appendChild(replyTree);
+    return thisReply;
+  }
 }
 
 // Creates a list element with the given comment text and metadata (name, timestamp etc.)
@@ -157,10 +186,12 @@ function createListElement(comment) {
   const metadata = formatCommentMetadata(comment);
   const quote = formatCommentText(comment);
   const reply = formatCommentReply(comment);
-  listElem.appendChild(metadata);
-  listElem.appendChild(quote);
-  listElem.appendChild(reply);
-  listElem.className = "comment";
+  const thisCommentDiv = document.createElement("div");
+  thisCommentDiv.appendChild(metadata);
+  thisCommentDiv.appendChild(quote);
+  thisCommentDiv.appendChild(reply);
+  thisCommentDiv.className = "comment";
+  listElem.appendChild(thisCommentDiv);
   return listElem;
 }
 

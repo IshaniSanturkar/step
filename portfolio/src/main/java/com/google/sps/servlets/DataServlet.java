@@ -22,6 +22,7 @@ import com.google.cloud.datastore.KeyFactory;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.StructuredQuery;
+import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.common.io.CharStreams;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -45,7 +46,6 @@ public class DataServlet extends HttpServlet {
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    int maxCommentDisplay = Integer.parseInt(getFieldFromResponse(request, "maxcomments", defaultMaxComment));
     String sortMetric = getFieldFromResponse(request, "metric", "time");
     String sortOrder = getFieldFromResponse(request, "order", "des");
 
@@ -56,14 +56,12 @@ public class DataServlet extends HttpServlet {
         Query.newEntityQueryBuilder()
           .setKind("Comment")
           .setOrderBy(StructuredQuery.OrderBy.desc(sortMetric))
-          .setLimit(maxCommentDisplay)
           .build();
     } else {
       query =
         Query.newEntityQueryBuilder()
           .setKind("Comment")
           .setOrderBy(StructuredQuery.OrderBy.asc(sortMetric))
-          .setLimit(maxCommentDisplay)
           .build();
     }
     QueryResults<Entity> results = datastore.run(query);
