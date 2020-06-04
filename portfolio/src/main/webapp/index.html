@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <title>Ishani Santurkar</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="script.js"></script>
@@ -41,7 +42,7 @@
     <h2>Comments</h2>
     I'm still in the process of building this website and would love your feedback on it!
     <div class="row">
-      <div class="column">
+      <div class="column" id="commentform">
         <h3>Submit a new comment</h3>
         <form id="newcommentform" onsubmit="submitForm(this); return false">
           <label for="user_name">Name:</label>
@@ -61,16 +62,29 @@
           <input type="submit">
         </form>
       </div>
-      <div class="column">
+      <div class="column" id="commenthistory">
         <h3>Comment History</h3>
-        <button onclick="clearComments()">Clear all comments</button>
-        <label for="numcomments">Number of comments to display</label>
-        <select name="numcomments" id="numcomments" onchange="loadComments()">
-          <option value="5">5</option>
-          <option value="10">10</option>
-          <option value="15">15</option>
-          <option value="20">20</option>
-        </select>
+        <span class="commentparam">
+          <label for="numcomments">Displaying: </label>
+          <select name="numcomments" id="numcomments" onchange="loadComments()">
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="15">15</option>
+            <option value="20">20</option>
+          </select>
+        </span>
+        <span class="commentparam">
+          <label for="sortby">Sort By:</label>
+          <select name="sortby" id="sortby" onchange="loadComments()">
+            <option value="name">Author</option>
+            <option value="email">Email ID</option>
+            <option value="time" selected>Submission Time</option>
+          </select>
+          <button id="sortorder" class="desc material-icons" onclick="changeSortOrder()">arrow_drop_down</button>
+        </span>
+        <span class="commentparam">
+          <button onclick="clearComments()">Clear</button>
+        </span>
         <ul id="comments"></ul>
       </div>
     </div>

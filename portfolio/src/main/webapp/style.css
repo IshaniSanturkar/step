@@ -107,8 +107,6 @@ a {
 }
 
 button {
-  min-height: 10px;
-  min-width: 100px;
   margin: 10px;
   font-family: inherit;
 }
@@ -276,4 +274,22 @@ p {
 
 .comment_metadata {
   font-size: 15px;
+}
+
+#commentform {
+  width: 40%;
+}
+
+#commenthistory {
+  width:60%;
+}
+
+#sortorder {
+  width: 40px;
+  height: 40px;
+}
+
+.commentparam {
+  margin-left: 20px;
+  margin-right: 20px;
 }
