@@ -94,7 +94,7 @@ function togglePause() {
     const statusImg = document.getElementById("pauseplay")
     statusImg.src = "/images/play.png";
     statusImg.style.display = "block";
-    window.setTimeout(function () {
+    window.setTimeout(function() {
       $("#pauseplay").fadeOut();
       statusImg.style.display = "none";
     }, 500);
@@ -105,7 +105,7 @@ function togglePause() {
     const statusImg = document.getElementById("pauseplay")
     statusImg.src = "/images/pause.png";
     statusImg.style.display = "block";
-    window.setTimeout(function () {
+    window.setTimeout(function() {
       $("#pauseplay").fadeOut();
       statusImg.style.display = "none";
     }, 500);
@@ -117,11 +117,16 @@ function togglePause() {
  * Retrieves parameters related to comment ordering and display,
  * submits a GET request to /data, receives the response
  * and displays it on the page
- */ 
+ */
 function loadComments() {
   const maxcomments = document.getElementById("numcomments").value;
   const sortMetric = document.getElementById("sortby").value;
-  const sortOrder = document.getElementById("sortorder").className;
+  let sortOrder = "";
+  if (document.getElementById("sortorder").classList.contains("desc")) {
+    sortOrder = "desc";
+  } else {
+    sortOrder = "asc";
+  }
   const fetchString = `/data?maxcomments=${maxcomments}&metric=${sortMetric}&order=${sortOrder}`;
   fetch(fetchString).then(response => response.json()).then(comments => {
     const commentList = document.getElementById("comments");
@@ -180,20 +185,20 @@ function submitForm(form) {
     },
     body: JSON.stringify(formData),
   }).then(response => {
-      loadComments();
-      document.getElementById("newcommentform").reset();
+    loadComments();
+    document.getElementById("newcommentform").reset();
   });
 }
 
 /**
  * Submits a post request to /delete-data to delete all comments,
  * then reloads the comments section
- */ 
+ */
 function clearComments() {
   fetch("/delete-data", {
     method: 'POST',
     headers: {
-      'Content-Type' : 'application/json',
+      'Content-Type': 'application/json',
     },
     body: ''
   }).then(response => loadComments());
@@ -205,12 +210,12 @@ function clearComments() {
  */
 function changeSortOrder() {
   const sortOrderButton = document.getElementById("sortorder");
-  if (sortOrderButton.className === "des") {
-    sortOrderButton.className = "asc";
-    sortOrderButton.innerHTML = '&uarr;';
+  if (sortOrderButton.classList.contains("desc")) {
+    sortOrderButton.classList.replace("desc", "asc");
+    sortOrderButton.innerText = "arrow_drop_up";
   } else {
-    sortOrderButton.className = "des";
-    sortOrderButton.innerHTML = '&darr;';
+    sortOrderButton.classList.replace("asc", "desc");
+    sortOrderButton.innerText = "arrow_drop_down";
   }
   loadComments();
 }

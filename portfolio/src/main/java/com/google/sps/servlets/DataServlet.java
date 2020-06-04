@@ -16,6 +16,7 @@ package com.google.sps.servlets;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
+import com.google.cloud.datastore.EntityQuery.Builder;
 import com.google.cloud.datastore.FullEntity;
 import com.google.cloud.datastore.IncompleteKey;
 import com.google.cloud.datastore.KeyFactory;
@@ -47,25 +48,17 @@ public class DataServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     int maxCommentDisplay = Integer.parseInt(getFieldFromResponse(request, "maxcomments", defaultMaxComment));
     String sortMetric = getFieldFromResponse(request, "metric", "time");
-    String sortOrder = getFieldFromResponse(request, "order", "des");
+    String sortOrder = getFieldFromResponse(request, "order", "desc");
 
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-    Query<Entity> query;
-    if (sortOrder.equals("des")) {
-      query =
-        Query.newEntityQueryBuilder()
-          .setKind("Comment")
-          .setOrderBy(StructuredQuery.OrderBy.desc(sortMetric))
-          .setLimit(maxCommentDisplay)
-          .build();
+    Builder builder = Query.newEntityQueryBuilder();
+    builder = builder.setKind("Comment").setLimit(maxCommentDisplay);
+    if (sortOrder.equals("desc")) {
+      builder = builder.setOrderBy(StructuredQuery.OrderBy.desc(sortMetric));
     } else {
-      query =
-        Query.newEntityQueryBuilder()
-          .setKind("Comment")
-          .setOrderBy(StructuredQuery.OrderBy.asc(sortMetric))
-          .setLimit(maxCommentDisplay)
-          .build();
+      builder = builder.setOrderBy(StructuredQuery.OrderBy.asc(sortMetric));
     }
+    Query<Entity> query = builder.build();
     QueryResults<Entity> results = datastore.run(query);
 
     ArrayList<UserComment> comments = new ArrayList<>();
