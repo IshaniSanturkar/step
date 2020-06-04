@@ -2,69 +2,75 @@
 <html>
 
 <head>
-  <meta charset="UTF-8">
-  <title>Ishani Santurkar</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script src="script.js"></script>
+	<meta charset="UTF-8">
+	<title>Ishani Santurkar</title>
+	<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link rel="stylesheet" href="style.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="script.js"></script>
 </head>
 
 <body id="content" onload="loadComments()">
-  <header>
-    <a class="headerelem current" href="index.html">About Me</a>
-    <a class="headerelem" href="education.html">Education</a>
-    <a class="headerelem" href="projects.html">Projects</a>
-    <a class="headerelem" href="gallery.html">Gallery</a>
-  </header>
-  <section id="intro-sec">
-    <h1>About Me</h1>
-    <img src="/images/me.jpg" alt="An image of Ishani Santurkar" id="imgofme" />
-    <div id="introtext">
-      <p>Hi there! My name is Ishani. I'm a rising junior studying Computer Science with a minor in Machine Learning at
-        <a href="https://www.cmu.edu/">Carnegie Mellon University</a>. I live
-        in Cupertino, CA but I'm originally from Pune, India. </p>
-      <p>At CMU, I have taken a wide variety of courses on topics such as Theoretical Computer Science, Data Structures
-        and Algorithms, Computer Systems, Type Theory and Probability and Statistics.
-        I have served as a research assistant on a project to built a session-type based smart contract programming
-        language. I tutored students weekly in Discrete Math and 3D-Calculus as an
-        <a href="https://www.cmu.edu/student-success/programs/excel.html">EXCEL Leader</a>. In the past, I interned at
-        IBM Research on the Cloud Resource Management Team. Currently, I am a STEP Intern at Google.
-        Click <a href="/files/resume.pdf" target="_blank">here</a> to view a copy of my resume.
-      <p>In my free time, I like reading fantasy novels, cooking and playing games. I love listening to music,
-        especially Hindi music. Recently, I got into Bollywood Dance and I'm working on getting better at it.
-        My dad is a software engineer at SAP while my mom is a part-time teacher. My older sister Shibani is a PhD
-        student at MIT. Click <a href="gallery.html">here</a> to see photos of my life!</p>
-    </div>
-  </section>
-  <section id="comment-sec">
-    <h2>Comments</h2>
-    I'm still in the process of building this website and would love your feedback on it!
-    <div class="row">
-      <div class="column" id="commentform">
-        <h3>Submit a new comment</h3>
-        <form id="newcommentform" onsubmit="submitForm(this); return false">
-          <label for="user_name">Name:</label>
-          <br /><br />
-          <input type="text" id="user_name" name="name">
-          <br /><br />
-          <label for="user_email">Email ID:</label>
-          <br /><br />
-          <input type="email" id="user_email" name="email">
-          <br /><br />
-          <input type="hidden" id="user_time" name="timestamp">
-          <br /><br />
-          <label for="user_comment">Comment:</label>
-          <br /><br />
-          <textarea id="user_comment" name="comment" placeholder="Type your comment here"></textarea>
-          <br /><br />
-          <input type="submit">
+	<header>
+		<a class="headerelem current" href="index.html">About Me</a>
+		<a class="headerelem" href="education.html">Education</a>
+		<a class="headerelem" href="projects.html">Projects</a>
+		<a class="headerelem" href="gallery.html">Gallery</a>
+	</header>
+	<section id="intro-sec">
+		<h1>About Me</h1>
+		<img src="/images/me.jpg" alt="An image of Ishani Santurkar" id="imgofme" />
+		<div id="introtext">
+			<p>Hi there! My name is Ishani. I'm a rising junior studying Computer Science with a minor in Machine
+				Learning at
+				<a href="https://www.cmu.edu/">Carnegie Mellon University</a>. I live
+				in Cupertino, CA but I'm originally from Pune, India. </p>
+			<p>At CMU, I have taken a wide variety of courses on topics such as Theoretical Computer Science, Data
+				Structures
+				and Algorithms, Computer Systems, Type Theory and Probability and Statistics.
+				I have served as a research assistant on a project to built a session-type based smart contract
+				programming
+				language. I tutored students weekly in Discrete Math and 3D-Calculus as an
+				<a href="https://www.cmu.edu/student-success/programs/excel.html">EXCEL Leader</a>. In the past, I
+				interned at
+				IBM Research on the Cloud Resource Management Team. Currently, I am a STEP Intern at Google.
+				Click <a href="/files/resume.pdf" target="_blank">here</a> to view a copy of my resume.
+				<p>In my free time, I like reading fantasy novels, cooking and playing games. I love listening to music,
+					especially Hindi music. Recently, I got into Bollywood Dance and I'm working on getting better at
+					it.
+					My dad is a software engineer at SAP while my mom is a part-time teacher. My older sister Shibani is
+					a PhD
+					student at MIT. Click <a href="gallery.html">here</a> to see photos of my life!</p>
+		</div>
+	</section>
+	<section id="comment-sec">
+		<h2>Comments</h2>
+		I'm still in the process of building this website and would love your feedback on it!
+		<div class="row">
+			<div class="column" id="commentform">
+				<h3>Submit a new comment</h3>
+				<form id="newcommentform" onsubmit="submitForm(this); return false">
+					<label for="user_name">Name:</label>
+					<br /><br />
+					<input type="text" id="user_name" name="name">
+					<br /><br />
+					<label for="user_email">Email ID:</label>
+					<br /><br />
+					<input type="email" id="user_email" name="email">
+					<br /><br />
+					<input type="hidden" id="user_time" name="timestamp">
+					<br /><br />
+					<label for="user_comment">Comment:</label>
+					<br /><br />
+					<textarea id="user_comment" name="comment" placeholder="Type your comment here"></textarea>
+					<br /><br />
+					<input type="submit">
         </form>
-      </div>
-      <div class="column" id="commenthistory">
-        <h3>Comment History</h3>
-        <span class="commentparam">
+			</div>
+			<div class="column" id="commenthistory">
+				<h3>Comment History</h3>
+				<span class="commentparam">
           <label for="numcomments">Displaying: </label>
           <select name="numcomments" id="numcomments" onchange="loadComments()">
             <option value="5">5</option>
@@ -73,7 +79,7 @@
             <option value="20">20</option>
           </select>
         </span>
-        <span class="commentparam">
+				<span class="commentparam">
           <label for="sortby">Sort By:</label>
           <select name="sortby" id="sortby" onchange="loadComments()">
             <option value="name">Author</option>
@@ -82,19 +88,19 @@
           </select>
           <button id="sortorder" class="desc material-icons" onclick="changeSortOrder()">arrow_drop_down</button>
         </span>
-        <span class="commentparam">
+				<span class="commentparam">
           <button onclick="clearComments()">Clear</button>
         </span>
-        <ul id="toplevelcomments" class="comments"></ul>
-      </div>
-    </div>
-  </section>
-  <footer>
-    <a href="https://www.linkedin.com/in/ishani-s-126b27143/"><img src="/images/linkedin.jpg" class="footerelem"></a>
-    <a href="http://github.com/IshaniSanturkar"><img src="/images/github.png" class="footerelem"></a>
-    <a href="mailto:ishani.santurkar@gmail.com"><img src="/images/gmail.png" class="footerelem"></a>
-    <a href="tel:+16692729041"><img src="/images/phone.png" class="footerelem"></a>
-  </footer>
+				<ul id="toplevelcomments" class="comments"></ul>
+			</div>
+		</div>
+	</section>
+	<footer>
+		<a href="https://www.linkedin.com/in/ishani-s-126b27143/"><img src="/images/linkedin.jpg" class="footerelem"></a>
+			<a href="http://github.com/IshaniSanturkar"><img src="/images/github.png" class="footerelem"></a>
+				<a href="mailto:ishani.santurkar@gmail.com"><img src="/images/gmail.png" class="footerelem"></a>
+					<a href="tel:+16692729041"><img src="/images/phone.png" class="footerelem"></a>
+	</footer>
 </body>
 
 </html>

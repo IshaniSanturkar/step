@@ -136,7 +136,7 @@ function loadComments() {
     const commentTree = locateChildren(comments);
     let numDisplayed = 0;
     for (commentId in commentTree) {
-      if(numDisplayed == maxcomments) {
+      if (numDisplayed == maxcomments) {
         break;
       }
       let comment = commentTree[commentId];
@@ -151,12 +151,12 @@ function loadComments() {
 
 function locateChildren(comments) {
   let commentTree = {};
-  for(let i = 0; i < comments.length; i++) {
+  for (let i = 0; i < comments.length; i++) {
     let id = comments[i]["id"];
     commentTree[id] = comments[i];
     commentTree[id]["children"] = [];
-    for(let j = 0; j < comments.length; j++) {
-      if(comments[j]["parentId"] === comments[i]["id"]) {
+    for (let j = 0; j < comments.length; j++) {
+      if (comments[j]["parentId"] === comments[i]["id"]) {
         commentTree[id]["children"].push(comments[j]);
       }
     }

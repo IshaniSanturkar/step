@@ -302,14 +302,14 @@ p {
 }
 
 .replydiv {
-    margin-left: 10px;
-    margin-right: 20px;
+  margin-left: 10px;
+  margin-right: 20px;
 }
 
 .replybar {
-    width: 80%;
+  width: 80%;
 }
 
 .replybutton {
-    float:right;
+  float:right;
 }

@@ -52,7 +52,7 @@ public class DataServlet extends HttpServlet {
 
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     Builder builder = Query.newEntityQueryBuilder();
-    builder = builder.setKind("Comment").setLimit(maxCommentDisplay);
+    builder = builder.setKind("Comment");
     if (sortOrder.equals("desc")) {
       builder = builder.setOrderBy(StructuredQuery.OrderBy.desc(sortMetric));
     } else {
