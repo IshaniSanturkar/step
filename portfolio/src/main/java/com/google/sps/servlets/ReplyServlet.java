@@ -30,7 +30,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.IOException;
-import java.util.ArrayList;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -58,7 +57,7 @@ public class ReplyServlet extends HttpServlet {
       String userEmail = getFieldFromJsonObject(jsonObject, "email", "janedoe@gmail.com");
       String currDate = String.valueOf(System.currentTimeMillis());
       long userDate = Long.parseLong(getFieldFromJsonObject(jsonObject, "timestamp", currDate));
-      long parentId = Long.parseLong(getFieldFromJsonObject(jsonObject, "parentid", "-1"));
+      long parentId = Long.parseLong(getFieldFromJsonObject(jsonObject, "parentid", "0"));
       addToDatastore(userName, userEmail, userDate, userComment, parentId);
     }
   }
@@ -77,7 +76,7 @@ public class ReplyServlet extends HttpServlet {
 
   // Adds a comment with the given metadata to the database  
   private void addToDatastore(String name, String email, long dateTime, String comment, long parentId) {
-    if (parentId == -1) {
+    if (parentId == 0) {
         return;
     }
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();

@@ -149,6 +149,11 @@ function loadComments() {
   });
 }
 
+/**
+ * Converts a JSON array with indirect parent-child links to an
+ * array indexed by comment ID where the object is populated
+ * with an array containing the IDs of its children
+ */
 function locateChildren(comments) {
   let commentTree = {};
   for (let i = 0; i < comments.length; i++) {
@@ -164,6 +169,11 @@ function locateChildren(comments) {
   return commentTree;
 }
 
+/**
+ * Renders this comment and all of its replies in a nested
+ * tree structure, indenting the replies by margin and increasing
+ * the indentation by 20px for each subsequent level of replies
+ */
 function constructReplyTree(comment, commentTree, margin) {
   let children = commentTree[comment["id"]]["children"];
   if (children.length === 0) {
@@ -216,6 +226,10 @@ function formatCommentText(comment) {
   return quote;
 }
 
+/**
+ * Creates a reply bar with a button that when clicked, submits
+ * the text in the bar to the server for processing
+ */
 function formatCommentReply(comment) {
   const replyDiv = document.createElement("div");
   replyDiv.className = "replydiv";
@@ -231,6 +245,11 @@ function formatCommentReply(comment) {
   return replyDiv;
 }
 
+/**
+ * Triggered when reply button is clicked on a comment
+ * Sends reply text along with parent comment ID to the
+ * server for processing
+ */
 function replyTo(comment) {
   const replyId = `${comment["id"]}-bar`;
   const replyContent = document.getElementById(replyId).value;

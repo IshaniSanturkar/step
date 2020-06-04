@@ -15,7 +15,6 @@
 package com.google.sps.servlets;
 
 import com.google.auto.value.AutoValue;
-// import java.util.ArrayList;
 
 @AutoValue 
 abstract class UserComment {
@@ -23,10 +22,52 @@ abstract class UserComment {
     return new AutoValue_UserComment(name, email, comment, timestamp, id, parentId);
   }
 
+  /*
+   * Represents the name of the commenter
+   * Default Value: Anonymous
+   * Invariants: -
+   * The default value is also used for authors of replies, whose names
+   * are not currenty tracked
+   */
   abstract String name();
+
+  /*
+   * Represents the email ID of the commenter
+   * Default Value: janedoe@gmail.com
+   * Invariants: -
+   * The default value is also used for authors of replies, whose email IDs
+   * are not currenty tracked
+   */
   abstract String email();
+
+  /*
+   * Represents the content of the comment
+   * Default Value: -
+   * Invariants: - Must be non-empty
+   */
   abstract String comment();
+
+  /*
+   * Represents the difference, measured in milliseconds, between the 
+   * time of form submission by the client and midnight, January 1, 1970 UTC
+   * Default Value: The difference, measured in milliseconds, between the 
+   * time of form receipt by the server and midnight, January 1, 1970 UTC
+   * Invariants: - Is always non-negative
+   */
   abstract long timestamp();
+
+  /*
+   * Represents the ID of the Datastore entity for this comment
+   * Default Value: -
+   * Invariants: -
+   */
   abstract long id();
+
+  /*
+   * Represents the ID of the parent comment of this comment, if 
+   * this is a reply and 0 if this is a root comment.
+   * Default Value: -
+   * Invariants: Always non-negative
+   */
   abstract long parentId();
 }
