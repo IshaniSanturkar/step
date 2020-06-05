@@ -47,7 +47,8 @@ public class ReplyServlet extends HttpServlet {
       String currDate = String.valueOf(System.currentTimeMillis());
       long userDate = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(jsonObject, "timestamp", currDate));
       long parentId = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(jsonObject, "parentid", "0"));
-      UtilityFunctions.addToDatastore(userName, userEmail, userDate, userComment, parentId, true);
+      long rootId = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(jsonObject, "rootid", "0"));
+      UtilityFunctions.addToDatastore(userName, userEmail, userDate, userComment, parentId, rootId, true);
     }
   }
 }

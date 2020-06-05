@@ -17,6 +17,7 @@
     <a class="headerelem" href="education.html">Education</a>
     <a class="headerelem" href="projects.html">Projects</a>
     <a class="headerelem" href="gallery.html">Gallery</a>
+    <a class="headerelem" href="comments.html">Comments</a>
   </header>
   <section id="intro-sec">
     <h1>About Me</h1>
@@ -36,57 +37,6 @@
         especially Hindi music. Recently, I got into Bollywood Dance and I'm working on getting better at it.
         My dad is a software engineer at SAP while my mom is a part-time teacher. My older sister Shibani is a PhD
         student at MIT. Click <a href="gallery.html">here</a> to see photos of my life!</p>
-    </div>
-  </section>
-  <section id="comment-sec">
-    <h2>Comments</h2>
-    I'm still in the process of building this website and would love your feedback on it!
-    <div class="row">
-      <div class="column" id="commentform">
-        <h3>Submit a new comment</h3>
-        <form id="newcommentform" onsubmit="submitForm(this); return false">
-          <label for="user_name">Name:</label>
-          <br /><br />
-          <input type="text" id="user_name" name="name">
-          <br /><br />
-          <label for="user_email">Email ID:</label>
-          <br /><br />
-          <input type="email" id="user_email" name="email">
-          <br /><br />
-          <input type="hidden" id="user_time" name="timestamp">
-          <br /><br />
-          <label for="user_comment">Comment:</label>
-          <br /><br />
-          <textarea id="user_comment" name="comment" placeholder="Type your comment here"></textarea>
-          <br /><br />
-          <input type="submit">
-        </form>
-      </div>
-      <div class="column" id="commenthistory">
-        <h3>Comment History</h3>
-        <span class="commentparam">
-          <label for="numcomments">Displaying: </label>
-          <select name="numcomments" id="numcomments" onchange="loadComments()">
-            <option value="5">5</option>
-            <option value="10">10</option>
-            <option value="15">15</option>
-            <option value="20">20</option>
-          </select>
-        </span>
-        <span class="commentparam">
-          <label for="sortby">Sort By:</label>
-          <select name="sortby" id="sortby" onchange="loadComments()">
-            <option value="name">Author</option>
-            <option value="email">Email ID</option>
-            <option value="time" selected>Submission Time</option>
-          </select>
-          <button id="sortorder" class="desc material-icons" onclick="changeSortOrder()">arrow_drop_down</button>
-        </span>
-        <span class="commentparam">
-          <button onclick="clearComments()">Clear</button>
-        </span>
-        <ul id="toplevelcomments" class="comments"></ul>
-      </div>
     </div>
   </section>
   <footer>
