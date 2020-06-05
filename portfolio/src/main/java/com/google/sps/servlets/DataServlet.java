@@ -62,16 +62,8 @@ public class DataServlet extends HttpServlet {
 
     ArrayList<UserComment> comments = new ArrayList<>();
     while (results.hasNext()) {
-
       Entity entity = results.next();
-      long id = entity.getKey().getId();
-      String name = entity.getString("name");
-      String email = entity.getString("email");
-      long time =  entity.getLong("time");
-      String comment = entity.getString("comment");
-      long parentId = entity.getLong("parentid");
-      long rootId = entity.getLong("rootid");
-      UserComment userComment = UserComment.create(name, email, comment, time, id, parentId, rootId);
+      UserComment userComment = entityToComment(entity);
       comments.add(userComment);
       Builder childBuilder = Query.newEntityQueryBuilder();
       childBuilder = childBuilder.setKind("Comment").setFilter(PropertyFilter.eq("rootid", id));
@@ -90,6 +82,19 @@ public class DataServlet extends HttpServlet {
     response.setContentType("application/json;");
     response.getWriter().println(gson.toJson(comments));
   }
+
+  private UserComment entityToComment(Entity entity) {
+    long id = entity.getKey().getId();
+    String name = entity.getString("name");
+    String email = entity.getString("email");
+    long time =  entity.getLong("time");
+    String comment = entity.getString("comment");
+    long parentId = entity.getLong("parentid");
+    long rootId = entity.getLong("rootid");
+    UserComment userComment = UserComment.create(name, email, comment, time, id, parentId, rootId);
+    return userComment;
+  }
+
 
   /*
    * Called when a client submits a POST request to the /data URL
