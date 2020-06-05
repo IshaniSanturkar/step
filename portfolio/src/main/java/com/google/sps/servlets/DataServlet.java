@@ -116,7 +116,7 @@ public class DataServlet extends HttpServlet {
     long parentId = entity.getLong("parentid");
     long rootId = entity.getLong("rootid");
     long upvotes = entity.getLong("upvotes");
-    long downvotes = entity.getLong("downvotes");
+    long downvotes = upvotes - entity.getLong("score");
     UserComment userComment = UserComment.create(name, email, comment, time, id, parentId, rootId, upvotes, downvotes);
     return userComment;
   }
