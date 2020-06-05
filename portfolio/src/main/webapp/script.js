@@ -129,14 +129,69 @@ function loadComments() {
   }
   const fetchString = `/data?maxcomments=${maxcomments}&metric=${sortMetric}&order=${sortOrder}`;
   fetch(fetchString).then(response => response.json()).then(comments => {
-    const commentList = document.getElementById("comments");
+    const commentList = document.getElementById("toplevelcomments");
     while (commentList.lastChild) {
       commentList.removeChild(commentList.lastChild);
     }
-    for (const comment of comments) {
-      commentList.appendChild(createListElement(comment));
+    const commentTree = locateChildren(comments);
+    let numDisplayed = 0;
+    for (commentId in commentTree) {
+      if (numDisplayed == maxcomments) {
+        break;
+      }
+      let comment = commentTree[commentId];
+      if (comment["parentId"] === 0) {
+        numDisplayed++;
+        commentList.appendChild(constructReplyTree(comment, commentTree, 40));
+      }
     }
+    commentList.style.marginLeft = "20px";
   });
+}
+
+/**
+ * Converts a JSON array with indirect parent-child links to an
+ * array indexed by comment ID where the object is populated
+ * with an array containing the IDs of its children
+ */
+function locateChildren(comments) {
+  let commentTree = {};
+  for (let i = 0; i < comments.length; i++) {
+    let id = comments[i]["id"];
+    commentTree[id] = comments[i];
+    commentTree[id]["children"] = [];
+    for (let j = 0; j < comments.length; j++) {
+      if (comments[j]["parentId"] === comments[i]["id"]) {
+        commentTree[id]["children"].push(comments[j]);
+      }
+    }
+  }
+  return commentTree;
+}
+
+/**
+ * Renders this comment and all of its replies in a nested
+ * tree structure, indenting the replies by margin and increasing
+ * the indentation by 20px for each subsequent level of replies
+ */
+function constructReplyTree(comment, commentTree, margin) {
+  let children = commentTree[comment["id"]]["children"];
+  if (children.length === 0) {
+    let thisReply = createListElement(comment);
+    return thisReply;
+  } else {
+    let thisReply = createListElement(comment);
+    let replyTree = document.createElement("ul");
+    replyTree.className = "comments";
+    const newMargin = margin + 20;
+    for (const child of children) {
+      const subTree = constructReplyTree(child, commentTree, newMargin);
+      replyTree.appendChild(subTree);
+    }
+    replyTree.style.marginLeft = `${margin}px`;
+    thisReply.appendChild(replyTree);
+    return thisReply;
+  }
 }
 
 // Creates a list element with the given comment text and metadata (name, timestamp etc.)
@@ -144,9 +199,13 @@ function createListElement(comment) {
   const listElem = document.createElement("li");
   const metadata = formatCommentMetadata(comment);
   const quote = formatCommentText(comment);
-  listElem.appendChild(metadata);
-  listElem.appendChild(quote);
-  listElem.className = "comment";
+  const reply = formatCommentReply(comment);
+  const thisCommentDiv = document.createElement("div");
+  thisCommentDiv.appendChild(metadata);
+  thisCommentDiv.appendChild(quote);
+  thisCommentDiv.appendChild(reply);
+  thisCommentDiv.className = "comment";
+  listElem.appendChild(thisCommentDiv);
   return listElem;
 }
 
@@ -165,6 +224,48 @@ function formatCommentText(comment) {
   const quote = document.createElement("blockquote");
   quote.innerText = comment["comment"];
   return quote;
+}
+
+/**
+ * Creates a reply bar with a button that when clicked, submits
+ * the text in the bar to the server for processing
+ */
+function formatCommentReply(comment) {
+  const replyDiv = document.createElement("div");
+  replyDiv.className = "replydiv";
+  const replyBar = document.createElement("textarea");
+  replyBar.className = "replybar";
+  replyBar.id = `${comment["id"]}-bar`;
+  const replyButton = document.createElement("button");
+  replyButton.innerText = "Reply";
+  replyButton.className = "replybutton";
+  replyButton.onclick = () => replyTo(comment);
+  replyDiv.appendChild(replyBar);
+  replyDiv.appendChild(replyButton);
+  return replyDiv;
+}
+
+/**
+ * Triggered when reply button is clicked on a comment
+ * Sends reply text along with parent comment ID to the
+ * server for processing
+ */
+function replyTo(comment) {
+  const replyId = `${comment["id"]}-bar`;
+  const replyContent = document.getElementById(replyId).value;
+  const replyObj = {};
+  replyObj["comment"] = replyContent;
+  replyObj["parentid"] = comment["id"];
+  fetch('/reply', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(replyObj),
+  }).then(response => {
+    loadComments();
+    document.getElementById("replyId").reset();
+  });
 }
 
 /**
