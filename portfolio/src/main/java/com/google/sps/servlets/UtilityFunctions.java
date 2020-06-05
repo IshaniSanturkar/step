@@ -53,8 +53,7 @@ public class UtilityFunctions {
           .set("parentid", parentId)
           .set("rootid", rootId)
           .set("upvotes", upvotes)
-          .set("downvotes", downvotes)
-          .set("score", upvotes-downvotes)
+          .set("score", upvotes - downvotes)
           .build();
     datastore.add(thisComment);
   }

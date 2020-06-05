@@ -61,13 +61,13 @@ public class VoteServlet extends HttpServlet {
     KeyFactory keyFactory = datastore.newKeyFactory().setKind("Comment");
     Entity comment = datastore.get(keyFactory.newKey(commentId));
     long upvotes = comment.getLong("upvotes");
-    long downvotes = comment.getLong("downvotes");
-    long score = upvotes - downvotes;
+    long score = comment.getLong("score");
+    long downvotes = upvotes - score;
     Entity updatedComment;
     if (isUpvote) {
-      updatedComment = Entity.newBuilder(comment).set("upvotes", upvotes+1).set("score", score + 1).build();
+      updatedComment = Entity.newBuilder(comment).set("upvotes", upvotes + 1).set("score", score + 1).build();
     } else {
-      updatedComment = Entity.newBuilder(comment).set("downvotes", downvotes+1).set("score", score - 1).build();
+      updatedComment = Entity.newBuilder(comment).set("score", score - 1).build();
     }
     datastore.update(updatedComment);
   }
