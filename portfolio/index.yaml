@@ -14,12 +14,18 @@ indexes:
   - name: name
     direction: desc
 
-
 - kind: Comment
   ancestor: no
   properties:
   - name: rootid
   - name: email
+    direction: desc
+
+- kind: Comment
+  ancestor: no
+  properties:
+  - name: rootid
+  - name: score
     direction: desc
 
 - kind: Comment
@@ -41,4 +47,11 @@ indexes:
   properties:
   - name: rootid
   - name: email
+    direction: asc
+
+- kind: Comment
+  ancestor: no
+  properties:
+  - name: rootid
+  - name: score
     direction: asc

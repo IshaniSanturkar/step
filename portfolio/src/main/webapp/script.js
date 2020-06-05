@@ -197,16 +197,44 @@ function constructReplyTree(comment, commentTree, margin) {
 // Creates a list element with the given comment text and metadata (name, timestamp etc.)
 function createListElement(comment) {
   const listElem = document.createElement("li");
+  const voteButtons = formatCommentVoteButtons;
   const metadata = formatCommentMetadata(comment);
   const quote = formatCommentText(comment);
   const reply = formatCommentReply(comment);
   const thisCommentDiv = document.createElement("div");
+
   thisCommentDiv.appendChild(metadata);
+  formatCommentVoteButtons(comment, thisCommentDiv);
   thisCommentDiv.appendChild(quote);
   thisCommentDiv.appendChild(reply);
   thisCommentDiv.className = "comment";
   listElem.appendChild(thisCommentDiv);
   return listElem;
+}
+
+function formatCommentVoteButtons(comment, thisCommentDiv) {
+  const upvoteText = document.createElement("p");
+  upvoteText.className = "vote-buttons";
+  upvoteText.id = `${comment["id"]}-up`;
+  upvoteText.innerText = comment["upvotes"];
+  const upvoteButton = document.createElement("button");
+  upvoteButton.classList.add("material-icons", "vote-buttons");
+  upvoteButton.innerText = "thumb_up";
+  upvoteButton.onclick = () => changeVote(comment, true);
+
+  const downvoteText = document.createElement("p");
+  downvoteText.className = "vote-buttons";
+  downvoteText.id = `${comment["id"]}-down`;
+  downvoteText.innerText = comment["downvotes"];
+  const downvoteButton = document.createElement("button");
+  downvoteButton.classList.add("material-icons", "vote-buttons");
+  downvoteButton.innerText = "thumb_down";
+  downvoteButton.onclick = () => changeVote(comment, false);
+
+  thisCommentDiv.appendChild(upvoteText);
+  thisCommentDiv.appendChild(upvoteButton);
+  thisCommentDiv.appendChild(downvoteText);
+  thisCommentDiv.appendChild(downvoteButton);
 }
 
 // Formats comment name and timestamp into an HTML p element
@@ -243,6 +271,21 @@ function formatCommentReply(comment) {
   replyDiv.appendChild(replyBar);
   replyDiv.appendChild(replyButton);
   return replyDiv;
+}
+
+function changeVote(comment, isUpvote) {
+  const updateObj = {};
+  updateObj["id"] = comment["id"];
+  updateObj["isupvote"] = isUpvote;
+  fetch('/update-vote', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(updateObj),
+  }).then(response => {
+    loadComments();
+  });
 }
 
 /**

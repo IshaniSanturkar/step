@@ -100,7 +100,9 @@ public class DataServlet extends HttpServlet {
     String comment = entity.getString("comment");
     long parentId = entity.getLong("parentid");
     long rootId = entity.getLong("rootid");
-    UserComment userComment = UserComment.create(name, email, comment, time, id, parentId, rootId);
+    long upvotes = entity.getLong("upvotes");
+    long downvotes = entity.getLong("downvotes");
+    UserComment userComment = UserComment.create(name, email, comment, time, id, parentId, rootId, upvotes, downvotes);
     return userComment;
   }
 
@@ -123,7 +125,7 @@ public class DataServlet extends HttpServlet {
       String userEmail = UtilityFunctions.getFieldFromJsonObject(jsonObject, "email", "janedoe@gmail.com");
       String currDate = String.valueOf(System.currentTimeMillis());
       long userDate = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(jsonObject, "timestamp", currDate));
-      UtilityFunctions.addToDatastore(userName, userEmail, userDate, userComment, 0, 0, false);
+      UtilityFunctions.addToDatastore(userName, userEmail, userDate, userComment, 0, 0, false, 0, 0);
 
     }
   }

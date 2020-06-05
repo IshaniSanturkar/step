@@ -279,10 +279,13 @@ p {
   min-height: 30px;
   background-color: rgb(166, 166, 166);
   margin-right: 20px;
+  margin-top: 20px;
+  padding: 10px;
 }
 
 .comment_metadata {
   font-size: 15px;
+  display: inline;
 }
 
 #sortorder {
@@ -306,4 +309,9 @@ p {
 
 .replybutton {
   float:right;
+}
+
+.vote-buttons {
+    display: inline;
+    float: right;
 }
