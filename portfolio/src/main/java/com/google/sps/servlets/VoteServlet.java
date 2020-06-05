@@ -65,7 +65,8 @@ public class VoteServlet extends HttpServlet {
     long downvotes = upvotes - score;
     Entity updatedComment;
     if (isUpvote) {
-      updatedComment = Entity.newBuilder(comment).set("upvotes", upvotes + 1).set("score", score + 1).build();
+      updatedComment = Entity.newBuilder(comment).set("upvotes", upvotes + 1)
+          .set("score", score + 1).build();
     } else {
       updatedComment = Entity.newBuilder(comment).set("score", score - 1).build();
     }

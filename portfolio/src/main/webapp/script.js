@@ -197,13 +197,13 @@ function constructReplyTree(comment, commentTree, margin) {
     toggleButton.classList.add("material-icons", "togglereply");
     toggleButton.innerText = "unfold_less";
     toggleButton.onclick = () => {
-        if(replyTree.classList.contains("hiddenreplytree")) {
-            replyTree.classList.replace("hiddenreplytree", "visiblereplytree");
-            toggleButton.innerText = "unfold_less";
-        } else {
-            replyTree.classList.replace("visiblereplytree", "hiddenreplytree");
-            toggleButton.innerText = "unfold_more";
-        }
+      if (replyTree.classList.contains("hiddenreplytree")) {
+        replyTree.classList.replace("hiddenreplytree", "visiblereplytree");
+        toggleButton.innerText = "unfold_less";
+      } else {
+        replyTree.classList.replace("visiblereplytree", "hiddenreplytree");
+        toggleButton.innerText = "unfold_more";
+      }
     }
     thisReply.appendChild(toggleButton);
     thisReply.appendChild(replyTree);

@@ -46,7 +46,8 @@ public class DataServlet extends HttpServlet {
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    int maxComments = Integer.parseInt(UtilityFunctions.getFieldFromResponse(request, "maxcomments", defaultMaxComment));
+    int maxComments = Integer.parseInt(UtilityFunctions.getFieldFromResponse(request, "maxcomments"
+        , defaultMaxComment));
     String sortMetric = UtilityFunctions.getFieldFromResponse(request, "metric", "time");
     String sortOrder = UtilityFunctions.getFieldFromResponse(request, "order", "desc");
     String filterMetric = UtilityFunctions.getFieldFromResponse(request, "filterby", "comment");
@@ -64,7 +65,8 @@ public class DataServlet extends HttpServlet {
    * Returns a list containing atmost maxComments top-level queries and all their replies. 
    * The top-level queries are sorted by sortMetric in sortOrder
    */ 
-  private void populateRootComments(ArrayList<UserComment> comments, int maxComments, String sortOrder, String sortMetric, String filterMetric, String filterText) {
+  private void populateRootComments(ArrayList<UserComment> comments, int maxComments
+        , String sortOrder, String sortMetric, String filterMetric, String filterText) {
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     Builder builder = Query.newEntityQueryBuilder();
     builder = builder.setKind("Comment").setFilter(PropertyFilter.eq("rootid", 0));
@@ -117,7 +119,8 @@ public class DataServlet extends HttpServlet {
     long rootId = entity.getLong("rootid");
     long upvotes = entity.getLong("upvotes");
     long downvotes = upvotes - entity.getLong("score");
-    UserComment userComment = UserComment.create(name, email, comment, time, id, parentId, rootId, upvotes, downvotes);
+    UserComment userComment = UserComment.create(name, email, comment, time, id, parentId, rootId
+        , upvotes, downvotes);
     return userComment;
   }
 
@@ -137,10 +140,13 @@ public class DataServlet extends HttpServlet {
     String userComment = UtilityFunctions.getFieldFromJsonObject(jsonObject, "comment", "");
     if (userComment.length() != 0) {
       String userName = UtilityFunctions.getFieldFromJsonObject(jsonObject, "name", "Anonymous");
-      String userEmail = UtilityFunctions.getFieldFromJsonObject(jsonObject, "email", "janedoe@gmail.com");
+      String userEmail = UtilityFunctions.getFieldFromJsonObject(jsonObject, "email"
+          , "janedoe@gmail.com");
       String currDate = String.valueOf(System.currentTimeMillis());
-      long userDate = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(jsonObject, "timestamp", currDate));
-      UtilityFunctions.addToDatastore(userName, userEmail, userDate, userComment, 0, 0, false, 0, 0);
+      long userDate = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(jsonObject
+          , "timestamp", currDate));
+      UtilityFunctions.addToDatastore(userName, userEmail, userDate, userComment, 0, 0, false
+          , 0, 0);
 
     }
   }
