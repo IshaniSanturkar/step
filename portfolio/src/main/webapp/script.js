@@ -231,10 +231,10 @@ function formatCommentVoteButtons(comment, thisCommentDiv) {
   downvoteButton.innerText = "thumb_down";
   downvoteButton.onclick = () => changeVote(comment, false);
 
-  thisCommentDiv.appendChild(upvoteText);
-  thisCommentDiv.appendChild(upvoteButton);
   thisCommentDiv.appendChild(downvoteText);
   thisCommentDiv.appendChild(downvoteButton);
+  thisCommentDiv.appendChild(upvoteText);
+  thisCommentDiv.appendChild(upvoteButton);
 }
 
 // Formats comment name and timestamp into an HTML p element
