@@ -51,7 +51,7 @@ public class DataServlet extends HttpServlet {
     String sortOrder = UtilityFunctions.getFieldFromResponse(request, "order", "desc");
 
     ArrayList<UserComment> comments = new ArrayList<>();
-    comments = populateRootComments(comments, maxComments, sortOrder, sortMetric);
+    populateRootComments(comments, maxComments, sortOrder, sortMetric);
 
     Gson gson = new Gson();
     response.setContentType("application/json;");
@@ -62,7 +62,7 @@ public class DataServlet extends HttpServlet {
    * Returns a list containing atmost maxComments top-level queries and all their replies. 
    * The top-level queries are sorted by sortMetric in sortOrder
    */ 
-  private ArrayList<UserComment> populateRootComments(ArrayList<UserComment> comments, int maxComments, String sortOrder, String sortMetric) {
+  private void populateRootComments(ArrayList<UserComment> comments, int maxComments, String sortOrder, String sortMetric) {
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     Builder builder = Query.newEntityQueryBuilder();
     builder = builder.setKind("Comment").setFilter(PropertyFilter.eq("rootid", 0));
@@ -81,13 +81,12 @@ public class DataServlet extends HttpServlet {
       Entity entity = results.next();
       UserComment comment = entityToComment(entity);
       comments.add(comment);
-      comments = populateChildComments(comments, entity.getKey().getId());
+      populateChildComments(comments, entity.getKey().getId());
     }
-    return comments;
   }
 
   // Returns a list containing all replies of the comment with ID rootId 
-  private ArrayList<UserComment> populateChildComments(ArrayList<UserComment> comments, long rootId) {
+  private void populateChildComments(ArrayList<UserComment> comments, long rootId) {
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     Builder builder = Query.newEntityQueryBuilder();
     builder = builder.setKind("Comment").setFilter(PropertyFilter.eq("rootid", rootId));
@@ -99,7 +98,6 @@ public class DataServlet extends HttpServlet {
       UserComment comment = entityToComment(entity);
       comments.add(comment);
     }
-    return comments;
   }
 
   // Creates a UserComment object from the given entity
