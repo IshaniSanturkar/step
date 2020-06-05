@@ -126,13 +126,17 @@ function startSlideshow() {
 function loadComments() {
   const maxcomments = document.getElementById("numcomments").value;
   const sortMetric = document.getElementById("sortby").value;
+  const filterMetric = document.getElementById("filterby").value;
+  const filterText = document.getElementById("filtertext").value;
+
   let sortOrder = "";
   if (document.getElementById("sortorder").classList.contains("desc")) {
     sortOrder = "desc";
   } else {
     sortOrder = "asc";
   }
-  const fetchString = `/data?maxcomments=${maxcomments}&metric=${sortMetric}&order=${sortOrder}`;
+  let fetchString = `/data?maxcomments=${maxcomments}&metric=${sortMetric}&order=${sortOrder}`;
+  fetchString = fetchString + `&filterby=${filterMetric}&filtertext=${filterText}`;
   fetch(fetchString).then(response => response.json()).then(comments => {
     const commentList = document.getElementById("toplevelcomments");
     while (commentList.lastChild) {
@@ -182,13 +186,26 @@ function constructReplyTree(comment, commentTree, margin) {
   } else {
     let thisReply = createListElement(comment);
     let replyTree = document.createElement("ul");
-    replyTree.className = "comments";
+    replyTree.classList.add("comments", "visiblereplytree");
     const newMargin = margin + 20;
     for (const child of children) {
       const subTree = constructReplyTree(child, commentTree, newMargin);
       replyTree.appendChild(subTree);
     }
     replyTree.style.marginLeft = `${margin}px`;
+    const toggleButton = document.createElement("button");
+    toggleButton.classList.add("material-icons", "togglereply");
+    toggleButton.innerText = "unfold_less";
+    toggleButton.onclick = () => {
+        if(replyTree.classList.contains("hiddenreplytree")) {
+            replyTree.classList.replace("hiddenreplytree", "visiblereplytree");
+            toggleButton.innerText = "unfold_less";
+        } else {
+            replyTree.classList.replace("visiblereplytree", "hiddenreplytree");
+            toggleButton.innerText = "unfold_more";
+        }
+    }
+    thisReply.appendChild(toggleButton);
     thisReply.appendChild(replyTree);
     return thisReply;
   }

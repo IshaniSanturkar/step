@@ -49,9 +49,11 @@ public class DataServlet extends HttpServlet {
     int maxComments = Integer.parseInt(UtilityFunctions.getFieldFromResponse(request, "maxcomments", defaultMaxComment));
     String sortMetric = UtilityFunctions.getFieldFromResponse(request, "metric", "time");
     String sortOrder = UtilityFunctions.getFieldFromResponse(request, "order", "desc");
+    String filterMetric = UtilityFunctions.getFieldFromResponse(request, "filterby", "comment");
+    String filterText = UtilityFunctions.getFieldFromResponse(request, "filtertext", "");
 
     ArrayList<UserComment> comments = new ArrayList<>();
-    populateRootComments(comments, maxComments, sortOrder, sortMetric);
+    populateRootComments(comments, maxComments, sortOrder, sortMetric, filterMetric, filterText);
 
     Gson gson = new Gson();
     response.setContentType("application/json;");
@@ -62,7 +64,7 @@ public class DataServlet extends HttpServlet {
    * Returns a list containing atmost maxComments top-level queries and all their replies. 
    * The top-level queries are sorted by sortMetric in sortOrder
    */ 
-  private void populateRootComments(ArrayList<UserComment> comments, int maxComments, String sortOrder, String sortMetric) {
+  private void populateRootComments(ArrayList<UserComment> comments, int maxComments, String sortOrder, String sortMetric, String filterMetric, String filterText) {
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     Builder builder = Query.newEntityQueryBuilder();
     builder = builder.setKind("Comment").setFilter(PropertyFilter.eq("rootid", 0));
@@ -71,6 +73,10 @@ public class DataServlet extends HttpServlet {
       builder = builder.setOrderBy(StructuredQuery.OrderBy.desc(sortMetric));
     } else {
       builder = builder.setOrderBy(StructuredQuery.OrderBy.asc(sortMetric));
+    }
+
+    if (filterText.length() != 0) {
+        builder = builder.setFilter(PropertyFilter.eq(filterMetric, filterText));
     }
     
     builder = builder.setLimit(maxComments);
