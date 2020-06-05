@@ -3,14 +3,14 @@ indexes:
 - kind: Comment
   ancestor: no
   properties:
-  - name: parentid
+  - name: rootid
   - name: time
     direction: desc
 
 - kind: Comment
   ancestor: no
   properties:
-  - name: parentid
+  - name: rootid
   - name: name
     direction: desc
 
@@ -18,27 +18,27 @@ indexes:
 - kind: Comment
   ancestor: no
   properties:
-  - name: parentid
+  - name: rootid
   - name: email
     direction: desc
 
 - kind: Comment
   ancestor: no
   properties:
-  - name: parentid
+  - name: rootid
   - name: time
     direction: asc
 
 - kind: Comment
   ancestor: no
   properties:
-  - name: parentid
+  - name: rootid
   - name: name
     direction: asc
 
 - kind: Comment
   ancestor: no
   properties:
-  - name: parentid
+  - name: rootid
   - name: email
     direction: asc

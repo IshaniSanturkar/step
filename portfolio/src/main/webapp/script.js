@@ -15,7 +15,7 @@
 const loc = "/images/life/";
 let currImageNum = 1;
 let sliderSpeed = 5000;
-let myTimer = setInterval(loopOverImages, sliderSpeed);
+let myTimer;
 let paused = false;
 
 // Shows or hides the list of courses for a particular semester upon user click
@@ -113,6 +113,11 @@ function togglePause() {
   }
 }
 
+// Initiates slideshow transition loop when gallery page loads
+function startSlideshow() {
+  myTimer = setInterval(loopOverImages, sliderSpeed);
+}
+
 /**
  * Retrieves parameters related to comment ordering and display,
  * submits a GET request to /data, receives the response
@@ -134,14 +139,9 @@ function loadComments() {
       commentList.removeChild(commentList.lastChild);
     }
     const commentTree = locateChildren(comments);
-    // let numDisplayed = 0;
     for (commentId in commentTree) {
-    //   if (numDisplayed == maxcomments) {
-    //     break;
-    //   }
       let comment = commentTree[commentId];
       if (comment["parentId"] === 0) {
-        // numDisplayed++;
         commentList.appendChild(constructReplyTree(comment, commentTree, 40));
       }
     }

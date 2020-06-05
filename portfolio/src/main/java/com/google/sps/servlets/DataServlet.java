@@ -46,43 +46,52 @@ public class DataServlet extends HttpServlet {
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    int maxComments = Integer.parseInt(UtilityFunctions.getFieldFromResponse(request, "maxcomments", defaultMaxComment));
     String sortMetric = UtilityFunctions.getFieldFromResponse(request, "metric", "time");
     String sortOrder = UtilityFunctions.getFieldFromResponse(request, "order", "desc");
 
-    Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-    Builder builder = Query.newEntityQueryBuilder();
-    builder = builder.setKind("Comment").setFilter(PropertyFilter.eq("parentid", 0));
-    if (sortOrder.equals("desc")) {
-      builder = builder.setOrderBy(StructuredQuery.OrderBy.desc(sortMetric));
-    } else {
-      builder = builder.setOrderBy(StructuredQuery.OrderBy.asc(sortMetric));
-    }
-    Query<Entity> query = builder.build();
-    QueryResults<Entity> results = datastore.run(query);
-
     ArrayList<UserComment> comments = new ArrayList<>();
-    while (results.hasNext()) {
-      Entity entity = results.next();
-      UserComment userComment = entityToComment(entity);
-      comments.add(userComment);
-      Builder childBuilder = Query.newEntityQueryBuilder();
-      childBuilder = childBuilder.setKind("Comment").setFilter(PropertyFilter.eq("rootid", id));
-      if (sortOrder.equals("desc")) {
-        childBuilder = childBuilder.setOrderBy(StructuredQuery.OrderBy.desc(sortMetric));
-      } else {
-        childBuilder = childBuilder.setOrderBy(StructuredQuery.OrderBy.asc(sortMetric));
-      }
-      Query<Entity> query = builder.build();
-      Iterator<Entity> childResults = datastore.run(query);
-      ArrayList<Entity> childList = Lists.newArrayList(childResults);
-      comments.addAll(childList);
-    }
+    comments = populateComments(comments, 0, maxComments, sortOrder, sortMetric);
 
     Gson gson = new Gson();
     response.setContentType("application/json;");
     response.getWriter().println(gson.toJson(comments));
   }
 
+  /*
+   * Returns a list containing atmost maxComments top-level queries and all their replies. 
+   * The queries are sorted by sortMetric in sortOrder
+   */ 
+  private ArrayList<UserComment> populateComments(ArrayList<UserComment> comments, long rootId, int maxComments, String sortOrder, String sortMetric) {
+    Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+    Builder builder = Query.newEntityQueryBuilder();
+    builder = builder.setKind("Comment").setFilter(PropertyFilter.eq("rootid", rootId));
+
+    if (sortOrder.equals("desc")) {
+      builder = builder.setOrderBy(StructuredQuery.OrderBy.desc(sortMetric));
+    } else {
+      builder = builder.setOrderBy(StructuredQuery.OrderBy.asc(sortMetric));
+    }
+
+    if (rootId == 0) {
+      builder = builder.setLimit(maxComments);
+    }
+
+    Query<Entity> query = builder.build();
+    QueryResults<Entity> results = datastore.run(query);
+    while (results.hasNext()) {
+      Entity entity = results.next();
+      UserComment comment = entityToComment(entity);
+      comments.add(comment);
+      if (rootId == 0) {
+        long newRootId = entity.getKey().getId();
+        comments = populateComments(comments, newRootId, maxComments, sortOrder, sortMetric);
+      }
+    }
+    return comments;
+  }
+
+  // Creates a UserComment object from the given entity
   private UserComment entityToComment(Entity entity) {
     long id = entity.getKey().getId();
     String name = entity.getString("name");
@@ -94,7 +103,6 @@ public class DataServlet extends HttpServlet {
     UserComment userComment = UserComment.create(name, email, comment, time, id, parentId, rootId);
     return userComment;
   }
-
 
   /*
    * Called when a client submits a POST request to the /data URL
