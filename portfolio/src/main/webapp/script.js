@@ -134,14 +134,14 @@ function loadComments() {
       commentList.removeChild(commentList.lastChild);
     }
     const commentTree = locateChildren(comments);
-    let numDisplayed = 0;
+    // let numDisplayed = 0;
     for (commentId in commentTree) {
-      if (numDisplayed == maxcomments) {
-        break;
-      }
+    //   if (numDisplayed == maxcomments) {
+    //     break;
+    //   }
       let comment = commentTree[commentId];
       if (comment["parentId"] === 0) {
-        numDisplayed++;
+        // numDisplayed++;
         commentList.appendChild(constructReplyTree(comment, commentTree, 40));
       }
     }
@@ -256,6 +256,7 @@ function replyTo(comment) {
   const replyObj = {};
   replyObj["comment"] = replyContent;
   replyObj["parentid"] = comment["id"];
+  replyObj["rootid"] = (comment["rootId"] === 0) ? comment["id"] : comment["rootId"];
   fetch('/reply', {
     method: 'POST',
     headers: {

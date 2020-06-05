@@ -18,8 +18,8 @@ import com.google.auto.value.AutoValue;
 
 @AutoValue 
 abstract class UserComment {
-  static UserComment create(String name, String email, String comment, long timestamp, long id, long parentId) {
-    return new AutoValue_UserComment(name, email, comment, timestamp, id, parentId);
+  static UserComment create(String name, String email, String comment, long timestamp, long id, long parentId, long rootId) {
+    return new AutoValue_UserComment(name, email, comment, timestamp, id, parentId, rootId);
   }
 
   /*
@@ -70,4 +70,13 @@ abstract class UserComment {
    * Invariants: Always non-negative
    */
   abstract long parentId();
+
+  /*
+   * Represents the ID of the root of the comment tree that 
+   * this reply is part of. If this is the root, rootId is
+   * 0. 
+   * Default Value: -
+   * Invariants: Always non-negative
+   */
+  abstract long rootId();
 }

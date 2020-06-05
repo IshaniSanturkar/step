@@ -20,6 +20,8 @@ import com.google.cloud.datastore.EntityQuery.Builder;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.StructuredQuery;
+import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
+import com.google.common.collect.Lists;
 import com.google.common.io.CharStreams;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -27,6 +29,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -48,7 +51,7 @@ public class DataServlet extends HttpServlet {
 
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     Builder builder = Query.newEntityQueryBuilder();
-    builder = builder.setKind("Comment");
+    builder = builder.setKind("Comment").setFilter(PropertyFilter.eq("parentid", 0));
     if (sortOrder.equals("desc")) {
       builder = builder.setOrderBy(StructuredQuery.OrderBy.desc(sortMetric));
     } else {
@@ -59,6 +62,7 @@ public class DataServlet extends HttpServlet {
 
     ArrayList<UserComment> comments = new ArrayList<>();
     while (results.hasNext()) {
+
       Entity entity = results.next();
       long id = entity.getKey().getId();
       String name = entity.getString("name");
@@ -66,8 +70,20 @@ public class DataServlet extends HttpServlet {
       long time =  entity.getLong("time");
       String comment = entity.getString("comment");
       long parentId = entity.getLong("parentid");
-      UserComment userComment = UserComment.create(name, email, comment, time, id, parentId);
+      long rootId = entity.getLong("rootid");
+      UserComment userComment = UserComment.create(name, email, comment, time, id, parentId, rootId);
       comments.add(userComment);
+      Builder childBuilder = Query.newEntityQueryBuilder();
+      childBuilder = childBuilder.setKind("Comment").setFilter(PropertyFilter.eq("rootid", id));
+      if (sortOrder.equals("desc")) {
+        childBuilder = childBuilder.setOrderBy(StructuredQuery.OrderBy.desc(sortMetric));
+      } else {
+        childBuilder = childBuilder.setOrderBy(StructuredQuery.OrderBy.asc(sortMetric));
+      }
+      Query<Entity> query = builder.build();
+      Iterator<Entity> childResults = datastore.run(query);
+      ArrayList<Entity> childList = Lists.newArrayList(childResults);
+      comments.addAll(childList);
     }
 
     Gson gson = new Gson();
@@ -94,7 +110,8 @@ public class DataServlet extends HttpServlet {
       String userEmail = UtilityFunctions.getFieldFromJsonObject(jsonObject, "email", "janedoe@gmail.com");
       String currDate = String.valueOf(System.currentTimeMillis());
       long userDate = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(jsonObject, "timestamp", currDate));
-      UtilityFunctions.addToDatastore(userName, userEmail, userDate, userComment, 0, false);
+      UtilityFunctions.addToDatastore(userName, userEmail, userDate, userComment, 0, 0, false);
+
     }
   }
 }
