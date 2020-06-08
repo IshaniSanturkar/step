@@ -2,11 +2,12 @@ body {
   font-family: 'Montserrat', sans-serif;
 }
 
-#intro-sec, #education-sec, #project-sec, #gallery-sec, #comment-sec {
+#intro-sec, #education-sec, #project-sec, #gallery-sec, #comment-sec, #loginbar {
   width: 1100px;
   margin: auto;
   background-color: white;
   color: black;
+  min-height: 800px;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -252,6 +253,7 @@ p {
 #comment-sec {
   background-color: lightgray;
   margin-bottom: 40px;
+  display: none;
 }
 
 #user_comment {
@@ -324,7 +326,7 @@ p {
   display: inline-block;
   margin-left: 0px;
   margin-right: 0px;
-  padding left: 0px;
+  padding-left: 0px;
   padding-right: 0px;
 }
 
@@ -352,4 +354,15 @@ select, button, #submitform {
 
 .visiblereplytree {
   display: block;
+}
+
+#loginbar {
+  display: none;
+  font-size: 20px;
+  text-align: center;
+  line-height: 800px;
+}
+
+#logout {
+  float: right;
 }

@@ -124,6 +124,25 @@ function startSlideshow() {
  * and displays it on the page
  */
 function loadComments() {
+  const loginString = "/login";
+  fetch(loginString)
+    .then(response => response.json())
+    .then(json => {
+      const loggedIn = json["loggedin"];
+      const url = json["url"];
+      if (loggedIn) {
+        document.getElementById("loginbar").style.display = "none";
+        document.getElementById("logout").href = url;
+        document.getElementById("comment-sec").style.display = "block";
+      } else {
+        document.getElementById("loginlink").href = url;
+        document.getElementById("loginbar").style.display = "block";
+        document.getElementById("comment-sec").style.display = "none";
+        return;
+      }
+    }
+    );
+
   const maxcomments = document.getElementById("numcomments").value;
   const sortMetric = document.getElementById("sortby").value;
   const filterMetric = document.getElementById("filterby").value;
