@@ -43,12 +43,17 @@ public class ReplyServlet extends HttpServlet {
     String userComment = UtilityFunctions.getFieldFromJsonObject(jsonObject, "comment", "");
     if (userComment.length() != 0) {
       String userName = UtilityFunctions.getFieldFromJsonObject(jsonObject, "name", "Anonymous");
-      String userEmail = UtilityFunctions.getFieldFromJsonObject(jsonObject, "email", "janedoe@gmail.com");
+      String userEmail = UtilityFunctions.getFieldFromJsonObject(
+          jsonObject, "email", "janedoe@gmail.com");
       String currDate = String.valueOf(System.currentTimeMillis());
-      long userDate = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(jsonObject, "timestamp", currDate));
-      long parentId = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(jsonObject, "parentid", "0"));
-      long rootId = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(jsonObject, "rootid", "0"));
-      UtilityFunctions.addToDatastore(userName, userEmail, userDate, userComment, parentId, rootId, true, 0, 0);
+      long userDate = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(
+          jsonObject, "timestamp", currDate));
+      long parentId = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(
+          jsonObject, "parentid", "0"));
+      long rootId = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(
+          jsonObject, "rootid", "0"));
+      UtilityFunctions.addToDatastore(userName, userEmail, userDate, userComment, parentId,
+          rootId, /* isReply = */ true, /* upvotes = */ 0, /* downvotes = */ 0);
     }
   }
 }

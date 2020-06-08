@@ -39,7 +39,7 @@
         <br /><br />
         <textarea id="user_comment" name="comment" placeholder="Type your comment here"></textarea>
         <br /><br />
-        <input type="submit">
+        <input type="submit" id="submitform">
       </form>
     </div>
     <div id="commenthistory">
@@ -66,6 +66,15 @@
       <span class="commentparam">
         <button onclick="clearComments()">Clear</button>
       </span>
+      <div id="filterdiv">
+        <label for="filterby">Filter By:</label>
+        <select name="filterby" id="filterby" onchange="loadComments()">
+          <option value="name">Author</option>
+          <option value="email">Email ID</option>
+          <option value="comment" selected>Comment</option>
+        </select>
+        <input type="text" id="filtertext" placeholder="Filter Text" onchange="loadComments()">
+      </div>
       <ul id="toplevelcomments" class="comments"></ul>
     </div>
   </section>
