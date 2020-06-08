@@ -259,6 +259,12 @@ p {
   min-width: 350px;
 }
 
+.comments {
+  list-style-type: none;
+  margin-top: 20px;
+  border-left: 2px solid grey;
+}
+
 #toplevelcomments {
   height: 800px;
   overflow: auto;
@@ -267,11 +273,7 @@ p {
   padding-bottom: 20px;
   margin-left: 20px;
   margin-right:20px;
-}
-
-.comments {
-  list-style-type: none;
-  margin-top: 20px;
+  border: none;
 }
 
 .comment {
@@ -290,7 +292,9 @@ p {
 
 #sortorder {
   width: 40px;
-  height: 40px;
+  height: 30px;
+  display: table-cell;
+  vertical-align: middle;
 }
 
 .commentparam {
@@ -312,6 +316,40 @@ p {
 }
 
 .vote-buttons {
-    display: inline;
-    float: right;
+  display: inline;
+  float: right;
+}
+
+#filterby, #filtertext {
+  display: inline-block;
+  margin-left: 0px;
+  margin-right: 0px;
+  padding left: 0px;
+  padding-right: 0px;
+}
+
+#filtertext {
+  width: 85%;
+  height: 24px;
+}
+
+#filterdiv {
+  margin-left: 20px;
+}
+
+select, button, #submitform {
+  height: 30px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+#commenthistory {
+  margin-top: 100px;
+}
+
+.hiddenreplytree {
+  display: none;
+}
+
+.visiblereplytree {
+  display: block;
 }

@@ -45,9 +45,11 @@ public class VoteServlet extends HttpServlet {
     JsonElement parsedJson = parser.parse(parsedBody);
     JsonObject jsonObject = parsedJson.getAsJsonObject();
 
-    long commentId = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(jsonObject, "id", "0"));
+    long commentId = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(
+        jsonObject, "id", "0"));
     if (commentId != 0) {
-      boolean isUpvote = Boolean.parseBoolean(UtilityFunctions.getFieldFromJsonObject(jsonObject, "isupvote", "true"));
+      boolean isUpvote = Boolean.parseBoolean(UtilityFunctions.getFieldFromJsonObject(
+          jsonObject, "isupvote", "true"));
       changeVoteInDatastore(commentId, isUpvote);
     }
   }
@@ -65,7 +67,8 @@ public class VoteServlet extends HttpServlet {
     long downvotes = upvotes - score;
     Entity updatedComment;
     if (isUpvote) {
-      updatedComment = Entity.newBuilder(comment).set("upvotes", upvotes + 1).set("score", score + 1).build();
+      updatedComment = Entity.newBuilder(comment).set("upvotes", upvotes + 1)
+          .set("score", score + 1).build();
     } else {
       updatedComment = Entity.newBuilder(comment).set("score", score - 1).build();
     }
