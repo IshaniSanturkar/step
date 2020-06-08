@@ -37,7 +37,7 @@ public class UtilityFunctions {
   }
 
   // Adds a comment with the given metadata to the database  
-  public static void addToDatastore(String name, String email, long dateTime, String comment, long parentId, long rootId, boolean isReply) {
+  public static void addToDatastore(String name, String email, long dateTime, String comment, long parentId, long rootId, boolean isReply, long upvotes, long downvotes) {
     if ((isReply && (parentId == 0)) || (isReply && (rootId == 0))) {
         return;
     }
@@ -52,6 +52,8 @@ public class UtilityFunctions {
           .set("comment", comment)
           .set("parentid", parentId)
           .set("rootid", rootId)
+          .set("upvotes", upvotes)
+          .set("score", upvotes - downvotes)
           .build();
     datastore.add(thisComment);
   }

@@ -18,8 +18,8 @@ import com.google.auto.value.AutoValue;
 
 @AutoValue 
 abstract class UserComment {
-  static UserComment create(String name, String email, String comment, long timestamp, long id, long parentId, long rootId) {
-    return new AutoValue_UserComment(name, email, comment, timestamp, id, parentId, rootId);
+  static UserComment create(String name, String email, String comment, long timestamp, long id, long parentId, long rootId, long upvotes, long downvotes) {
+    return new AutoValue_UserComment(name, email, comment, timestamp, id, parentId, rootId, upvotes, downvotes);
   }
 
   /*
@@ -79,4 +79,16 @@ abstract class UserComment {
    * Invariants: Always non-negative
    */
   abstract long rootId();
+
+  /*
+   * Represents the number of upvotes this comment has received
+   * Invariants: Always non-negative
+   */
+  abstract long upvotes();
+
+  /*
+   * Represents the number of downvotes this comment has received
+   * Invariants: Always non-negative
+   */
+  abstract long downvotes();
 }

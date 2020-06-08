@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 public class ReplyServlet extends HttpServlet {
 
   /*
-   * Called when a client submits a POST request to the /data URL
+   * Called when a client submits a POST request to the /reply URL
    * Adds submitted comment to internal record if the comment is
    * non-empty. 
    */
@@ -48,7 +48,7 @@ public class ReplyServlet extends HttpServlet {
       long userDate = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(jsonObject, "timestamp", currDate));
       long parentId = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(jsonObject, "parentid", "0"));
       long rootId = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(jsonObject, "rootid", "0"));
-      UtilityFunctions.addToDatastore(userName, userEmail, userDate, userComment, parentId, rootId, true);
+      UtilityFunctions.addToDatastore(userName, userEmail, userDate, userComment, parentId, rootId, true, 0, 0);
     }
   }
 }
