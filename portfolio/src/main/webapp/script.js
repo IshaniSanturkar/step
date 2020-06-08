@@ -193,21 +193,26 @@ function constructReplyTree(comment, commentTree, margin) {
       replyTree.appendChild(subTree);
     }
     replyTree.style.marginLeft = `${margin}px`;
-    const toggleButton = document.createElement("button");
-    toggleButton.classList.add("material-icons", "togglereply");
-    toggleButton.innerText = "unfold_less";
-    toggleButton.onclick = () => {
-      if (replyTree.classList.contains("hiddenreplytree")) {
-        replyTree.classList.replace("hiddenreplytree", "visiblereplytree");
-        toggleButton.innerText = "unfold_less";
-      } else {
-        replyTree.classList.replace("visiblereplytree", "hiddenreplytree");
-        toggleButton.innerText = "unfold_more";
-      }
-    }
+    const toggleButton = createToggleButton();
     thisReply.appendChild(toggleButton);
     thisReply.appendChild(replyTree);
     return thisReply;
+  }
+}
+
+// Return button that toggles reply trees in and out
+function createToggleButton() {
+  const toggleButton = document.createElement("button");
+  toggleButton.classList.add("material-icons", "togglereply");
+  toggleButton.innerText = "unfold_less";
+  toggleButton.onclick = () => {
+    if (replyTree.classList.contains("hiddenreplytree")) {
+      replyTree.classList.replace("hiddenreplytree", "visiblereplytree");
+      toggleButton.innerText = "unfold_less";
+    } else {
+      replyTree.classList.replace("visiblereplytree", "hiddenreplytree");
+      toggleButton.innerText = "unfold_more";
+    }
   }
 }
 
