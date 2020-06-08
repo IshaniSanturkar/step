@@ -145,8 +145,9 @@ public class DataServlet extends HttpServlet {
       String currDate = String.valueOf(System.currentTimeMillis());
       long userDate = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(jsonObject
           , "timestamp", currDate));
-      UtilityFunctions.addToDatastore(userName, userEmail, userDate, userComment, 0, 0, false
-          , 0, 0);
+      UtilityFunctions.addToDatastore(userName, userEmail, userDate, userComment
+          , /* parentId = */ 0, /* rootId = */ 0, /* isReply = */ false
+              , /* upvotes = */ 0, /* downvotes = */ 0);
 
     }
   }

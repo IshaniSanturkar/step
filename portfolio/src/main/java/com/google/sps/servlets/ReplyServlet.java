@@ -53,7 +53,7 @@ public class ReplyServlet extends HttpServlet {
       long rootId = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(jsonObject
           , "rootid", "0"));
       UtilityFunctions.addToDatastore(userName, userEmail, userDate, userComment, parentId
-          , rootId, true, 0, 0);
+          , rootId, /* isReply = */ true, /* upvotes = */ 0, /* downvotes = */ 0);
     }
   }
 }
