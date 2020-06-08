@@ -46,8 +46,8 @@ public class DataServlet extends HttpServlet {
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    int maxComments = Integer.parseInt(UtilityFunctions.getFieldFromResponse(request, "maxcomments"
-        , defaultMaxComment));
+    int maxComments = Integer.parseInt(UtilityFunctions.getFieldFromResponse(
+        request, "maxcomments", defaultMaxComment));
     String sortMetric = UtilityFunctions.getFieldFromResponse(request, "metric", "time");
     String sortOrder = UtilityFunctions.getFieldFromResponse(request, "order", "desc");
     String filterMetric = UtilityFunctions.getFieldFromResponse(request, "filterby", "comment");
@@ -65,8 +65,13 @@ public class DataServlet extends HttpServlet {
    * Returns a list containing atmost maxComments top-level queries and all their replies. 
    * The top-level queries are sorted by sortMetric in sortOrder
    */ 
-  private void populateRootComments(ArrayList<UserComment> comments, int maxComments
-        , String sortOrder, String sortMetric, String filterMetric, String filterText) {
+  private void populateRootComments(
+      ArrayList<UserComment> comments,
+      int maxComments,
+      String sortOrder,
+      String sortMetric,
+      String filterMetric,
+      String filterText) {
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     Builder builder = Query.newEntityQueryBuilder();
     builder = builder.setKind("Comment").setFilter(PropertyFilter.eq("rootid", 0));
