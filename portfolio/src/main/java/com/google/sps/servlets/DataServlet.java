@@ -124,8 +124,8 @@ public class DataServlet extends HttpServlet {
     long rootId = entity.getLong("rootid");
     long upvotes = entity.getLong("upvotes");
     long downvotes = upvotes - entity.getLong("score");
-    UserComment userComment = UserComment.create(name, email, comment, time, id, parentId, rootId
-        , upvotes, downvotes);
+    UserComment userComment = UserComment.create(name, email, comment, time, id, parentId, rootId,
+        upvotes, downvotes);
     return userComment;
   }
 
@@ -145,14 +145,14 @@ public class DataServlet extends HttpServlet {
     String userComment = UtilityFunctions.getFieldFromJsonObject(jsonObject, "comment", "");
     if (userComment.length() != 0) {
       String userName = UtilityFunctions.getFieldFromJsonObject(jsonObject, "name", "Anonymous");
-      String userEmail = UtilityFunctions.getFieldFromJsonObject(jsonObject, "email"
-          , "janedoe@gmail.com");
+      String userEmail = UtilityFunctions.getFieldFromJsonObject(
+          jsonObject, "email", "janedoe@gmail.com");
       String currDate = String.valueOf(System.currentTimeMillis());
-      long userDate = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(jsonObject
-          , "timestamp", currDate));
-      UtilityFunctions.addToDatastore(userName, userEmail, userDate, userComment
-          , /* parentId = */ 0, /* rootId = */ 0, /* isReply = */ false
-              , /* upvotes = */ 0, /* downvotes = */ 0);
+      long userDate = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(
+          jsonObject, "timestamp", currDate));
+      UtilityFunctions.addToDatastore(userName, userEmail, userDate, userComment,
+          /* parentId = */ 0, /* rootId = */ 0, /* isReply = */ false, /* upvotes = */ 0,
+              /* downvotes = */ 0);
 
     }
   }

@@ -193,7 +193,7 @@ function constructReplyTree(comment, commentTree, margin) {
       replyTree.appendChild(subTree);
     }
     replyTree.style.marginLeft = `${margin}px`;
-    const toggleButton = createToggleButton();
+    const toggleButton = createToggleButton(replyTree);
     thisReply.appendChild(toggleButton);
     thisReply.appendChild(replyTree);
     return thisReply;
@@ -201,7 +201,7 @@ function constructReplyTree(comment, commentTree, margin) {
 }
 
 // Return button that toggles reply trees in and out
-function createToggleButton() {
+function createToggleButton(replyTree) {
   const toggleButton = document.createElement("button");
   toggleButton.classList.add("material-icons", "togglereply");
   toggleButton.innerText = "unfold_less";
@@ -214,6 +214,7 @@ function createToggleButton() {
       toggleButton.innerText = "unfold_more";
     }
   }
+  return toggleButton;
 }
 
 // Creates a list element with the given comment text and metadata (name, timestamp etc.)
