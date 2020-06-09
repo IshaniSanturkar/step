@@ -73,10 +73,12 @@ public class VoteServlet extends HttpServlet {
     UserService userService = UserServiceFactory.getUserService();
     String userId = userService.getCurrentUser().getUserId();
 
-    if (obj.has(userId)) {
+    if (obj.has(userId) && amount == 1) {
         return;
+    } else if (obj.has(userId) && amount == -1) {
+        obj.remove(userId);
     } else {
-        obj.addProperty(userId, true);
+        obj.addProperty(userId, isUpvote);
     }
 
     long upvotes = comment.getLong("upvotes");
@@ -85,7 +87,7 @@ public class VoteServlet extends HttpServlet {
     Entity updatedComment;
     if (isUpvote) {
       updatedComment = Entity.newBuilder(comment).set("upvotes", upvotes + amount)
-          .set("score", score + 1).set("voters", obj.toString()).build();
+          .set("score", score + amount).set("voters", obj.toString()).build();
     } else {
       updatedComment = Entity.newBuilder(comment).set("score", score - amount)
           .set("voters", obj.toString()).build();

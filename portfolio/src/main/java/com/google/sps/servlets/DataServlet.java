@@ -49,6 +49,10 @@ public class DataServlet extends HttpServlet {
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    UserService userService = UserServiceFactory.getUserService();
+    if (!userService.isUserLoggedIn()) {
+        return;
+    }
     int maxComments = Integer.parseInt(UtilityFunctions.getFieldFromResponse(
         request, "maxcomments", defaultMaxComment));
     String sortMetric = UtilityFunctions.getFieldFromResponse(request, "metric", "time");
@@ -127,8 +131,21 @@ public class DataServlet extends HttpServlet {
     long rootId = entity.getLong("rootid");
     long upvotes = entity.getLong("upvotes");
     long downvotes = upvotes - entity.getLong("score");
+    String voters = entity.getString("voters");
+    
+    JsonParser parser = new JsonParser();
+    JsonObject obj = parser.parse(voters).getAsJsonObject();
+
+    UserService userService = UserServiceFactory.getUserService();
+    String userId = userService.getCurrentUser().getUserId();
+    int currUserStatus = 0;
+
+    if (obj.has(userId)) {
+        currUserStatus = obj.get(userId).getAsBoolean() ? 1 : -1;
+    }
+
     UserComment userComment = UserComment.create(name, email, comment, time, id, parentId, rootId
-        , upvotes, downvotes);
+        , upvotes, downvotes, currUserStatus);
     return userComment;
   }
 

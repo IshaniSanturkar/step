@@ -130,19 +130,19 @@ function loadComments() {
     .then(json => {
       const loggedIn = json["loggedin"];
       const url = json["url"];
-      if (loggedIn) {
-        document.getElementById("loginbar").style.display = "none";
-        document.getElementById("logout").href = url;
-        document.getElementById("curremail").innerText = `Currently signed in as ${json["email"]}`;
-        document.getElementById("comment-sec").style.display = "block";
-      } else {
+      const email = json["email"]
+      if (!loggedIn) {
         document.getElementById("loginlink").href = url;
         document.getElementById("loginbar").style.display = "block";
         document.getElementById("comment-sec").style.display = "none";
         return;
       }
-    }
-    );
+      document.getElementById("loginbar").style.display = "none";
+      document.getElementById("logout").href = url;
+      document.getElementById("curremail").innerText = 
+        `Currently signed in as ${email}`;
+      document.getElementById("comment-sec").style.display = "block";
+    });
 
   const maxcomments = document.getElementById("numcomments").value;
   const sortMetric = document.getElementById("sortby").value;
@@ -259,8 +259,11 @@ function formatCommentVoteButtons(comment, thisCommentDiv) {
   upvoteText.className = "vote-buttons";
   upvoteText.id = `${comment["id"]}-up`;
   upvoteText.innerText = comment["upvotes"];
+  const whichPressed = comment["currUserStatus"];
+
   const upvoteButton = document.createElement("button");
-  upvoteButton.classList.add("material-icons", "vote-buttons", "unpressed");
+  upvoteButton.classList.add("material-icons", "vote-buttons");
+  upvoteButton.classList.add(whichPressed === 1 ? "pressed" : "unpressed");
   upvoteButton.innerText = "thumb_up";
   upvoteButton.onclick = 
       () => 
@@ -276,13 +279,24 @@ function formatCommentVoteButtons(comment, thisCommentDiv) {
           
 
   const downvoteText = document.createElement("p");
-  downvoteText.classList.add("vote-buttons", "unpressed");
+  downvoteText.classList.add("vote-buttons");
   downvoteText.id = `${comment["id"]}-down`;
   downvoteText.innerText = comment["downvotes"];
   const downvoteButton = document.createElement("button");
   downvoteButton.classList.add("material-icons", "vote-buttons");
+  downvoteButton.classList.add(whichPressed === -1 ? "pressed" : "unpressed");
   downvoteButton.innerText = "thumb_down";
-  downvoteButton.onclick = () => changeVote(comment, false);
+  downvoteButton.onclick = () => 
+    { 
+        if (downvoteButton.classList.contains("unpressed")) {
+          changeVote(comment, false, 1);
+          downvoteButton.classList.replace("unpressed", "pressed");
+        } else {
+          changeVote(comment, false, -1);
+          downvoteButton.classList.replace("pressed", "unpressed");
+        }
+      };
+
 
   thisCommentDiv.appendChild(downvoteText);
   thisCommentDiv.appendChild(downvoteButton);
