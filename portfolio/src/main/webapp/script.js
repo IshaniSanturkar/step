@@ -139,7 +139,7 @@ function loadComments() {
       }
       document.getElementById("loginbar").style.display = "none";
       document.getElementById("logout").href = url;
-      document.getElementById("curremail").innerText = 
+      document.getElementById("curremail").innerText =
         `Currently signed in as ${email}`;
       document.getElementById("comment-sec").style.display = "block";
     });
@@ -239,7 +239,6 @@ function createToggleButton() {
 // Creates a list element with the given comment text and metadata (name, timestamp etc.)
 function createListElement(comment) {
   const listElem = document.createElement("li");
-  const voteButtons = formatCommentVoteButtons;
   const metadata = formatCommentMetadata(comment);
   const quote = formatCommentText(comment);
   const reply = formatCommentReply(comment);
@@ -254,6 +253,12 @@ function createListElement(comment) {
   return listElem;
 }
 
+/**
+ * Formats upvote and downvote buttons for each comment. Sets
+ * each button to pressed or unpressed based on data about
+ * whether the current user has pressed either received
+ * from server. 
+ */
 function formatCommentVoteButtons(comment, thisCommentDiv) {
   const upvoteText = document.createElement("p");
   upvoteText.className = "vote-buttons";
@@ -265,18 +270,17 @@ function formatCommentVoteButtons(comment, thisCommentDiv) {
   upvoteButton.classList.add("material-icons", "vote-buttons");
   upvoteButton.classList.add(whichPressed === 1 ? "pressed" : "unpressed");
   upvoteButton.innerText = "thumb_up";
-  upvoteButton.onclick = 
-      () => 
-      { 
-        if (upvoteButton.classList.contains("unpressed")) {
-          changeVote(comment, true, 1);
-          upvoteButton.classList.replace("unpressed", "pressed");
-        } else {
-          changeVote(comment, true, -1);
-          upvoteButton.classList.replace("pressed", "unpressed");
-        }
-      };
-          
+  upvoteButton.onclick =
+    () => {
+      if (upvoteButton.classList.contains("unpressed")) {
+        changeVote(comment, true, 1);
+        upvoteButton.classList.replace("unpressed", "pressed");
+      } else {
+        changeVote(comment, true, -1);
+        upvoteButton.classList.replace("pressed", "unpressed");
+      }
+    };
+
 
   const downvoteText = document.createElement("p");
   downvoteText.classList.add("vote-buttons");
@@ -286,16 +290,15 @@ function formatCommentVoteButtons(comment, thisCommentDiv) {
   downvoteButton.classList.add("material-icons", "vote-buttons");
   downvoteButton.classList.add(whichPressed === -1 ? "pressed" : "unpressed");
   downvoteButton.innerText = "thumb_down";
-  downvoteButton.onclick = () => 
-    { 
-        if (downvoteButton.classList.contains("unpressed")) {
-          changeVote(comment, false, 1);
-          downvoteButton.classList.replace("unpressed", "pressed");
-        } else {
-          changeVote(comment, false, -1);
-          downvoteButton.classList.replace("pressed", "unpressed");
-        }
-      };
+  downvoteButton.onclick = () => {
+    if (downvoteButton.classList.contains("unpressed")) {
+      changeVote(comment, false, 1);
+      downvoteButton.classList.replace("unpressed", "pressed");
+    } else {
+      changeVote(comment, false, -1);
+      downvoteButton.classList.replace("pressed", "unpressed");
+    }
+  };
 
 
   thisCommentDiv.appendChild(downvoteText);
@@ -340,6 +343,14 @@ function formatCommentReply(comment) {
   return replyDiv;
 }
 
+/**
+ * Triggers servlet that upvotes (if isUpvotes is true) or downvotes
+ * the comment on user click. Amount must be 1 or -1. An amount of 1
+ * represents an upvote if isUpvote is true and a downvote otherwise.
+ * An amount of -1 represents that the current user wants to revert
+ * their upvote if isUpvote is true and revert their downvote if 
+ * isUpvote is false. 
+ */
 function changeVote(comment, isUpvote, amount) {
   const updateObj = {};
   updateObj["id"] = comment["id"];

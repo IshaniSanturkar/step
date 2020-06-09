@@ -18,9 +18,17 @@ import com.google.auto.value.AutoValue;
 
 @AutoValue 
 abstract class UserComment {
-  static UserComment create(String name, String email, String comment, long timestamp
-      , long id, long parentId, long rootId, long upvotes, long downvotes
-      , long currUserStatus) {
+  static UserComment create(
+      String name,
+      String email,
+      String comment,
+      long timestamp,
+      long id,
+      long parentId,
+      long rootId,
+      long upvotes,
+      long downvotes,
+      long currUserStatus) {
     return new AutoValue_UserComment(name, email, comment, timestamp, id, parentId
         , rootId, upvotes, downvotes, currUserStatus);
   }
@@ -95,5 +103,11 @@ abstract class UserComment {
    */
   abstract long downvotes();
 
+  /*
+   * Represents whether the current user has upvoted (1), downvoted
+   * (-1) or not voted for (0) the given comment. 
+   * Invariants: Value is always -1, 0 or 1. The above conditions 
+   * are mutually exclusive. 
+   */
   abstract long currUserStatus();
 }

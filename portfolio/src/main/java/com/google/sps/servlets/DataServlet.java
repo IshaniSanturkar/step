@@ -133,11 +133,8 @@ public class DataServlet extends HttpServlet {
     long downvotes = upvotes - entity.getLong("score");
     String voters = entity.getString("voters");
     
-    JsonParser parser = new JsonParser();
-    JsonObject obj = parser.parse(voters).getAsJsonObject();
-
-    UserService userService = UserServiceFactory.getUserService();
-    String userId = userService.getCurrentUser().getUserId();
+    JsonObject obj = UtilityFunctions.stringToJsonObject(voters);
+    String userId = UtilityFunctions.getCurrentUserId();
     int currUserStatus = 0;
 
     if (obj.has(userId)) {
@@ -157,8 +154,11 @@ public class DataServlet extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     UserService userService = UserServiceFactory.getUserService();
-    User currUser = userService.getCurrentUser();
+    if (!userService.isUserLoggedIn()) {
+        return;
+    }
 
+    User currUser = userService.getCurrentUser();
     String parsedBody = CharStreams.toString(request.getReader());
 
     JsonParser parser = new JsonParser();

@@ -377,9 +377,9 @@ select, button, #submitform {
 }
 
 .pressed {
-    color: teal;
+  color: teal;
 }
 
 .unpressed {
-    color: black;
+  color: black;
 }

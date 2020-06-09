@@ -67,11 +67,8 @@ public class VoteServlet extends HttpServlet {
     Entity comment = datastore.get(keyFactory.newKey(commentId));
     
     String voters = comment.getString("voters");
-    JsonParser parser = new JsonParser();
-    JsonObject obj = parser.parse(voters).getAsJsonObject();
-
-    UserService userService = UserServiceFactory.getUserService();
-    String userId = userService.getCurrentUser().getUserId();
+    JsonObject obj = UtilityFunctions.stringToJsonObject(voters);
+    String userId = UtilityFunctions.getCurrentUserId();
 
     if (obj.has(userId) && amount == 1) {
         return;
