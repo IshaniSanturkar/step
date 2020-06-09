@@ -42,6 +42,11 @@ public class VoteServlet extends HttpServlet {
    */
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    UserService userService = UserServiceFactory.getUserService();
+    // Make sure user is logged in
+    if (!userService.isUserLoggedIn()) {
+        return;
+    }
     String parsedBody = CharStreams.toString(request.getReader());
     JsonObject jsonVote = UtilityFunctions.stringToJsonObject(parsedBody);
 
@@ -49,6 +54,11 @@ public class VoteServlet extends HttpServlet {
         jsonVote, "id", "0"));
     long amount = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(
         jsonVote, "amt", "0"));
+    
+    // Prevent a POST request from changing vote count by more than 1
+    if(amount != 1 && amount != -1) {
+        return;
+    }
 
     if (commentId != 0 && amount != 0) {
       boolean isUpvote = Boolean.parseBoolean(UtilityFunctions.getFieldFromJsonObject(
@@ -70,7 +80,7 @@ public class VoteServlet extends HttpServlet {
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     KeyFactory keyFactory = datastore.newKeyFactory().setKind("Comment");
     Entity comment = datastore.get(keyFactory.newKey(commentId));
-    
+
     String voters = comment.getString("voters");
     JsonObject obj = UtilityFunctions.stringToJsonObject(voters);
     String userId = UtilityFunctions.getCurrentUserId();

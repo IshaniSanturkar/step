@@ -42,6 +42,11 @@ public class EditServlet extends HttpServlet {
    */
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    UserService userService = UserServiceFactory.getUserService();
+    // Make sure user is logged in
+    if (!userService.isUserLoggedIn()) {
+        return;
+    }
     String parsedBody = CharStreams.toString(request.getReader());
     JsonObject jsonObject = UtilityFunctions.stringToJsonObject(parsedBody);
 
@@ -61,6 +66,11 @@ public class EditServlet extends HttpServlet {
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     KeyFactory keyFactory = datastore.newKeyFactory().setKind("Comment");
     Entity comment = datastore.get(keyFactory.newKey(commentId));
+    String commentUserId = comment.getString("userid");
+    // Make sure editing user is the same as the comment author
+    if(!commentUserId.equals(UtilityFunctions.getCurrentUserId())) {
+        return;
+    }
     Entity updatedComment = Entity.newBuilder(comment).set("comment", newComment).build();
     datastore.update(updatedComment);
   }
