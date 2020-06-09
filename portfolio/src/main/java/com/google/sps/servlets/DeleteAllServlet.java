@@ -14,8 +14,6 @@
 
 package com.google.sps.servlets;
 
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
@@ -38,16 +36,13 @@ public class DeleteAllServlet extends HttpServlet {
    */
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    UserService userService = UserServiceFactory.getUserService();
-    if (userService.isUserAdmin()) {
-      Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-      Query<Key> query =
-        Query.newKeyQueryBuilder()
-          .setKind("Comment")
-          .build();
-      Key[] keys = Iterators.toArray(datastore.run(query), Key.class);
-      datastore.delete(keys);
-    }
+    Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+    Query<Key> query =
+      Query.newKeyQueryBuilder()
+        .setKind("Comment")
+        .build();
+    Key[] keys = Iterators.toArray(datastore.run(query), Key.class);
+    datastore.delete(keys);
   }
 }
 

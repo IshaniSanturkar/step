@@ -43,23 +43,28 @@ public class VoteServlet extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String parsedBody = CharStreams.toString(request.getReader());
-    JsonObject jsonObject = UtilityFunctions.stringToJsonObject(parsedBody);
+    JsonObject jsonVote = UtilityFunctions.stringToJsonObject(parsedBody);
 
     long commentId = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(
-        jsonObject, "id", "0"));
+        jsonVote, "id", "0"));
     long amount = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(
-        jsonObject, "amt", "0"));
+        jsonVote, "amt", "0"));
 
     if (commentId != 0 && amount != 0) {
       boolean isUpvote = Boolean.parseBoolean(UtilityFunctions.getFieldFromJsonObject(
-        jsonObject, "isupvote", "true"));
+        jsonVote, "isupvote", "true"));
       changeVoteInDatastore(commentId, isUpvote, amount);
     }
   }
 
   /* 
-   * Changes the number of upvotes/downvotes of the comment IDed by commentId
-   * based on whether isUpvote is true or false as well as the net score of the comment
+   * Registers that the comment represented by commentId has been upvoted (if isUpvote
+   * is true) or downvoted (if isUpvote is false) if amount is 1 and the user hasn't
+   * already upvoted or downvoted the same comment. If they have, no change occurs.
+   * If amount is -1 and the user has upvoted [downvoted] a comment and isUpvote is true
+   * [false] then the vote is deregistered so that the user has no vote towards this comment.
+   * If amount is -1 and isUpvote is true and the user has downvoted the comment, no change 
+   * occurs.
    */
   private void changeVoteInDatastore(long commentId, boolean isUpvote, long amount) {
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
@@ -70,11 +75,26 @@ public class VoteServlet extends HttpServlet {
     JsonObject obj = UtilityFunctions.stringToJsonObject(voters);
     String userId = UtilityFunctions.getCurrentUserId();
 
+    /* 
+     * The user has upvoted a comment and is trying to downvote it 
+     * or has downvoted the comment and is trying to upvote it. In
+     * this case, no change should occur. 
+     */
     if (obj.has(userId) && amount == 1) {
-        return;
+      return;
     } else if (obj.has(userId) && amount == -1) {
-        obj.remove(userId);
+      /*
+       * User has upvoted/downvoted the comment and is trying to 
+       * revert their vote
+       */
+      boolean status = obj.get(userId).getAsBoolean();
+      // Making sure that the user is reverting the exact vote they made
+      if(status != isUpvote) {
+        return;
+      } 
+      obj.remove(userId);
     } else {
+        // User has no vote on this comment currently and is making a fresh vote
         obj.addProperty(userId, isUpvote);
     }
 

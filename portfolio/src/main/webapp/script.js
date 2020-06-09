@@ -142,6 +142,12 @@ function loadComments() {
       document.getElementById("curremail").innerText =
         `Currently signed in as ${email}`;
       document.getElementById("comment-sec").style.display = "block";
+      const isAdmin = json["isadmin"];
+      if (isAdmin) {
+          document.getElementById("clearcomments").className = "showclearbutton";
+      } else {
+          document.getElementById("clearcomments").className = "hideclearbutton";
+      }
     });
 
   const maxcomments = document.getElementById("numcomments").value;
@@ -346,18 +352,34 @@ function formatCommentVoteButtons(comment, thisCommentDiv) {
   upvoteText.className = "vote-buttons";
   upvoteText.id = `${comment["id"]}-up`;
   upvoteText.innerText = comment["upvotes"];
-  const whichPressed = comment["currUserStatus"];
+
+  /**
+   * This variable can have three (String) values:
+   * UPVOTED means that the current user has upvoted this comment (once)
+   * DOWNVOTED means that the current user has downvoted this comment
+   * NOTVOTED means that the current user has neither upvoted nor
+   * downvoted this comment
+   */
+  const whichPressed = comment["votingStatus"];
 
   const upvoteButton = document.createElement("button");
   upvoteButton.classList.add("material-icons", "vote-buttons");
-  upvoteButton.classList.add(whichPressed === 1 ? "pressed" : "unpressed");
+  upvoteButton.classList.add(whichPressed === "UPVOTED" ? "pressed" : "unpressed");
   upvoteButton.innerText = "thumb_up";
   upvoteButton.onclick =
     () => {
+      /**
+       * upvote button was unpressed and user is now pressing it so we 
+       * increase upvotes by 1
+       */ 
       if (upvoteButton.classList.contains("unpressed")) {
         changeVote(comment, true, 1);
         upvoteButton.classList.replace("unpressed", "pressed");
       } else {
+        /**
+        * upvote button was pressed and user is now pressing it again so we 
+        * decrease upvotes by 1 and undo the vote
+        */ 
         changeVote(comment, true, -1);
         upvoteButton.classList.replace("pressed", "unpressed");
       }
@@ -365,18 +387,26 @@ function formatCommentVoteButtons(comment, thisCommentDiv) {
 
 
   const downvoteText = document.createElement("p");
-  downvoteText.classList.add("vote-buttons");
+  downvoteText.className = "vote-buttons";
   downvoteText.id = `${comment["id"]}-down`;
   downvoteText.innerText = comment["downvotes"];
   const downvoteButton = document.createElement("button");
   downvoteButton.classList.add("material-icons", "vote-buttons");
-  downvoteButton.classList.add(whichPressed === -1 ? "pressed" : "unpressed");
+  downvoteButton.classList.add(whichPressed === "DOWNVOTED" ? "pressed" : "unpressed");
   downvoteButton.innerText = "thumb_down";
   downvoteButton.onclick = () => {
+    /**
+     * downvote button was unpressed and user is now pressing it so we 
+     * increase downvotes by 1
+     */ 
     if (downvoteButton.classList.contains("unpressed")) {
       changeVote(comment, false, 1);
       downvoteButton.classList.replace("unpressed", "pressed");
     } else {
+      /**
+       * downvote button was pressed and user is now pressing it again so we 
+       * decrease downvotes by 1 and undo the vote
+       */ 
       changeVote(comment, false, -1);
       downvoteButton.classList.replace("pressed", "unpressed");
     }
