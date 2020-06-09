@@ -130,7 +130,7 @@ function loadComments() {
     .then(json => {
       const loggedIn = json["loggedin"];
       const url = json["url"];
-      if(!loggedIn) {
+      if (!loggedIn) {
         document.getElementById("loginlink").href = url;
         document.getElementById("loginbar").style.display = "block";
         document.getElementById("comment-sec").style.display = "none";
