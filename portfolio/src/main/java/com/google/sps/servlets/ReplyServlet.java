@@ -35,20 +35,20 @@ public class ReplyServlet extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String parsedBody = CharStreams.toString(request.getReader());
-    JsonObject jsonObject = UtilityFunctions.stringToJsonObject(parsedBody);
+    JsonObject jsonReply = UtilityFunctions.stringToJsonObject(parsedBody);
 
-    String userComment = UtilityFunctions.getFieldFromJsonObject(jsonObject, "comment", "");
+    String userComment = UtilityFunctions.getFieldFromJsonObject(jsonReply, "comment", "");
     if (userComment.length() != 0) {
-      String userName = UtilityFunctions.getFieldFromJsonObject(jsonObject, "name", "Anonymous");
+      String userName = UtilityFunctions.getFieldFromJsonObject(jsonReply, "name", "Anonymous");
       String userEmail = UtilityFunctions.getFieldFromJsonObject(
-          jsonObject, "email", "janedoe@gmail.com");
+          jsonReply, "email", "janedoe@gmail.com");
       String currDate = String.valueOf(System.currentTimeMillis());
       long userDate = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(
-          jsonObject, "timestamp", currDate));
+          jsonReply, "timestamp", currDate));
       long parentId = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(
-          jsonObject, "parentid", "0"));
+          jsonReply, "parentid", "0"));
       long rootId = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(
-          jsonObject, "rootid", "0"));
+          jsonReply, "rootid", "0"));
       UtilityFunctions.addToDatastore(userName, userEmail, userDate, userComment, parentId,
           rootId, /* isReply = */ true, /* upvotes = */ 0, /* downvotes = */ 0);
     }

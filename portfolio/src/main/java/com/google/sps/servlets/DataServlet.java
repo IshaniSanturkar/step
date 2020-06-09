@@ -135,14 +135,16 @@ public class DataServlet extends HttpServlet {
     
     JsonObject obj = UtilityFunctions.stringToJsonObject(voters);
     String userId = UtilityFunctions.getCurrentUserId();
-    int currUserStatus = 0;
+    UserComment.voteStatus votingStatus = UserComment.voteStatus.NOTVOTED;
 
     if (obj.has(userId)) {
-        currUserStatus = obj.get(userId).getAsBoolean() ? 1 : -1;
+        votingStatus = obj.get(userId).getAsBoolean() ? 
+            UserComment.voteStatus.UPVOTED : 
+            UserComment.voteStatus.DOWNVOTED;
     }
 
-    UserComment userComment = UserComment.create(name, email, comment, time, id, parentId, rootId
-        , upvotes, downvotes, currUserStatus);
+    UserComment userComment = UserComment.create(name, email, comment, time, id, parentId, rootId,
+        upvotes, downvotes, votingStatus);
     return userComment;
   }
 
@@ -157,18 +159,17 @@ public class DataServlet extends HttpServlet {
     if (!userService.isUserLoggedIn()) {
         return;
     }
-
-    User currUser = userService.getCurrentUser();
     String parsedBody = CharStreams.toString(request.getReader());
-    JsonObject jsonObject = UtilityFunctions.stringToJsonObject(parsedBody);
+    JsonObject jsonComment = UtilityFunctions.stringToJsonObject(parsedBody);
 
-    String userComment = UtilityFunctions.getFieldFromJsonObject(jsonObject, "comment", "");
+    String userComment = UtilityFunctions.getFieldFromJsonObject(jsonComment, "comment", "");
     if (userComment.length() != 0) {
-      String userName = UtilityFunctions.getFieldFromJsonObject(jsonObject, "name", "Anonymous");
+      String userName = UtilityFunctions.getFieldFromJsonObject(jsonComment, "name", "Anonymous");
+      User currUser = userService.getCurrentUser();
       String userEmail = currUser != null ? currUser.getEmail() : "janedoe@gmail.com";
       String currDate = String.valueOf(System.currentTimeMillis());
       long userDate = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(
-          jsonObject, "timestamp", currDate));
+          jsonComment, "timestamp", currDate));
       UtilityFunctions.addToDatastore(userName, userEmail, userDate, userComment,
           /* parentId = */ 0, /* rootId = */ 0, /* isReply = */ false, /* upvotes = */ 0,
               /* downvotes = */ 0);

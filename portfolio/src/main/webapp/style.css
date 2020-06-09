@@ -383,3 +383,12 @@ select, button, #submitform {
 .unpressed {
   color: black;
 }
+
+.hideclearbutton {
+  display: none;
+}
+
+.showclearbutton {
+  display: inline;
+}
+

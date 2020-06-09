@@ -41,9 +41,14 @@ public class LoginServlet extends HttpServlet {
     UserService userService = UserServiceFactory.getUserService();
     
     if (userService.isUserLoggedIn()) {
+      boolean isAdmin = userService.isUserAdmin();
       String email = userService.getCurrentUser().getEmail();
       String logoutUrl = userService.createLogoutURL(redirectURL);
-      builder = builder.add("loggedin", true).add("url", logoutUrl).add("email", email);
+      builder = builder
+                .add("loggedin", true)
+                .add("url", logoutUrl)
+                .add("email", email)
+                .add("isadmin", isAdmin);
     } else {
       String loginUrl = userService.createLoginURL(redirectURL);
       builder = builder.add("loggedin", false).add("url", loginUrl);
