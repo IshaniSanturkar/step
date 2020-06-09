@@ -32,13 +32,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet("/delete-one")
-public class DeleteOneServlet extends HttpServlet {
+@WebServlet("/edit")
+public class EditServlet extends HttpServlet {
 
   /*
-   * Called when a POST request is submitted to /delete-one, deletes the 
-   * comment that was clicked as well as all of its replies
-   * Invariant: The comment must have been authored by the current user
+   * Called when a POST request is submitted to /edit, updates the comment
+   * that has been edited to reflect its new content
+   * Invariant: a user can only edit comments they authored
    */
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -47,18 +47,21 @@ public class DeleteOneServlet extends HttpServlet {
 
     long commentId = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(
         jsonObject, "id", "0"));
+    String newComment = UtilityFunctions.getFieldFromJsonObject(jsonObject, "comment", "");
 
-    if (commentId != 0) {
-      deleteInDatastore(commentId);
+    if (newComment.length() != 0) {
+      editInDatastore(commentId, newComment);
     }
   }
 
   /* 
    * Deletes comment represented by commentId from the datastore
    */
-  private void deleteInDatastore(long commentId) {
+  private void editInDatastore(long commentId, String newComment) {
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     KeyFactory keyFactory = datastore.newKeyFactory().setKind("Comment");
-    datastore.delete(keyFactory.newKey(commentId));
+    Entity comment = datastore.get(keyFactory.newKey(commentId));
+    Entity updatedComment = Entity.newBuilder(comment).set("comment", newComment).build();
+    datastore.update(updatedComment);
   }
 }

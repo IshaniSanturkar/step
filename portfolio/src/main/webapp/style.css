@@ -304,17 +304,25 @@ p {
   margin-right: 20px;
 }
 
-.replydiv {
+.replydiv, .editdiv {
   margin-left: 10px;
   margin-right: 20px;
 }
 
-.replybar {
+.replybar, .editbar {
   width: 80%;
 }
 
-.replybutton {
-  float:right;
+.editbar {
+  margin: 20px;
+}
+
+.replybutton, .editbutton {
+  float: right;
+}
+
+.editbutton {
+  margin: 20px;
 }
 
 .vote-buttons {
