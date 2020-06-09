@@ -71,9 +71,13 @@ public class VoteServlet extends HttpServlet {
     String userId = UtilityFunctions.getCurrentUserId();
 
     if (obj.has(userId) && amount == 1) {
-        return;
+      return;
     } else if (obj.has(userId) && amount == -1) {
-        obj.remove(userId);
+      boolean status = obj.get(userId).getAsBoolean();
+      if(status != isUpvote) {
+        return;
+      } 
+      obj.remove(userId);
     } else {
         obj.addProperty(userId, isUpvote);
     }
