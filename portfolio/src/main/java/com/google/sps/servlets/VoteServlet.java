@@ -75,12 +75,12 @@ public class VoteServlet extends HttpServlet {
     JsonObject obj = UtilityFunctions.stringToJsonObject(voters);
     String userId = UtilityFunctions.getCurrentUserId();
 
-    /* 
-     * The user has upvoted a comment and is trying to downvote it 
-     * or has downvoted the comment and is trying to upvote it. In
-     * this case, no change should occur. 
-     */
     if (obj.has(userId) && amount == 1) {
+      /* 
+       * The user has upvoted a comment and is trying to downvote it 
+       * or has downvoted the comment and is trying to upvote it. In
+       * this case, no change should occur. 
+       */
       return;
     } else if (obj.has(userId) && amount == -1) {
       /*
