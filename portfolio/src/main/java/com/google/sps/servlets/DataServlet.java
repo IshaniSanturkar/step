@@ -167,11 +167,11 @@ public class DataServlet extends HttpServlet {
       String userName = UtilityFunctions.getFieldFromJsonObject(jsonObject, "name", "Anonymous");
       String userEmail = currUser != null ? currUser.getEmail() : "janedoe@gmail.com";
       String currDate = String.valueOf(System.currentTimeMillis());
-      long userDate = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(jsonObject
-          , "timestamp", currDate));
-      UtilityFunctions.addToDatastore(userName, userEmail, userDate, userComment
-          , /* parentId = */ 0, /* rootId = */ 0, /* isReply = */ false
-              , /* upvotes = */ 0, /* downvotes = */ 0);
+      long userDate = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(
+          jsonObject, "timestamp", currDate));
+      UtilityFunctions.addToDatastore(userName, userEmail, userDate, userComment,
+          /* parentId = */ 0, /* rootId = */ 0, /* isReply = */ false, /* upvotes = */ 0,
+              /* downvotes = */ 0);
 
     }
   }

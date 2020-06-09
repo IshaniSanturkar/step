@@ -45,11 +45,14 @@ public class VoteServlet extends HttpServlet {
     String parsedBody = CharStreams.toString(request.getReader());
     JsonObject jsonObject = UtilityFunctions.stringToJsonObject(parsedBody);
 
-    long commentId = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(jsonObject, "id", "0"));
-    long amount = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(jsonObject, "amt", "0"));
+    long commentId = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(
+        jsonObject, "id", "0"));
+    long amount = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(
+        jsonObject, "amt", "0"));
 
     if (commentId != 0 && amount != 0) {
-      boolean isUpvote = Boolean.parseBoolean(UtilityFunctions.getFieldFromJsonObject(jsonObject, "isupvote", "true"));
+      boolean isUpvote = Boolean.parseBoolean(UtilityFunctions.getFieldFromJsonObject(
+        jsonObject, "isupvote", "true"));
       changeVoteInDatastore(commentId, isUpvote, amount);
     }
   }

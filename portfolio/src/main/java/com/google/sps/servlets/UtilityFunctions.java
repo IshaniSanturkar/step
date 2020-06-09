@@ -32,8 +32,10 @@ public class UtilityFunctions {
    * Extracts the value of fieldName attribute from jsonObject if present
    * and returns defaultValue if it is not or the value is empty
    */
-  public static String getFieldFromJsonObject(JsonObject jsonObject, String fieldName
-        , String defaultValue) {
+  public static String getFieldFromJsonObject(
+      JsonObject jsonObject,
+      String fieldName,
+      String defaultValue) {
     if (jsonObject.has(fieldName)) {
       String fieldValue = jsonObject.get(fieldName).getAsString();
       return (fieldValue.length() == 0) ? defaultValue : fieldValue;
@@ -42,8 +44,16 @@ public class UtilityFunctions {
   }
 
   // Adds a comment with the given metadata to the database  
-  public static void addToDatastore(String name, String email, long dateTime, String comment
-        , long parentId, long rootId, boolean isReply, long upvotes, long downvotes) {
+  public static void addToDatastore(
+      String name,
+      String email,
+      long dateTime,
+      String comment,
+      long parentId,
+      long rootId,
+      boolean isReply,
+      long upvotes,
+      long downvotes) {
     if ((isReply && (parentId == 0)) || (isReply && (rootId == 0))) {
         return;
     }
@@ -69,8 +79,10 @@ public class UtilityFunctions {
    * Get value for fieldName for request if present. Return defaultValue if fieldName is not present
    * or the associated value is empty. Raise an exception if fieldName is mapped to multiple values.
    */
-  public static String getFieldFromResponse(HttpServletRequest request, String fieldName
-      , String defaultValue) {
+  public static String getFieldFromResponse(
+      HttpServletRequest request,
+      String fieldName,
+      String defaultValue) {
     String[] defaultArr = {defaultValue};
     String[] fieldValues = request.getParameterMap().getOrDefault(fieldName, defaultArr);
     if (fieldValues.length > 1) {
