@@ -43,10 +43,7 @@ public class VoteServlet extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String parsedBody = CharStreams.toString(request.getReader());
-
-    JsonParser parser = new JsonParser();
-    JsonElement parsedJson = parser.parse(parsedBody);
-    JsonObject jsonObject = parsedJson.getAsJsonObject();
+    JsonObject jsonObject = UtilityFunctions.stringToJsonObject(parsedBody);
 
     long commentId = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(jsonObject, "id", "0"));
     long amount = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(jsonObject, "amt", "0"));

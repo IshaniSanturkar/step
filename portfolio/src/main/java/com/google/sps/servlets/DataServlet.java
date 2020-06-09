@@ -160,10 +160,7 @@ public class DataServlet extends HttpServlet {
 
     User currUser = userService.getCurrentUser();
     String parsedBody = CharStreams.toString(request.getReader());
-
-    JsonParser parser = new JsonParser();
-    JsonElement parsedJson = parser.parse(parsedBody);
-    JsonObject jsonObject = parsedJson.getAsJsonObject();
+    JsonObject jsonObject = UtilityFunctions.stringToJsonObject(parsedBody);
 
     String userComment = UtilityFunctions.getFieldFromJsonObject(jsonObject, "comment", "");
     if (userComment.length() != 0) {

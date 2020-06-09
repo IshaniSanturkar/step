@@ -35,10 +35,7 @@ public class ReplyServlet extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String parsedBody = CharStreams.toString(request.getReader());
-
-    JsonParser parser = new JsonParser();
-    JsonElement parsedJson = parser.parse(parsedBody);
-    JsonObject jsonObject = parsedJson.getAsJsonObject();
+    JsonObject jsonObject = UtilityFunctions.stringToJsonObject(parsedBody);
 
     String userComment = UtilityFunctions.getFieldFromJsonObject(jsonObject, "comment", "");
     if (userComment.length() != 0) {
