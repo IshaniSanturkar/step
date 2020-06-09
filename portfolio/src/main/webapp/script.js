@@ -249,9 +249,34 @@ function createListElement(comment) {
   formatCommentVoteButtons(comment, thisCommentDiv);
   thisCommentDiv.appendChild(quote);
   thisCommentDiv.appendChild(reply);
+  if(comment["isEditable"]) {
+    formatCommentDeleteButton(comment, thisCommentDiv);
+  }
   thisCommentDiv.className = "comment";
   listElem.appendChild(thisCommentDiv);
   return listElem;
+}
+
+function formatCommentDeleteButton(comment, thisDiv) {
+  const deleteButton = document.createElement("button");
+  deleteButton.className = "material-icons";
+  deleteButton.innerText = "delete";
+  deleteButton.onclick = () => deleteComment(comment);
+  thisDiv.appendChild(deleteButton);
+}
+
+function deleteComment(comment) {
+  const deleteObj = {};
+  deleteObj["id"] = comment["id"];
+  fetch('/delete-one', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(deleteObj),
+  }).then(response => {
+    loadComments();
+  });
 }
 
 /**
@@ -416,11 +441,11 @@ function submitForm(form) {
 }
 
 /**
- * Submits a post request to /delete-data to delete all comments,
+ * Submits a post request to /delete-all to delete all comments,
  * then reloads the comments section
  */
 function clearComments() {
-  fetch("/delete-data", {
+  fetch("/delete-all", {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
