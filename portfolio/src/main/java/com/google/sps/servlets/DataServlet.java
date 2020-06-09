@@ -13,6 +13,9 @@
 // limitations under the License.
 
 package com.google.sps.servlets;
+import com.google.appengine.api.users.User;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
@@ -136,6 +139,9 @@ public class DataServlet extends HttpServlet {
    */
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    UserService userService = UserServiceFactory.getUserService();
+    User currUser = userService.getCurrentUser();
+
     String parsedBody = CharStreams.toString(request.getReader());
 
     JsonParser parser = new JsonParser();
@@ -145,8 +151,7 @@ public class DataServlet extends HttpServlet {
     String userComment = UtilityFunctions.getFieldFromJsonObject(jsonObject, "comment", "");
     if (userComment.length() != 0) {
       String userName = UtilityFunctions.getFieldFromJsonObject(jsonObject, "name", "Anonymous");
-      String userEmail = UtilityFunctions.getFieldFromJsonObject(jsonObject, "email"
-          , "janedoe@gmail.com");
+      String userEmail = currUser != null ? currUser.getEmail() : "janedoe@gmail.com";
       String currDate = String.valueOf(System.currentTimeMillis());
       long userDate = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(jsonObject
           , "timestamp", currDate));

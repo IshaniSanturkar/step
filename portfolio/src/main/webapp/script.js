@@ -133,6 +133,7 @@ function loadComments() {
       if (loggedIn) {
         document.getElementById("loginbar").style.display = "none";
         document.getElementById("logout").href = url;
+        document.getElementById("curremail").innerText = `Currently signed in as ${json["email"]}`;
         document.getElementById("comment-sec").style.display = "block";
       } else {
         document.getElementById("loginlink").href = url;
@@ -259,12 +260,23 @@ function formatCommentVoteButtons(comment, thisCommentDiv) {
   upvoteText.id = `${comment["id"]}-up`;
   upvoteText.innerText = comment["upvotes"];
   const upvoteButton = document.createElement("button");
-  upvoteButton.classList.add("material-icons", "vote-buttons");
+  upvoteButton.classList.add("material-icons", "vote-buttons", "unpressed");
   upvoteButton.innerText = "thumb_up";
-  upvoteButton.onclick = () => changeVote(comment, true);
+  upvoteButton.onclick = 
+      () => 
+      { 
+        if (upvoteButton.classList.contains("unpressed")) {
+          changeVote(comment, true, 1);
+          upvoteButton.classList.replace("unpressed", "pressed");
+        } else {
+          changeVote(comment, true, -1);
+          upvoteButton.classList.replace("pressed", "unpressed");
+        }
+      };
+          
 
   const downvoteText = document.createElement("p");
-  downvoteText.className = "vote-buttons";
+  downvoteText.classList.add("vote-buttons", "unpressed");
   downvoteText.id = `${comment["id"]}-down`;
   downvoteText.innerText = comment["downvotes"];
   const downvoteButton = document.createElement("button");
@@ -281,7 +293,7 @@ function formatCommentVoteButtons(comment, thisCommentDiv) {
 // Formats comment name and timestamp into an HTML p element
 function formatCommentMetadata(comment) {
   let date = new Date(comment["timestamp"]);
-  const metadata = `${comment["name"]} at ${date.toLocaleString()} said`;
+  const metadata = `${comment["name"]} (${comment["email"]}) at ${date.toLocaleString()} said`;
   const pElem = document.createElement("p");
   pElem.innerText = metadata;
   pElem.className = "comment_metadata";
@@ -314,10 +326,11 @@ function formatCommentReply(comment) {
   return replyDiv;
 }
 
-function changeVote(comment, isUpvote) {
+function changeVote(comment, isUpvote, amount) {
   const updateObj = {};
   updateObj["id"] = comment["id"];
   updateObj["isupvote"] = isUpvote;
+  updateObj["amt"] = amount;
   fetch('/update-vote', {
     method: 'POST',
     headers: {

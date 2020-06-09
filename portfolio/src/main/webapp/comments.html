@@ -21,7 +21,12 @@
   </header>
   <div id="loginbar">Login <a id="loginlink">here</a> to post and view comments</div>
   <section id="comment-sec">
-    <a id="logout">Logout</a>
+    <div class="logoutbar">
+      <p id="curremail"></p>
+    </div>
+    <div class="logoutbar">
+      <a id="logout">Logout</a>
+    </div>
     <h1>Comments</h1>
     I'm still in the process of building this website and would love your feedback on it!
     <div id="commentform">
@@ -30,10 +35,6 @@
         <label for="user_name">Name:</label>
         <br /><br />
         <input type="text" id="user_name" name="name">
-        <br /><br />
-        <label for="user_email">Email ID:</label>
-        <br /><br />
-        <input type="email" id="user_email" name="email">
         <br /><br />
         <input type="hidden" id="user_time" name="timestamp">
         <br /><br />

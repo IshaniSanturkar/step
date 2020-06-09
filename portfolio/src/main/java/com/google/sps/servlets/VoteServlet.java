@@ -13,6 +13,9 @@
 // limitations under the License.
 
 package com.google.sps.servlets;
+
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.KeyFactory;
@@ -46,9 +49,11 @@ public class VoteServlet extends HttpServlet {
     JsonObject jsonObject = parsedJson.getAsJsonObject();
 
     long commentId = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(jsonObject, "id", "0"));
-    if (commentId != 0) {
+    long amount = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(jsonObject, "amt", "0"));
+
+    if (commentId != 0 && amount != 0) {
       boolean isUpvote = Boolean.parseBoolean(UtilityFunctions.getFieldFromJsonObject(jsonObject, "isupvote", "true"));
-      changeVoteInDatastore(commentId, isUpvote);
+      changeVoteInDatastore(commentId, isUpvote, amount);
     }
   }
 
@@ -56,19 +61,34 @@ public class VoteServlet extends HttpServlet {
    * Changes the number of upvotes/downvotes of the comment IDed by commentId
    * based on whether isUpvote is true or false as well as the net score of the comment
    */
-  private void changeVoteInDatastore(long commentId, boolean isUpvote) {
+  private void changeVoteInDatastore(long commentId, boolean isUpvote, long amount) {
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     KeyFactory keyFactory = datastore.newKeyFactory().setKind("Comment");
     Entity comment = datastore.get(keyFactory.newKey(commentId));
+    
+    String voters = comment.getString("voters");
+    JsonParser parser = new JsonParser();
+    JsonObject obj = parser.parse(voters).getAsJsonObject();
+
+    UserService userService = UserServiceFactory.getUserService();
+    String userId = userService.getCurrentUser().getUserId();
+
+    if (obj.has(userId)) {
+        return;
+    } else {
+        obj.addProperty(userId, true);
+    }
+
     long upvotes = comment.getLong("upvotes");
     long score = comment.getLong("score");
     long downvotes = upvotes - score;
     Entity updatedComment;
     if (isUpvote) {
-      updatedComment = Entity.newBuilder(comment).set("upvotes", upvotes + 1)
-          .set("score", score + 1).build();
+      updatedComment = Entity.newBuilder(comment).set("upvotes", upvotes + amount)
+          .set("score", score + 1).set("voters", obj.toString()).build();
     } else {
-      updatedComment = Entity.newBuilder(comment).set("score", score - 1).build();
+      updatedComment = Entity.newBuilder(comment).set("score", score - amount)
+          .set("voters", obj.toString()).build();
     }
     datastore.update(updatedComment);
   }

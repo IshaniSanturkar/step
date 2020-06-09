@@ -38,10 +38,12 @@ public class LoginServlet extends HttpServlet {
     JsonObjectBuilder builder = Json.createObjectBuilder();
 
     UserService userService = UserServiceFactory.getUserService();
+    
     if (userService.isUserLoggedIn()) {
       String urlToRedirectToAfterUserLogsOut = "../../comments.html";
       String logoutUrl = userService.createLogoutURL(urlToRedirectToAfterUserLogsOut);
-      builder = builder.add("loggedin", true).add("url", logoutUrl);
+      String email = userService.getCurrentUser().getEmail();
+      builder = builder.add("loggedin", true).add("url", logoutUrl).add("email", email);
     } else {
       String urlToRedirectToAfterUserLogsIn = "../../comments.html";
       String loginUrl = userService.createLoginURL(urlToRedirectToAfterUserLogsIn);
