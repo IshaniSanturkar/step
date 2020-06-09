@@ -36,15 +36,14 @@ public class LoginServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     response.setContentType("application/json");
     JsonObjectBuilder builder = Json.createObjectBuilder();
+    String redirectURL = "../../comments.html";
 
     UserService userService = UserServiceFactory.getUserService();
     if (userService.isUserLoggedIn()) {
-      String urlToRedirectToAfterUserLogsOut = "../../comments.html";
-      String logoutUrl = userService.createLogoutURL(urlToRedirectToAfterUserLogsOut);
+      String logoutUrl = userService.createLogoutURL(redirectURL);
       builder = builder.add("loggedin", true).add("url", logoutUrl);
     } else {
-      String urlToRedirectToAfterUserLogsIn = "../../comments.html";
-      String loginUrl = userService.createLoginURL(urlToRedirectToAfterUserLogsIn);
+      String loginUrl = userService.createLoginURL(redirectURL);
       builder = builder.add("loggedin", false).add("url", loginUrl);
     }
     response.getWriter().println(builder.build().toString());

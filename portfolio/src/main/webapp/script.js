@@ -130,18 +130,16 @@ function loadComments() {
     .then(json => {
       const loggedIn = json["loggedin"];
       const url = json["url"];
-      if (loggedIn) {
-        document.getElementById("loginbar").style.display = "none";
-        document.getElementById("logout").href = url;
-        document.getElementById("comment-sec").style.display = "block";
-      } else {
+      if(!loggedIn) {
         document.getElementById("loginlink").href = url;
         document.getElementById("loginbar").style.display = "block";
         document.getElementById("comment-sec").style.display = "none";
         return;
       }
-    }
-    );
+      document.getElementById("loginbar").style.display = "none";
+      document.getElementById("logout").href = url;
+      document.getElementById("comment-sec").style.display = "block";
+    });
 
   const maxcomments = document.getElementById("numcomments").value;
   const sortMetric = document.getElementById("sortby").value;
