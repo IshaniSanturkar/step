@@ -37,8 +37,8 @@ abstract class UserComment {
       long downvotes,
       boolean isEditable, 
       voteStatus votingStatus) {
-    return new AutoValue_UserComment(name, email, comment, timestamp, id, parentId
-        , rootId, upvotes, downvotes, isEditable, votingStatus);
+    return new AutoValue_UserComment(name, email, comment, timestamp, id, parentId,
+        rootId, upvotes, downvotes, isEditable, votingStatus);
   }
 
   /*
