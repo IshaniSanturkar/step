@@ -38,6 +38,7 @@ public class ReplyServlet extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     UserService userService = UserServiceFactory.getUserService();
+    // Make sure user is logged in
     if (!userService.isUserLoggedIn()) {
         return;
     }

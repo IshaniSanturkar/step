@@ -42,6 +42,11 @@ public class DeleteOneServlet extends HttpServlet {
    */
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    UserService userService = UserServiceFactory.getUserService();
+    // Make sure user is logged in
+    if (!userService.isUserLoggedIn()) {
+        return;
+    }
     String parsedBody = CharStreams.toString(request.getReader());
     JsonObject jsonObject = UtilityFunctions.stringToJsonObject(parsedBody);
 
@@ -59,6 +64,12 @@ public class DeleteOneServlet extends HttpServlet {
   private void deleteInDatastore(long commentId) {
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     KeyFactory keyFactory = datastore.newKeyFactory().setKind("Comment");
+    Entity comment = datastore.get(keyFactory.newKey(commentId));
+    String commentUserId = comment.getString("userid");
+    // Make sure user is the same as the author of the comment
+    if(!commentUserId.equals(UtilityFunctions.getCurrentUserId())) {
+        return;
+    }
     datastore.delete(keyFactory.newKey(commentId));
   }
 }
