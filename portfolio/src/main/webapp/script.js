@@ -17,6 +17,8 @@ let currImageNum = 1;
 let sliderSpeed = 5000;
 let myTimer;
 let paused = false;
+google.charts.load('current', {'packages':['corechart']});
+google.charts.setOnLoadCallback(drawChart);
 
 // Shows or hides the list of courses for a particular semester upon user click
 function toggleCourseList(listObject) {
@@ -473,4 +475,24 @@ function changeSortOrder() {
     sortOrderButton.innerText = "arrow_drop_down";
   }
   loadComments();
+}
+
+function drawChart() {
+  const data = google.visualization.arrayToDataTable([
+    ["Day", "Temperature", "Humidity"],
+    ["Monday", 37, 100],
+    ["Tuesday", 32, 55],
+    ["Wednesday", 26, 67],
+    ["Thursday", 35, 80],
+    ["Friday", 40, 32],
+    ["Saturday", 38, 56],
+    ["Sunday", 35, 77]
+  ]);
+  const options = {"title": "Daily Average Temperature and Humidity Last Week",
+                  "width": 1000,
+                  "height": 600,
+                  "pointSize": 5,
+                  "legend": {"position": "right"}};
+  const chart = new google.visualization.LineChart(document.getElementById("chartdiv"));
+  chart.draw(data, options);
 }
