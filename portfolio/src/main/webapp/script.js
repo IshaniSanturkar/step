@@ -179,6 +179,7 @@ function loadComments() {
     }
     commentList.style.marginLeft = "20px";
   });
+  drawChart();
 }
 
 /**
@@ -572,12 +573,12 @@ function changeSortOrder() {
  * displays it on the page as a line graph
  */
 function drawChart() {
-  fetch("/chart")
+  fetch("/numcomment-chart")
     .then(response => response.json())
     .then(numCommentsOnDay => {
       const data = new google.visualization.DataTable();
       data.addColumn("date", "Day");
-      data.addColumn("number", "All Comments")
+      data.addColumn("number", "Comments")
       data.addColumn("number", "Replies")
       Object.keys(numCommentsOnDay).forEach((day) => {
         const rootComments = numCommentsOnDay[day]["rootComments"];
@@ -586,8 +587,8 @@ function drawChart() {
       });
       const options = {
         "title": "Number of Comments By Day",
-        "height": 600,
-        "width": 800,
+        "height": 400,
+        "width": 525,
         "pointSize": 5,
         "vAxis": {
           "format": '0',
@@ -595,7 +596,25 @@ function drawChart() {
         },
         "hAxis": { "format": 'M/d/yy' }
       };
-      const chart = new google.visualization.LineChart(document.getElementById("chartdiv"));
+      const chart = new google.visualization.LineChart(document.getElementById("numcommentchartdiv"));
+      chart.draw(data, options)
+    });
+    fetch("/replytree-chart")
+    .then(response => response.json())
+    .then(replyTreeLength => {
+      const data = new google.visualization.DataTable();
+      data.addColumn("string", "ID");
+      data.addColumn("number", "Reply Tree Length")
+      Object.keys(replyTreeLength).forEach((tree) => {
+        data.addRow([tree, replyTreeLength[tree]]);
+      });
+      const options = {
+        "title": "Length of Reply Tree",
+        "height": 400,
+        "width": 525,
+        bucketSize: 2,
+      };
+      const chart = new google.visualization.Histogram(document.getElementById("replytreechartdiv"));
       chart.draw(data, options)
     });
 }

@@ -250,7 +250,7 @@ p {
   background-color: teal;
 }
 
-#comment-sec {
+#comment-sec, #charts-sec {
   background-color: lightgray;
   margin-bottom: 40px;
   display: none;

@@ -24,6 +24,7 @@ import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.StructuredQuery;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.io.CharStreams;
 import com.google.gson.Gson;
@@ -43,8 +44,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet("/chart")
-public class ChartServlet extends HttpServlet {
+@WebServlet("/replytree-chart")
+public class ReplyTreeChartServlet extends HttpServlet {
 
   /*
    * Called when a client submits a POST request to the /chart URL
@@ -53,42 +54,32 @@ public class ChartServlet extends HttpServlet {
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    HashMap<String, DayComments> numCommentsOnDay = new HashMap<>();
+    HashMap<String, Integer> replyTreeSize = new HashMap<>();
 
     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); 
 
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-    Query<Entity> query = Query.newEntityQueryBuilder().setKind("Comment").build();
+    Query<Entity> query = Query.newEntityQueryBuilder()
+                          .setKind("Comment")
+                          .setFilter(PropertyFilter.eq("rootid", 0))
+                          .build();
     QueryResults<Entity> results = datastore.run(query);
 
     while (results.hasNext()) {
       Entity comment = results.next();
+      long rootId = comment.getKey().getId();
+      String id = String.valueOf(rootId);
 
-      long dateTime = comment.getLong("time");
-      Date date = new Date(dateTime);
-      String dateString = dateFormat.format(date);
-
-      DayComments prevEntry;
-      if (numCommentsOnDay.containsKey(dateString)) {
-        prevEntry = numCommentsOnDay.get(dateString);
-      } else {
-        prevEntry = DayComments.create(0, 0);
-      }
-
-      DayComments thisDayComments;
-      long rootId = comment.getLong("rootid");
-      if (rootId == 0) {
-        // If this comment is a root comment, increase the number of root comments today by one
-        thisDayComments = DayComments.create(prevEntry.rootComments() + 1, prevEntry.replies());
-      } else {
-        // Otherwise, increase the number of replies today by one
-        thisDayComments = DayComments.create(prevEntry.rootComments(), prevEntry.replies() + 1);
-      }
-      numCommentsOnDay.put(dateString, thisDayComments);
+      Query<Entity> childQuery = Query.newEntityQueryBuilder()
+                                  .setKind("Comment")
+                                  .setFilter(PropertyFilter.eq("rootid", rootId))
+                                  .build();    
+      Iterator<Entity> childResults = datastore.run(childQuery);
+      replyTreeSize.put(id, Iterators.size(childResults));
     }
 
     Gson gson = new Gson();
     response.setContentType("application/json;");
-    response.getWriter().println(gson.toJson(numCommentsOnDay));
+    response.getWriter().println(gson.toJson(replyTreeSize));
   }
 }
