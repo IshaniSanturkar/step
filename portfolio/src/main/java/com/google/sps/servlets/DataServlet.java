@@ -146,8 +146,8 @@ public class DataServlet extends HttpServlet {
             UserComment.voteStatus.DOWNVOTED;
     }
 
-    UserComment userComment = UserComment.create(name, email, comment, time, id, parentId, rootId
-        , upvotes, downvotes, isEditable, votingStatus);
+    UserComment userComment = UserComment.create(name, email, comment, time, id, parentId, rootId,
+        upvotes, downvotes, isEditable, votingStatus);
     return userComment;
   }
 
