@@ -27,8 +27,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet("/delete-data")
-public class DeleteServlet extends HttpServlet {
+@WebServlet("/delete-all")
+public class DeleteAllServlet extends HttpServlet {
 
   /*
    * Called when a client submits a POST request to the /delete-data URL,
