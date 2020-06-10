@@ -257,9 +257,90 @@ function createListElement(comment) {
   formatCommentVoteButtons(comment, thisCommentDiv);
   thisCommentDiv.appendChild(quote);
   thisCommentDiv.appendChild(reply);
+  if (comment["isEditable"]) {
+    formatCommentEditButton(comment, thisCommentDiv, quote);
+    formatCommentDeleteButton(comment, thisCommentDiv);
+  }
   thisCommentDiv.className = "comment";
   listElem.appendChild(thisCommentDiv);
   return listElem;
+}
+
+/**
+ * Appends a button which allows users to edit their comment when clicked
+ * onto commentDiv
+ */ 
+function formatCommentEditButton(comment, commentDiv, commentText) {
+  const editButton = document.createElement("button");
+  editButton.className = "material-icons";
+  editButton.innerText = "create";
+  editButton.onclick = () => editComment(comment, commentDiv, commentText);
+  commentDiv.appendChild(editButton);
+}
+
+/**
+ * Triggered when edit button of a comment is clicked, opens
+ * up a text area for user to format reply and a button which
+ * when clicked, submits the updated comment and reloads the
+ * page
+ */
+function editComment(comment, commentDiv, commentText) {
+  const editDiv = document.createElement("div");
+  editDiv.className = "editdiv";
+  const editBar = document.createElement("textarea");
+  editBar.innerText = commentText.innerText;
+  editBar.className = "editbar";
+  const editSubmit = document.createElement("button");
+  editSubmit.innerText = "Submit"
+  editSubmit.className = "editbutton";
+  editSubmit.onclick = () => modifyComment(comment, editBar.value);
+  editDiv.appendChild(editBar);
+  editDiv.appendChild(editSubmit);
+  while (commentDiv.firstChild) {
+    commentDiv.removeChild(commentDiv.firstChild);
+  }
+  commentDiv.appendChild(editDiv);
+}
+
+/**
+ * Submits the modified comment with content represented
+ * by newContent to the server and reloads the page
+ */
+function modifyComment(comment, newContent) {
+  const editObj = {};
+  editObj["id"] = comment["id"];
+  editObj["comment"] = newContent;
+  fetch('/edit', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(editObj),
+  }).then(response => {
+    loadComments();
+  });
+}
+
+function formatCommentDeleteButton(comment, thisDiv) {
+  const deleteButton = document.createElement("button");
+  deleteButton.className = "material-icons";
+  deleteButton.innerText = "delete";
+  deleteButton.onclick = () => deleteComment(comment);
+  thisDiv.appendChild(deleteButton);
+}
+
+function deleteComment(comment) {
+  const deleteObj = {};
+  deleteObj["id"] = comment["id"];
+  fetch('/delete-one', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(deleteObj),
+  }).then(response => {
+    loadComments();
+  });
 }
 
 /**
@@ -448,11 +529,11 @@ function submitForm(form) {
 }
 
 /**
- * Submits a post request to /delete-data to delete all comments,
+ * Submits a post request to /delete-all to delete all comments,
  * then reloads the comments section
  */
 function clearComments() {
-  fetch("/delete-data", {
+  fetch("/delete-all", {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

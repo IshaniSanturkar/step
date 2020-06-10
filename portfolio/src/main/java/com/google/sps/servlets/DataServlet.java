@@ -133,9 +133,11 @@ public class DataServlet extends HttpServlet {
     long upvotes = entity.getLong("upvotes");
     long downvotes = upvotes - entity.getLong("score");
     String voters = entity.getString("voters");
+    String commenterId = entity.getString("userid");
     
     JsonObject obj = UtilityFunctions.stringToJsonObject(voters);
     String userId = UtilityFunctions.getCurrentUserId();
+    boolean isEditable = commenterId.equals(userId);
     UserComment.voteStatus votingStatus = UserComment.voteStatus.NOTVOTED;
 
     if (obj.has(userId)) {
@@ -145,7 +147,7 @@ public class DataServlet extends HttpServlet {
     }
 
     UserComment userComment = UserComment.create(name, email, comment, time, id, parentId, rootId,
-        upvotes, downvotes, votingStatus);
+        upvotes, downvotes, isEditable, votingStatus);
     return userComment;
   }
 

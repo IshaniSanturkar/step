@@ -35,9 +35,10 @@ abstract class UserComment {
       long rootId,
       long upvotes,
       long downvotes,
+      boolean isEditable, 
       voteStatus votingStatus) {
     return new AutoValue_UserComment(name, email, comment, timestamp, id, parentId,
-        rootId, upvotes, downvotes, votingStatus);
+        rootId, upvotes, downvotes, isEditable, votingStatus);
   }
 
   /*
@@ -110,6 +111,12 @@ abstract class UserComment {
    */
   abstract long downvotes();
 
+  /*
+   * Represents whether the current user is the author of this
+   * comment and can edit it
+   */
+  abstract boolean isEditable();
+  
   /*
    * Represents whether the current user has upvoted (UPVOTED), downvoted
    * (DOWNVOTED) or not voted for (NOTVOTED) the given comment. 

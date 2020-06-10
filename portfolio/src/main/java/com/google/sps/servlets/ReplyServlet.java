@@ -13,6 +13,9 @@
 // limitations under the License.
 
 package com.google.sps.servlets;
+import com.google.appengine.api.users.User;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.google.common.io.CharStreams;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -34,14 +37,19 @@ public class ReplyServlet extends HttpServlet {
    */
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    UserService userService = UserServiceFactory.getUserService();
+    if (!userService.isUserLoggedIn()) {
+        return;
+    }
+
+    User currUser = userService.getCurrentUser();
     String parsedBody = CharStreams.toString(request.getReader());
     JsonObject jsonReply = UtilityFunctions.stringToJsonObject(parsedBody);
 
     String userComment = UtilityFunctions.getFieldFromJsonObject(jsonReply, "comment", "");
     if (userComment.length() != 0) {
       String userName = UtilityFunctions.getFieldFromJsonObject(jsonReply, "name", "Anonymous");
-      String userEmail = UtilityFunctions.getFieldFromJsonObject(
-          jsonReply, "email", "janedoe@gmail.com");
+      String userEmail = currUser != null ? currUser.getEmail() : "janedoe@gmail.com";
       String currDate = String.valueOf(System.currentTimeMillis());
       long userDate = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(
           jsonReply, "timestamp", currDate));

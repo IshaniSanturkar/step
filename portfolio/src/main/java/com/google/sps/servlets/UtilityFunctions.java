@@ -71,6 +71,7 @@ public class UtilityFunctions {
           .set("upvotes", upvotes)
           .set("score", upvotes - downvotes)
           .set("voters", "{}")
+          .set("userid", getCurrentUserId())
           .build();
     datastore.add(thisComment);
   }
