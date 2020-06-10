@@ -13,13 +13,17 @@
 // limitations under the License.
 
 package com.google.sps.servlets;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.FullEntity;
 import com.google.cloud.datastore.IncompleteKey;
 import com.google.cloud.datastore.KeyFactory;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import javax.servlet.http.HttpServletRequest;
 
 public class UtilityFunctions {
@@ -66,6 +70,7 @@ public class UtilityFunctions {
           .set("rootid", rootId)
           .set("upvotes", upvotes)
           .set("score", upvotes - downvotes)
+          .set("voters", "{}")
           .build();
     datastore.add(thisComment);
   }
@@ -90,5 +95,19 @@ public class UtilityFunctions {
         return userValue;
       }
     }
+  }
+
+  // Parses the string as a Json Object and returns it
+  public static JsonObject stringToJsonObject(String field) {
+    JsonParser parser = new JsonParser();
+    JsonObject obj = parser.parse(field).getAsJsonObject();
+    return obj;
+  }
+
+  // Gets the unique ID of the user currently logged in
+  public static String getCurrentUserId() {
+    UserService userService = UserServiceFactory.getUserService();
+    String userId = userService.getCurrentUser().getUserId();
+    return userId;
   }
 }

@@ -13,6 +13,9 @@
 // limitations under the License.
 
 package com.google.sps.servlets;
+import com.google.appengine.api.users.User;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
@@ -46,6 +49,10 @@ public class DataServlet extends HttpServlet {
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    UserService userService = UserServiceFactory.getUserService();
+    if (!userService.isUserLoggedIn()) {
+        return;
+    }
     int maxComments = Integer.parseInt(UtilityFunctions.getFieldFromResponse(
         request, "maxcomments", defaultMaxComment));
     String sortMetric = UtilityFunctions.getFieldFromResponse(request, "metric", "time");
@@ -124,8 +131,20 @@ public class DataServlet extends HttpServlet {
     long rootId = entity.getLong("rootid");
     long upvotes = entity.getLong("upvotes");
     long downvotes = upvotes - entity.getLong("score");
+    String voters = entity.getString("voters");
+    
+    JsonObject obj = UtilityFunctions.stringToJsonObject(voters);
+    String userId = UtilityFunctions.getCurrentUserId();
+    UserComment.voteStatus votingStatus = UserComment.voteStatus.NOTVOTED;
+
+    if (obj.has(userId)) {
+        votingStatus = obj.get(userId).getAsBoolean() ? 
+            UserComment.voteStatus.UPVOTED : 
+            UserComment.voteStatus.DOWNVOTED;
+    }
+
     UserComment userComment = UserComment.create(name, email, comment, time, id, parentId, rootId,
-        upvotes, downvotes);
+        upvotes, downvotes, votingStatus);
     return userComment;
   }
 
@@ -136,20 +155,21 @@ public class DataServlet extends HttpServlet {
    */
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    UserService userService = UserServiceFactory.getUserService();
+    if (!userService.isUserLoggedIn()) {
+        return;
+    }
     String parsedBody = CharStreams.toString(request.getReader());
+    JsonObject jsonComment = UtilityFunctions.stringToJsonObject(parsedBody);
 
-    JsonParser parser = new JsonParser();
-    JsonElement parsedJson = parser.parse(parsedBody);
-    JsonObject jsonObject = parsedJson.getAsJsonObject();
-
-    String userComment = UtilityFunctions.getFieldFromJsonObject(jsonObject, "comment", "");
+    String userComment = UtilityFunctions.getFieldFromJsonObject(jsonComment, "comment", "");
     if (userComment.length() != 0) {
-      String userName = UtilityFunctions.getFieldFromJsonObject(jsonObject, "name", "Anonymous");
-      String userEmail = UtilityFunctions.getFieldFromJsonObject(
-          jsonObject, "email", "janedoe@gmail.com");
+      String userName = UtilityFunctions.getFieldFromJsonObject(jsonComment, "name", "Anonymous");
+      User currUser = userService.getCurrentUser();
+      String userEmail = currUser != null ? currUser.getEmail() : "janedoe@gmail.com";
       String currDate = String.valueOf(System.currentTimeMillis());
       long userDate = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(
-          jsonObject, "timestamp", currDate));
+          jsonComment, "timestamp", currDate));
       UtilityFunctions.addToDatastore(userName, userEmail, userDate, userComment,
           /* parentId = */ 0, /* rootId = */ 0, /* isReply = */ false, /* upvotes = */ 0,
               /* downvotes = */ 0);

@@ -130,6 +130,7 @@ function loadComments() {
     .then(json => {
       const loggedIn = json["loggedin"];
       const url = json["url"];
+      const email = json["email"]
       if (!loggedIn) {
         document.getElementById("loginlink").href = url;
         document.getElementById("loginbar").style.display = "block";
@@ -138,7 +139,15 @@ function loadComments() {
       }
       document.getElementById("loginbar").style.display = "none";
       document.getElementById("logout").href = url;
+      document.getElementById("curremail").innerText =
+        `Currently signed in as ${email}`;
       document.getElementById("comment-sec").style.display = "block";
+      const isAdmin = json["isadmin"];
+      if (isAdmin) {
+        document.getElementById("clearcomments").className = "showclearbutton";
+      } else {
+        document.getElementById("clearcomments").className = "hideclearbutton";
+      }
     });
 
   const maxcomments = document.getElementById("numcomments").value;
@@ -237,7 +246,6 @@ function createToggleButton(replyTree) {
 // Creates a list element with the given comment text and metadata (name, timestamp etc.)
 function createListElement(comment) {
   const listElem = document.createElement("li");
-  const voteButtons = formatCommentVoteButtons;
   const metadata = formatCommentMetadata(comment);
   const quote = formatCommentText(comment);
   const reply = formatCommentReply(comment);
@@ -252,15 +260,50 @@ function createListElement(comment) {
   return listElem;
 }
 
+/**
+ * Formats upvote and downvote buttons for each comment. Sets
+ * each button to pressed or unpressed based on data about
+ * whether the current user has pressed either received
+ * from server. 
+ */
 function formatCommentVoteButtons(comment, thisCommentDiv) {
   const upvoteText = document.createElement("p");
   upvoteText.className = "vote-buttons";
   upvoteText.id = `${comment["id"]}-up`;
   upvoteText.innerText = comment["upvotes"];
+
+  /**
+   * This variable can have three (String) values:
+   * UPVOTED means that the current user has upvoted this comment (once)
+   * DOWNVOTED means that the current user has downvoted this comment
+   * NOTVOTED means that the current user has neither upvoted nor
+   * downvoted this comment
+   */
+  const whichPressed = comment["votingStatus"];
+
   const upvoteButton = document.createElement("button");
   upvoteButton.classList.add("material-icons", "vote-buttons");
+  upvoteButton.classList.add(whichPressed === "UPVOTED" ? "pressed" : "unpressed");
   upvoteButton.innerText = "thumb_up";
-  upvoteButton.onclick = () => changeVote(comment, true);
+  upvoteButton.onclick =
+    () => {
+      if (upvoteButton.classList.contains("unpressed")) {
+        /* 
+         * upvote button was unpressed and user is now pressing it so we 
+         * increase upvotes by 1
+         */
+        changeVote(comment, true, 1);
+        upvoteButton.classList.replace("unpressed", "pressed");
+      } else {
+        /*
+         * upvote button was pressed and user is now pressing it again so we 
+         * decrease upvotes by 1 and undo the vote
+         */
+        changeVote(comment, true, -1);
+        upvoteButton.classList.replace("pressed", "unpressed");
+      }
+    };
+
 
   const downvoteText = document.createElement("p");
   downvoteText.className = "vote-buttons";
@@ -268,8 +311,26 @@ function formatCommentVoteButtons(comment, thisCommentDiv) {
   downvoteText.innerText = comment["downvotes"];
   const downvoteButton = document.createElement("button");
   downvoteButton.classList.add("material-icons", "vote-buttons");
+  downvoteButton.classList.add(whichPressed === "DOWNVOTED" ? "pressed" : "unpressed");
   downvoteButton.innerText = "thumb_down";
-  downvoteButton.onclick = () => changeVote(comment, false);
+  downvoteButton.onclick = () => {
+    if (downvoteButton.classList.contains("unpressed")) {
+      /*
+       * downvote button was unpressed and user is now pressing it so we 
+       * increase downvotes by 1
+       */
+      changeVote(comment, false, 1);
+      downvoteButton.classList.replace("unpressed", "pressed");
+    } else {
+      /*
+       * downvote button was pressed and user is now pressing it again so we 
+       * decrease downvotes by 1 and undo the vote
+       */
+      changeVote(comment, false, -1);
+      downvoteButton.classList.replace("pressed", "unpressed");
+    }
+  };
+
 
   thisCommentDiv.appendChild(downvoteText);
   thisCommentDiv.appendChild(downvoteButton);
@@ -280,7 +341,7 @@ function formatCommentVoteButtons(comment, thisCommentDiv) {
 // Formats comment name and timestamp into an HTML p element
 function formatCommentMetadata(comment) {
   let date = new Date(comment["timestamp"]);
-  const metadata = `${comment["name"]} at ${date.toLocaleString()} said`;
+  const metadata = `${comment["name"]} (${comment["email"]}) at ${date.toLocaleString()} said`;
   const pElem = document.createElement("p");
   pElem.innerText = metadata;
   pElem.className = "comment_metadata";
@@ -313,10 +374,19 @@ function formatCommentReply(comment) {
   return replyDiv;
 }
 
-function changeVote(comment, isUpvote) {
+/**
+ * Triggers servlet that upvotes (if isUpvotes is true) or downvotes
+ * the comment on user click. Amount must be 1 or -1. An amount of 1
+ * represents an upvote if isUpvote is true and a downvote otherwise.
+ * An amount of -1 represents that the current user wants to revert
+ * their upvote if isUpvote is true and revert their downvote if 
+ * isUpvote is false. 
+ */
+function changeVote(comment, isUpvote, amount) {
   const updateObj = {};
   updateObj["id"] = comment["id"];
   updateObj["isupvote"] = isUpvote;
+  updateObj["amt"] = amount;
   fetch('/update-vote', {
     method: 'POST',
     headers: {

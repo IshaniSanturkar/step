@@ -18,6 +18,13 @@ import com.google.auto.value.AutoValue;
 
 @AutoValue 
 abstract class UserComment {
+
+  public enum voteStatus {
+    UPVOTED,
+    DOWNVOTED,
+    NOTVOTED
+  }
+
   static UserComment create(
       String name,
       String email,
@@ -27,9 +34,10 @@ abstract class UserComment {
       long parentId,
       long rootId,
       long upvotes,
-      long downvotes) {
+      long downvotes,
+      voteStatus votingStatus) {
     return new AutoValue_UserComment(name, email, comment, timestamp, id, parentId,
-        rootId, upvotes, downvotes);
+        rootId, upvotes, downvotes, votingStatus);
   }
 
   /*
@@ -101,4 +109,11 @@ abstract class UserComment {
    * Invariants: Always non-negative
    */
   abstract long downvotes();
+
+  /*
+   * Represents whether the current user has upvoted (UPVOTED), downvoted
+   * (DOWNVOTED) or not voted for (NOTVOTED) the given comment. 
+   * Invariants: The above conditions are mutually exclusive. 
+   */
+  abstract voteStatus votingStatus();
 }
