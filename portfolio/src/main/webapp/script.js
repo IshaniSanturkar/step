@@ -478,21 +478,20 @@ function changeSortOrder() {
 }
 
 function drawChart() {
-  const data = google.visualization.arrayToDataTable([
-    ["Day", "Temperature", "Humidity"],
-    ["Monday", 37, 100],
-    ["Tuesday", 32, 55],
-    ["Wednesday", 26, 67],
-    ["Thursday", 35, 80],
-    ["Friday", 40, 32],
-    ["Saturday", 38, 56],
-    ["Sunday", 35, 77]
-  ]);
-  const options = {"title": "Daily Average Temperature and Humidity Last Week",
-                  "width": 1000,
-                  "height": 600,
-                  "pointSize": 5,
-                  "legend": {"position": "right"}};
-  const chart = new google.visualization.LineChart(document.getElementById("chartdiv"));
-  chart.draw(data, options);
+  fetch("/chart")
+    .then(response => response.json())
+    .then(numCommentsOnDay => {
+      const data = new google.visualization.DataTable();
+      data.addColumn("date", "Day");
+      data.addColumn("number", "Number of Comments")
+      Object.keys(numCommentsOnDay).forEach((day) => {
+        data.addRow([new Date(day), numCommentsOnDay[day]]);
+      });
+      const options = {"title": "Number of Comments By Day",
+              "height": 500,
+              "pointSize": 5
+              };
+      const chart = new google.visualization.LineChart(document.getElementById("chartdiv"));
+      chart.draw(data, options)
+    });
 }
