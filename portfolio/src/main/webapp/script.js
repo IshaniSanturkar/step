@@ -367,19 +367,19 @@ function formatCommentVoteButtons(comment, thisCommentDiv) {
   upvoteButton.classList.add(whichPressed === "UPVOTED" ? "pressed" : "unpressed");
   upvoteButton.innerText = "thumb_up";
   upvoteButton.onclick =
-    () => {
-      /**
-       * upvote button was unpressed and user is now pressing it so we 
-       * increase upvotes by 1
-       */ 
-      if (upvoteButton.classList.contains("unpressed")) {
+    () => { 
+      if (upvoteButton.classList.contains("unpressed")) { 
+        /*
+         * upvote button was unpressed and user is now pressing it so we 
+         * increase upvotes by 1
+         */
         changeVote(comment, true, 1);
         upvoteButton.classList.replace("unpressed", "pressed");
       } else {
-        /**
-        * upvote button was pressed and user is now pressing it again so we 
-        * decrease upvotes by 1 and undo the vote
-        */ 
+        /*
+         * upvote button was pressed and user is now pressing it again so we 
+         * decrease upvotes by 1 and undo the vote
+         */ 
         changeVote(comment, true, -1);
         upvoteButton.classList.replace("pressed", "unpressed");
       }
@@ -395,15 +395,16 @@ function formatCommentVoteButtons(comment, thisCommentDiv) {
   downvoteButton.classList.add(whichPressed === "DOWNVOTED" ? "pressed" : "unpressed");
   downvoteButton.innerText = "thumb_down";
   downvoteButton.onclick = () => {
-    /**
-     * downvote button was unpressed and user is now pressing it so we 
-     * increase downvotes by 1
-     */ 
+    
     if (downvoteButton.classList.contains("unpressed")) {
+      /*
+       * downvote button was unpressed and user is now pressing it so we 
+       * increase downvotes by 1
+       */ 
       changeVote(comment, false, 1);
       downvoteButton.classList.replace("unpressed", "pressed");
     } else {
-      /**
+      /*
        * downvote button was pressed and user is now pressing it again so we 
        * decrease downvotes by 1 and undo the vote
        */ 
