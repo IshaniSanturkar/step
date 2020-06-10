@@ -53,7 +53,7 @@ public class ChartServlet extends HttpServlet {
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    HashMap<String, Integer> numCommentsOnDay = new HashMap<>();
+    HashMap<String, DayComments> numCommentsOnDay = new HashMap<>();
     DateFormat simple = new SimpleDateFormat("yyyy-MM-dd"); 
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     Query<Entity> query = Query.newEntityQueryBuilder().setKind("Comment").build();
@@ -63,8 +63,14 @@ public class ChartServlet extends HttpServlet {
       long dateTime = entity.getLong("time");
       Date date = new Date(dateTime);
       String dateString = simple.format(date);
-      int numComments =  numCommentsOnDay.getOrDefault(dateString, 0);
-      numCommentsOnDay.put(dateString, numComments + 1);
+      DayComments thisDayComments = numCommentsOnDay.getOrDefault(dateString, new DayComments());
+      long rootId = entity.getLong("rootid");
+      if (rootId == 0) {
+        thisDayComments.setRootComments(thisDayComments.getRootComments() + 1);
+      } else {
+        thisDayComments.setReplies(thisDayComments.getReplies() + 1);
+      }
+      numCommentsOnDay.put(dateString, thisDayComments);
     }
     Gson gson = new Gson();
     response.setContentType("application/json;");

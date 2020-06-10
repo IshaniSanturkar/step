@@ -564,14 +564,21 @@ function drawChart() {
     .then(numCommentsOnDay => {
       const data = new google.visualization.DataTable();
       data.addColumn("date", "Day");
-      data.addColumn("number", "Number of Comments")
+      data.addColumn("number", "All Comments")
+      data.addColumn("number", "Replies")
       Object.keys(numCommentsOnDay).forEach((day) => {
-        data.addRow([new Date(day), numCommentsOnDay[day]]);
+        const rootComments = numCommentsOnDay[day]["rootComments"];
+        const replies = numCommentsOnDay[day]["replies"];
+        data.addRow([new Date(day), rootComments + replies, replies]);
       });
       const options = {"title": "Number of Comments By Day",
-              "height": 500,
-              "pointSize": 5
-              };
+              "height": 600,
+              "width": 800,
+              "pointSize": 5,
+              "vAxis": {"format": '0',
+                        "minValue": 0},
+              "hAxis": {"format": 'M/d/yy'}
+            };
       const chart = new google.visualization.LineChart(document.getElementById("chartdiv"));
       chart.draw(data, options)
     });
