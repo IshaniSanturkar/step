@@ -17,7 +17,7 @@ let currImageNum = 1;
 let sliderSpeed = 5000;
 let myTimer;
 let paused = false;
-google.charts.load('current', {'packages':['corechart']});
+google.charts.load('current', { 'packages': ['corechart'] });
 google.charts.setOnLoadCallback(drawChart);
 
 // Shows or hides the list of courses for a particular semester upon user click
@@ -269,7 +269,7 @@ function createListElement(comment) {
 /**
  * Appends a button which allows users to edit their comment when clicked
  * onto commentDiv
- */ 
+ */
 function formatCommentEditButton(comment, commentDiv, commentText) {
   const editButton = document.createElement("button");
   editButton.className = "material-icons";
@@ -321,6 +321,10 @@ function modifyComment(comment, newContent) {
   });
 }
 
+/**
+ * Appends a button which allows users to delete their comment when clicked
+ * onto thisDiv
+ */
 function formatCommentDeleteButton(comment, thisDiv) {
   const deleteButton = document.createElement("button");
   deleteButton.className = "material-icons";
@@ -329,6 +333,11 @@ function formatCommentDeleteButton(comment, thisDiv) {
   thisDiv.appendChild(deleteButton);
 }
 
+/**
+ * Triggered when delete button of a comment is clicked, 
+ * submits a request to the server to delete this comment
+ * and all its replies
+ */
 function deleteComment(comment) {
   const deleteObj = {};
   deleteObj["id"] = comment["id"];
@@ -558,6 +567,10 @@ function changeSortOrder() {
   loadComments();
 }
 
+/**
+ * Fetches data about number of comments per day from server and then
+ * displays it on the page as a line graph
+ */
 function drawChart() {
   fetch("/chart")
     .then(response => response.json())
@@ -571,14 +584,17 @@ function drawChart() {
         const replies = numCommentsOnDay[day]["replies"];
         data.addRow([new Date(day), rootComments + replies, replies]);
       });
-      const options = {"title": "Number of Comments By Day",
-              "height": 600,
-              "width": 800,
-              "pointSize": 5,
-              "vAxis": {"format": '0',
-                        "minValue": 0},
-              "hAxis": {"format": 'M/d/yy'}
-            };
+      const options = {
+        "title": "Number of Comments By Day",
+        "height": 600,
+        "width": 800,
+        "pointSize": 5,
+        "vAxis": {
+          "format": '0',
+          "minValue": 0
+        },
+        "hAxis": { "format": 'M/d/yy' }
+      };
       const chart = new google.visualization.LineChart(document.getElementById("chartdiv"));
       chart.draw(data, options)
     });

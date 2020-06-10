@@ -47,31 +47,46 @@ import javax.servlet.http.HttpServletResponse;
 public class ChartServlet extends HttpServlet {
 
   /*
-   * Called when a client submits a POST request to the /data URL
-   * Adds submitted comment to internal record if the comment is
-   * non-empty. 
+   * Called when a client submits a POST request to the /chart URL
+   * Prepares data about the number of comments each day and submits
+   * it to the client for rendering
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     HashMap<String, DayComments> numCommentsOnDay = new HashMap<>();
-    DateFormat simple = new SimpleDateFormat("yyyy-MM-dd"); 
+
+    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); 
+
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     Query<Entity> query = Query.newEntityQueryBuilder().setKind("Comment").build();
     QueryResults<Entity> results = datastore.run(query);
+
     while (results.hasNext()) {
-      Entity entity = results.next();
-      long dateTime = entity.getLong("time");
+      Entity comment = results.next();
+
+      long dateTime = comment.getLong("time");
       Date date = new Date(dateTime);
-      String dateString = simple.format(date);
-      DayComments thisDayComments = numCommentsOnDay.getOrDefault(dateString, new DayComments());
-      long rootId = entity.getLong("rootid");
-      if (rootId == 0) {
-        thisDayComments.setRootComments(thisDayComments.getRootComments() + 1);
+      String dateString = dateFormat.format(date);
+
+      DayComments prevEntry;
+      if (numCommentsOnDay.containsKey(dateString)) {
+        prevEntry = numCommentsOnDay.get(dateString);
       } else {
-        thisDayComments.setReplies(thisDayComments.getReplies() + 1);
+        prevEntry = DayComments.create(0, 0);
+      }
+
+      DayComments thisDayComments;
+      long rootId = comment.getLong("rootid");
+      if (rootId == 0) {
+        // If this comment is a root comment, increase the number of root comments today by one
+        thisDayComments = DayComments.create(prevEntry.rootComments() + 1, prevEntry.replies());
+      } else {
+        // Otherwise, increase the number of replies today by one
+        thisDayComments = DayComments.create(prevEntry.rootComments(), prevEntry.replies() + 1);
       }
       numCommentsOnDay.put(dateString, thisDayComments);
     }
+
     Gson gson = new Gson();
     response.setContentType("application/json;");
     response.getWriter().println(gson.toJson(numCommentsOnDay));

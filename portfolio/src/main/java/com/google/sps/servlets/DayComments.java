@@ -14,24 +14,17 @@
 
 package com.google.sps.servlets;
 
-public class DayComments {
+import com.google.auto.value.AutoValue;
 
-  private int rootComments;
-  private int replies;
+@AutoValue 
+abstract class DayComments {
 
-  public int getRootComments() {
-      return this.rootComments;
+  static DayComments create(int rootComments, int replies) {
+  return new AutoValue_DayComments(rootComments, replies);
   }
 
-  public int getReplies() {
-      return this.replies;
-  }
+  abstract int rootComments();
 
-  public void setRootComments(int rootComments) {
-      this.rootComments = rootComments;
-  }
-
-  public void setReplies(int replies) {
-      this.replies = replies;
-  }
+  abstract int replies();
 }
+
