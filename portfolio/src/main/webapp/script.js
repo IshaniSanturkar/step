@@ -465,6 +465,10 @@ function formatCommentReply(comment) {
  * isUpvote is false. 
  */
 function changeVote(comment, isUpvote, amount) {
+  // Prevent a POST request from changing vote count by more than 1
+  if(amount !== 1 && amount !== -1) {
+      return;
+  }
   const updateObj = {};
   updateObj["id"] = comment["id"];
   updateObj["isupvote"] = isUpvote;
