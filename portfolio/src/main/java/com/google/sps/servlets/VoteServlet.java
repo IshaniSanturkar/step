@@ -81,31 +81,35 @@ public class VoteServlet extends HttpServlet {
     KeyFactory keyFactory = datastore.newKeyFactory().setKind("Comment");
     Entity comment = datastore.get(keyFactory.newKey(commentId));
 
-    String voters = comment.getString("voters");
-    JsonObject obj = UtilityFunctions.stringToJsonObject(voters);
+    // String voters = comment.getString("voters");
+    // JsonObject obj = UtilityFunctions.stringToJsonObject(voters);
     String userId = UtilityFunctions.getCurrentUserId();
+    int voteValue = UtilityFunctions.getVoteInDatastore(userId, commentId);
 
-    if (obj.has(userId) && amount == 1) {
+    if (voteValue != 0 && amount == 1) {
       /* 
        * The user has upvoted a comment and is trying to downvote it 
        * or has downvoted the comment and is trying to upvote it. In
        * this case, no change should occur. 
        */
       return;
-    } else if (obj.has(userId) && amount == -1) {
+    } else if (voteValue != 0 && amount == -1) {
       /*
        * User has upvoted/downvoted the comment and is trying to 
        * revert their vote
        */
-      boolean status = obj.get(userId).getAsBoolean();
+      //   boolean status = obj.get(userId).getAsBoolean();
+      boolean status = (voteValue == 1) ? true : false;
       // Making sure that the user is reverting the exact vote they made
       if(status != isUpvote) {
         return;
       } 
-      obj.remove(userId);
+      UtilityFunctions.removeVoteInDatastore(userId, commentId);
+    //   obj.remove(userId);
     } else {
         // User has no vote on this comment currently and is making a fresh vote
-        obj.addProperty(userId, isUpvote);
+        //obj.addProperty(userId, isUpvote);
+      UtilityFunctions.addVoteToDatastore(userId, commentId, isUpvote);
     }
 
     long upvotes = comment.getLong("upvotes");
@@ -114,10 +118,10 @@ public class VoteServlet extends HttpServlet {
     Entity updatedComment;
     if (isUpvote) {
       updatedComment = Entity.newBuilder(comment).set("upvotes", upvotes + amount)
-          .set("score", score + amount).set("voters", obj.toString()).build();
+          .set("score", score + amount).build();
     } else {
       updatedComment = Entity.newBuilder(comment).set("score", score - amount)
-          .set("voters", obj.toString()).build();
+          .build();
     }
     datastore.update(updatedComment);
   }
