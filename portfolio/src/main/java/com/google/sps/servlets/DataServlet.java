@@ -135,7 +135,6 @@ public class DataServlet extends HttpServlet {
     String voters = entity.getString("voters");
     String commenterId = entity.getString("userid");
     
-    JsonObject obj = UtilityFunctions.stringToJsonObject(voters);
     String userId = UtilityFunctions.getCurrentUserId();
     boolean isEditable = commenterId.equals(userId);
     UserComment.voteStatus votingStatus = UserComment.voteStatus.NOTVOTED;
@@ -146,12 +145,6 @@ public class DataServlet extends HttpServlet {
         UserComment.voteStatus.UPVOTED :
         UserComment.voteStatus.DOWNVOTED;
     }
-
-    // if (obj.has(userId)) {
-    //     votingStatus = obj.get(userId).getAsBoolean() ? 
-    //         UserComment.voteStatus.UPVOTED : 
-    //         UserComment.voteStatus.DOWNVOTED;
-    // }
 
     UserComment userComment = UserComment.create(name, email, comment, time, id, parentId, rootId,
         upvotes, downvotes, isEditable, votingStatus);

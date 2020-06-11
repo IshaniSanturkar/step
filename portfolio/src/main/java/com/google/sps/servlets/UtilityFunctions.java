@@ -26,6 +26,7 @@ import com.google.cloud.datastore.KeyFactory;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
+import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
 import com.google.common.collect.Iterators;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -82,7 +83,10 @@ public class UtilityFunctions {
     datastore.add(thisComment);
   }
 
-  // Adds a comment with the given metadata to the database  
+  /*
+   * Adds a vote made by user userId on comment commentId which is an upvote if isUpvote
+   * is true and a downvote otherwise
+   */
   public static void addVoteToDatastore(String userId, long commentId, boolean isUpvote) {
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     KeyFactory keyFactory = datastore.newKeyFactory().setKind("Vote");
@@ -96,33 +100,41 @@ public class UtilityFunctions {
     datastore.add(thisVote);
   }
 
+  /*
+   * Returns 1 if the user userId has upvoted comment commentId, -1 if
+   * they have downvoted it and 0 if they have not voted for it
+   */
   public static int getVoteInDatastore(String userId, long commentId) {
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-    Builder builder = Query.newEntityQueryBuilder();
-    builder = builder.setKind("Vote")
-              .setFilter(PropertyFilter.eq("userid", userId))
-              .setFilter(PropertyFilter.eq("commentid", commentId));
-    Query<Entity> query = builder.build();
+    Query<Entity> query  = Query.newEntityQueryBuilder()
+                            .setKind("Vote")
+                            .setFilter(CompositeFilter.and(
+                            PropertyFilter.eq("userid", userId), 
+                            PropertyFilter.eq("commentid", commentId)))
+                            .build();
     QueryResults<Entity> results = datastore.run(query);
-    if(!results.hasNext()) {
-        return 0;
+    // The current user has not voted for this comment
+    if (!results.hasNext()) {
+      return 0;
     } else {
-        Entity vote = results.next();
-        int voteValue = (vote.getBoolean("isupvote")) ? 1 : -1;
-        if (results.hasNext()) {
-            return 0;
-        }
-        return voteValue;
+      Entity vote = results.next();
+      int voteValue = (vote.getBoolean("isupvote")) ? 1 : -1;
+      // If there is more than one entry for a user-vote pair (impossible)
+      if (results.hasNext()) {
+        return 0;
+      }
+      return voteValue;
     }
   }
-
+ 
+  // Removes user userId's vote on comment commentId from database
   public static void removeVoteInDatastore(String userId, long commentId) {
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     Query<Key> query =
       Query.newKeyQueryBuilder()
         .setKind("Vote")
-        .setFilter(PropertyFilter.eq("userid", userId))
-        .setFilter(PropertyFilter.eq("commentid", commentId))
+        .setFilter(CompositeFilter.and(PropertyFilter.eq("userid", userId),
+                    PropertyFilter.eq("commentid", commentId)))
         .build();
     Key[] keys = Iterators.toArray(datastore.run(query), Key.class);
     datastore.delete(keys);
