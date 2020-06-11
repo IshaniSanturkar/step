@@ -140,11 +140,18 @@ public class DataServlet extends HttpServlet {
     boolean isEditable = commenterId.equals(userId);
     UserComment.voteStatus votingStatus = UserComment.voteStatus.NOTVOTED;
 
-    if (obj.has(userId)) {
-        votingStatus = obj.get(userId).getAsBoolean() ? 
-            UserComment.voteStatus.UPVOTED : 
-            UserComment.voteStatus.DOWNVOTED;
+    int voteValue = UtilityFunctions.getVoteInDatastore(userId, id);
+    if(voteValue != 0) {
+        votingStatus = (voteValue == 1) ?
+        UserComment.voteStatus.UPVOTED :
+        UserComment.voteStatus.DOWNVOTED;
     }
+
+    // if (obj.has(userId)) {
+    //     votingStatus = obj.get(userId).getAsBoolean() ? 
+    //         UserComment.voteStatus.UPVOTED : 
+    //         UserComment.voteStatus.DOWNVOTED;
+    // }
 
     UserComment userComment = UserComment.create(name, email, comment, time, id, parentId, rootId,
         upvotes, downvotes, isEditable, votingStatus);
