@@ -53,6 +53,12 @@ public class ChartServlet extends HttpServlet {
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+    /*
+     * This data structure maps a date string in the format (06-31-2020) to a DayComments object
+     * with 2 attributes - the number of root comments on this day, and the number of replies
+     * on this day
+     */
     HashMap<String, DayComments> numCommentsOnDay = new HashMap<>();
 
     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); 
