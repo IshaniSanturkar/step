@@ -2,7 +2,7 @@ body {
   font-family: 'Montserrat', sans-serif;
 }
 
-#intro-sec, #education-sec, #project-sec, #gallery-sec, #comment-sec, #loginbar {
+#intro-sec, #education-sec, #project-sec, #gallery-sec, #comment-sec, #loginbar, #charts-sec {
   width: 1100px;
   margin: auto;
   background-color: white;
@@ -274,7 +274,7 @@ p {
   overflow-x: scroll;
   padding-bottom: 20px;
   margin-left: 20px;
-  margin-right:20px;
+  margin-right: 20px;
   border: none;
 }
 
@@ -399,4 +399,3 @@ select, button, #submitform {
 .showclearbutton {
   display: inline;
 }
-
