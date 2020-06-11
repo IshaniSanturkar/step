@@ -9,7 +9,8 @@
   <link rel="stylesheet" href="style.css">
   <script src="https://www.gstatic.com/charts/loader.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script src="script.js"></script>
+  <script src="comments.js" async></script>
+  <script src="script.js" async></script>
 </head>
 
 <body id="content" onload="loadComments()">
@@ -69,6 +70,16 @@
       </span>
       <span class="commentparam">
         <button id="clearcomments" onclick="clearComments()">Clear</button>
+      </span>
+      <span class="commentparam">
+        <label for="lang">Comment Language:</label>
+        <select name="lang" id="lang" onchange="loadComments()">
+          <option value="en" selected>English</option>
+          <option value="hi">Hindi</option>
+          <option value="zh">Chinese</option>
+          <option value="es">Spanish</option>
+          <option value="ar">Arabic</option>
+        </select>
       </span>
       <div id="filterdiv">
         <label for="filterby">Filter By:</label>
