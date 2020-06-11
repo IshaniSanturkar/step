@@ -27,8 +27,8 @@ import javax.json.JsonObjectBuilder;
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
 
-  /* 
-   * Called when a GET request is submitted to /login. If the user is logged in, 
+  /*
+   * Called when a GET request is submitted to /login. If the user is logged in,
    * returns this status along with a logout URL. Otherwise, returns a login URL
    * and the current status to the client.
    */
@@ -39,16 +39,17 @@ public class LoginServlet extends HttpServlet {
     String redirectURL = "../../comments.html";
 
     UserService userService = UserServiceFactory.getUserService();
-    
+
     if (userService.isUserLoggedIn()) {
       boolean isAdmin = userService.isUserAdmin();
       String email = userService.getCurrentUser().getEmail();
       String logoutUrl = userService.createLogoutURL(redirectURL);
-      builder = builder
-                .add("loggedin", true)
-                .add("url", logoutUrl)
-                .add("email", email)
-                .add("isadmin", isAdmin);
+      builder =
+          builder
+              .add("loggedin", true)
+              .add("url", logoutUrl)
+              .add("email", email)
+              .add("isadmin", isAdmin);
     } else {
       String loginUrl = userService.createLoginURL(redirectURL);
       builder = builder.add("loggedin", false).add("url", loginUrl);

@@ -44,9 +44,7 @@ public final class ServerStatsServlet extends HttpServlet {
     response.getWriter().println(json);
   }
 
-  /**
-   * Converts a ServerStats instance into a JSON string using manual String concatentation.
-   */
+  /** Converts a ServerStats instance into a JSON string using manual String concatentation. */
   private String convertToJson(ServerStats serverStats) {
     String json = "{";
     json += "\"startTime\": ";

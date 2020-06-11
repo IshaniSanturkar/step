@@ -223,3 +223,9 @@ indexes:
   - name: comment
   - name: score
     direction: asc
+
+- kind: Vote
+  ancestor: no 
+  properties:
+  - name: userid
+  - name: commentid

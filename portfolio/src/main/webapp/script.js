@@ -96,7 +96,7 @@ function togglePause() {
     const statusImg = document.getElementById("pauseplay")
     statusImg.src = "/images/play.png";
     statusImg.style.display = "block";
-    window.setTimeout(function () {
+    window.setTimeout(function() {
       $("#pauseplay").fadeOut();
       statusImg.style.display = "none";
     }, 500);
@@ -107,7 +107,7 @@ function togglePause() {
     const statusImg = document.getElementById("pauseplay")
     statusImg.src = "/images/pause.png";
     statusImg.style.display = "block";
-    window.setTimeout(function () {
+    window.setTimeout(function() {
       $("#pauseplay").fadeOut();
       statusImg.style.display = "none";
     }, 500);
@@ -475,6 +475,10 @@ function formatCommentReply(comment) {
  * isUpvote is false. 
  */
 function changeVote(comment, isUpvote, amount) {
+  // Prevent a POST request from changing vote count by more than 1
+  if (amount !== 1 && amount !== -1) {
+    return;
+  }
   const updateObj = {};
   updateObj["id"] = comment["id"];
   updateObj["isupvote"] = isUpvote;
@@ -499,6 +503,8 @@ function replyTo(comment) {
   const replyId = `${comment["id"]}-bar`;
   const replyContent = document.getElementById(replyId).value;
   const replyObj = {};
+  const today = new Date();
+  replyObj["time"] = today.getTime();
   replyObj["comment"] = replyContent;
   replyObj["parentid"] = comment["id"];
   replyObj["rootid"] = (comment["rootId"] === 0) ? comment["id"] : comment["rootId"];

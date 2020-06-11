@@ -16,15 +16,14 @@ package com.google.sps.servlets;
 
 import com.google.auto.value.AutoValue;
 
-@AutoValue 
+@AutoValue
 abstract class DayComments {
 
   static DayComments create(int rootComments, int replies) {
-  return new AutoValue_DayComments(rootComments, replies);
+    return new AutoValue_DayComments(rootComments, replies);
   }
 
   abstract int rootComments();
 
   abstract int replies();
 }
-
