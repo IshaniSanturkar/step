@@ -96,7 +96,7 @@ function togglePause() {
     const statusImg = document.getElementById("pauseplay")
     statusImg.src = "/images/play.png";
     statusImg.style.display = "block";
-    window.setTimeout(function() {
+    window.setTimeout(function () {
       $("#pauseplay").fadeOut();
       statusImg.style.display = "none";
     }, 500);
@@ -107,7 +107,7 @@ function togglePause() {
     const statusImg = document.getElementById("pauseplay")
     statusImg.src = "/images/pause.png";
     statusImg.style.display = "block";
-    window.setTimeout(function() {
+    window.setTimeout(function () {
       $("#pauseplay").fadeOut();
       statusImg.style.display = "none";
     }, 500);
@@ -590,10 +590,10 @@ function drawChart() {
         "width": 800,
         "pointSize": 5,
         "vAxis": {
-          "format": '0',
+          "format": "0",
           "minValue": 0
         },
-        "hAxis": { "format": 'M/d/yy' }
+        "hAxis": { "format": "M/d/yy" }
       };
       const chart = new google.visualization.LineChart(document.getElementById("chartdiv"));
       chart.draw(data, options)
