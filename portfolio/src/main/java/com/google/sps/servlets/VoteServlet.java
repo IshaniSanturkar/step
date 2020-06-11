@@ -102,6 +102,7 @@ public class VoteServlet extends HttpServlet {
        * User has upvoted/downvoted the comment and is trying to 
        * revert their vote
        */
+      // User has upvoted but is trying to revert downvote or vice versa (impossible)
       if ((voteValue == 1 && !isUpvote) || (voteValue == -1 && isUpvote)) {
         return;
       }

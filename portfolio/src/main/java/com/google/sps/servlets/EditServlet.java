@@ -56,16 +56,19 @@ public class EditServlet extends HttpServlet {
     long commentId = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(
         jsonObject, "id", "0"));
     String newComment = UtilityFunctions.getFieldFromJsonObject(jsonObject, "comment", "");
+    long time = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(
+        jsonObject, "time", String.valueOf(System.currentTimeMillis())));
 
     if (newComment.length() != 0) {
-      editInDatastore(commentId, newComment);
+      editInDatastore(commentId, newComment, time);
     }
   }
 
   /* 
-   * Deletes comment represented by commentId from the datastore
+   * Edits comment represented by commentId in the datastore to reflect
+   * that its content is newComment. Also records its new timestamp.
    */
-  private void editInDatastore(long commentId, String newComment) {
+  private void editInDatastore(long commentId, String newComment, long time) {
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     KeyFactory keyFactory = datastore.newKeyFactory().setKind("Comment");
     Entity comment = datastore.get(keyFactory.newKey(commentId));
@@ -74,24 +77,13 @@ public class EditServlet extends HttpServlet {
     if(!commentUserId.equals(UtilityFunctions.getCurrentUserId())) {
         return;
     }
-    Entity updatedComment = Entity.newBuilder(comment).set("comment", newComment).build();
+    Entity updatedComment = Entity.newBuilder(comment)
+                            .set("comment", newComment)
+                            .set("time", time)
+                            .build();
     datastore.update(updatedComment);
 
-    Query<Entity> query  = Query.newEntityQueryBuilder()
-                            .setKind("DateEntry")
-                            .setFilter(PropertyFilter.eq("commentid", commentId))
-                            .build();
-    QueryResults<Entity> results = datastore.run(query);
-    // The current user has not voted for this comment
-    if (!results.hasNext()) {
-      return;
-    } else {
-      Entity vote = results.next();
-      Entity updatedVote = Entity.newBuilder(vote).set("time", System.currentTimeMillis()).build();
-      if (results.hasNext()) {
-        return;
-      }
-      datastore.update(updatedVote);
-    }
+    // Update timestamp of this comment in datastore
+    UtilityFunctions.editTimestampInDatastore(commentId, time);
   } 
 }  

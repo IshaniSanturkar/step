@@ -83,20 +83,53 @@ public class UtilityFunctions {
     Entity inserted = datastore.add(thisComment);
 
     long commentId = inserted.getKey().getId();
+    addTimestampToDatastore(commentId, rootId, dateTime);
+  }
+
+  /*
+   * Adds an entry to datastore to represent that comment 'commentId' with root Id 'rootId'
+   * was submitted at time 'time'
+   */
+  public static void addTimestampToDatastore(long commentId, long rootId, long time) {
+    Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     KeyFactory dateKeyFactory = datastore.newKeyFactory().setKind("DateEntry");
     IncompleteKey dateKey = dateKeyFactory.setKind("DateEntry").newKey();
     FullEntity<IncompleteKey> thisCommentDate =
         FullEntity.newBuilder(dateKey)
           .set("commentid", commentId)
           .set("rootid", rootId)
-          .set("time", dateTime)
+          .set("time", time)
           .build();
     datastore.add(thisCommentDate);
   }
 
+  // updates the stored timestamp of comment 'commentId' to be newTime
+  public static void editTimestampInDatastore(long commentId, long newTime) {
+    Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+    Query<Entity> query  = Query.newEntityQueryBuilder()
+                            .setKind("DateEntry")
+                            .setFilter(PropertyFilter.eq("commentid", commentId))
+                            .build();
+    QueryResults<Entity> results = datastore.run(query);
+    
+    // This comment's timestamp has never been registered (impossible)
+    if (!results.hasNext()) {
+      return;
+    } else {
+      Entity timestamp = results.next();
+      // There is more than one timestamp for this comment (impossible)
+      if (results.hasNext()) {
+        return;
+      }
+      Entity updatedTimestamp = Entity.newBuilder(timestamp).set("time", newTime).build();
+      datastore.update(updatedTimestamp);
+    }
+  }
+
   /*
    * Adds a vote made by user userId on comment commentId which is an upvote if isUpvote
-   * is true and a downvote otherwise
+   * is true and a downvote otherwise to the database to prevent them from voting multiple 
+   * times on the same comment
    */
   public static void addVoteToDatastore(String userId, long commentId, boolean isUpvote) {
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
@@ -129,11 +162,11 @@ public class UtilityFunctions {
       return 0;
     } else {
       Entity vote = results.next();
-      int voteValue = (vote.getBoolean("isupvote")) ? 1 : -1;
       // If there is more than one entry for a user-vote pair (impossible)
       if (results.hasNext()) {
         return 0;
       }
+      int voteValue = (vote.getBoolean("isupvote")) ? 1 : -1;
       return voteValue;
     }
   }

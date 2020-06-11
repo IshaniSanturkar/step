@@ -503,6 +503,8 @@ function replyTo(comment) {
   const replyId = `${comment["id"]}-bar`;
   const replyContent = document.getElementById(replyId).value;
   const replyObj = {};
+  const today = new Date();
+  replyObj["time"] = today.getTime();
   replyObj["comment"] = replyContent;
   replyObj["parentid"] = comment["id"];
   replyObj["rootid"] = (comment["rootId"] === 0) ? comment["id"] : comment["rootId"];
