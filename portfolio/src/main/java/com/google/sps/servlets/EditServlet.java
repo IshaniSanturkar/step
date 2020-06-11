@@ -20,6 +20,9 @@ import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.KeyFactory;
 import com.google.cloud.datastore.Key;
+import com.google.cloud.datastore.Query;
+import com.google.cloud.datastore.QueryResults;
+import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.cloud.datastore.Entity;
 import com.google.common.io.CharStreams;
 import com.google.gson.Gson;
@@ -73,5 +76,22 @@ public class EditServlet extends HttpServlet {
     }
     Entity updatedComment = Entity.newBuilder(comment).set("comment", newComment).build();
     datastore.update(updatedComment);
-  }
-}
+
+    Query<Entity> query  = Query.newEntityQueryBuilder()
+                            .setKind("DateEntry")
+                            .setFilter(PropertyFilter.eq("commentid", commentId))
+                            .build();
+    QueryResults<Entity> results = datastore.run(query);
+    // The current user has not voted for this comment
+    if (!results.hasNext()) {
+      return;
+    } else {
+      Entity vote = results.next();
+      Entity updatedVote = Entity.newBuilder(vote).set("time", System.currentTimeMillis()).build();
+      if (results.hasNext()) {
+        return;
+      }
+      datastore.update(updatedVote);
+    }
+  } 
+}  

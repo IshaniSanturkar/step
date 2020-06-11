@@ -64,7 +64,7 @@ public class ChartServlet extends HttpServlet {
     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); 
 
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-    Query<Entity> query = Query.newEntityQueryBuilder().setKind("Comment").build();
+    Query<Entity> query = Query.newEntityQueryBuilder().setKind("DateEntry").build();
     QueryResults<Entity> results = datastore.run(query);
 
     while (results.hasNext()) {

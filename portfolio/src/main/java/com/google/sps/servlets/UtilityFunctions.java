@@ -80,7 +80,18 @@ public class UtilityFunctions {
           .set("voters", "{}")
           .set("userid", getCurrentUserId())
           .build();
-    datastore.add(thisComment);
+    Entity inserted = datastore.add(thisComment);
+
+    long commentId = inserted.getKey().getId();
+    KeyFactory dateKeyFactory = datastore.newKeyFactory().setKind("DateEntry");
+    IncompleteKey dateKey = dateKeyFactory.setKind("DateEntry").newKey();
+    FullEntity<IncompleteKey> thisCommentDate =
+        FullEntity.newBuilder(dateKey)
+          .set("commentid", commentId)
+          .set("rootid", rootId)
+          .set("time", dateTime)
+          .build();
+    datastore.add(thisCommentDate);
   }
 
   /*
