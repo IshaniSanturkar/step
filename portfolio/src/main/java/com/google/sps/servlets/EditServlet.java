@@ -20,6 +20,9 @@ import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.KeyFactory;
 import com.google.cloud.datastore.Key;
+import com.google.cloud.datastore.Query;
+import com.google.cloud.datastore.QueryResults;
+import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.cloud.datastore.Entity;
 import com.google.common.io.CharStreams;
 import com.google.gson.Gson;
@@ -53,16 +56,19 @@ public class EditServlet extends HttpServlet {
     long commentId = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(
         jsonObject, "id", "0"));
     String newComment = UtilityFunctions.getFieldFromJsonObject(jsonObject, "comment", "");
+    long time = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(
+        jsonObject, "time", String.valueOf(System.currentTimeMillis())));
 
     if (newComment.length() != 0) {
-      editInDatastore(commentId, newComment);
+      editInDatastore(commentId, newComment, time);
     }
   }
 
   /* 
-   * Deletes comment represented by commentId from the datastore
+   * Edits comment represented by commentId in the datastore to reflect
+   * that its content is newComment. Also records its new timestamp.
    */
-  private void editInDatastore(long commentId, String newComment) {
+  private void editInDatastore(long commentId, String newComment, long time) {
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     KeyFactory keyFactory = datastore.newKeyFactory().setKind("Comment");
     Entity comment = datastore.get(keyFactory.newKey(commentId));
@@ -71,7 +77,13 @@ public class EditServlet extends HttpServlet {
     if(!commentUserId.equals(UtilityFunctions.getCurrentUserId())) {
         return;
     }
-    Entity updatedComment = Entity.newBuilder(comment).set("comment", newComment).build();
+    Entity updatedComment = Entity.newBuilder(comment)
+                            .set("comment", newComment)
+                            .set("time", time)
+                            .build();
     datastore.update(updatedComment);
-  }
-}
+
+    // Update timestamp of this comment in datastore
+    UtilityFunctions.editTimestampInDatastore(commentId, time);
+  } 
+}  

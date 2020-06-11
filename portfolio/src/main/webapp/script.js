@@ -96,7 +96,7 @@ function togglePause() {
     const statusImg = document.getElementById("pauseplay")
     statusImg.src = "/images/play.png";
     statusImg.style.display = "block";
-    window.setTimeout(function() {
+    window.setTimeout(function () {
       $("#pauseplay").fadeOut();
       statusImg.style.display = "none";
     }, 500);
@@ -107,7 +107,7 @@ function togglePause() {
     const statusImg = document.getElementById("pauseplay")
     statusImg.src = "/images/pause.png";
     statusImg.style.display = "block";
-    window.setTimeout(function() {
+    window.setTimeout(function () {
       $("#pauseplay").fadeOut();
       statusImg.style.display = "none";
     }, 500);
@@ -391,7 +391,7 @@ function formatCommentVoteButtons(comment, thisCommentDiv) {
         /*
          * upvote button was pressed and user is now pressing it again so we 
          * decrease upvotes by 1 and undo the vote
-         */
+         */ 
         changeVote(comment, true, -1);
         upvoteButton.classList.replace("pressed", "unpressed");
       }
@@ -411,7 +411,7 @@ function formatCommentVoteButtons(comment, thisCommentDiv) {
       /*
        * downvote button was unpressed and user is now pressing it so we 
        * increase downvotes by 1
-       */
+       */ 
       changeVote(comment, false, 1);
       downvoteButton.classList.replace("unpressed", "pressed");
     } else {
@@ -476,6 +476,10 @@ function formatCommentReply(comment) {
  * isUpvote is false. 
  */
 function changeVote(comment, isUpvote, amount) {
+  // Prevent a POST request from changing vote count by more than 1
+  if(amount !== 1 && amount !== -1) {
+      return;
+  }
   const updateObj = {};
   updateObj["id"] = comment["id"];
   updateObj["isupvote"] = isUpvote;
@@ -500,6 +504,8 @@ function replyTo(comment) {
   const replyId = `${comment["id"]}-bar`;
   const replyContent = document.getElementById(replyId).value;
   const replyObj = {};
+  const today = new Date();
+  replyObj["time"] = today.getTime();
   replyObj["comment"] = replyContent;
   replyObj["parentid"] = comment["id"];
   replyObj["rootid"] = (comment["rootId"] === 0) ? comment["id"] : comment["rootId"];
@@ -511,7 +517,6 @@ function replyTo(comment) {
     body: JSON.stringify(replyObj),
   }).then(response => {
     loadComments();
-    document.getElementById("replyId").reset();
   });
 }
 
@@ -591,10 +596,10 @@ function drawChart() {
         "width": 525,
         "pointSize": 5,
         "vAxis": {
-          "format": '0',
+          "format": "0",
           "minValue": 0
         },
-        "hAxis": { "format": 'M/d/yy' }
+        "hAxis": { "format": "M/d/yy" }
       };
       const chart = new google.visualization.LineChart(document.getElementById("numcommentchartdiv"));
       chart.draw(data, options)
@@ -603,16 +608,21 @@ function drawChart() {
     .then(response => response.json())
     .then(replyTreeLength => {
       const data = new google.visualization.DataTable();
-      data.addColumn("string", "ID");
+    //   data.addColumn("string", "ID");
       data.addColumn("number", "Reply Tree Length")
-      Object.keys(replyTreeLength).forEach((tree) => {
-        data.addRow([tree, replyTreeLength[tree]]);
+      replyTreeLength.forEach((treeLength) => {
+        data.addRow([treeLength]);
       });
       const options = {
         "title": "Length of Reply Tree",
         "height": 400,
         "width": 525,
-        bucketSize: 2,
+        "vAxis": {
+          "format": "0",
+          "minValue": 0
+        },
+        "histogram": { "bucketSize": 2,
+                       "hideBucketItems": true }
       };
       const chart = new google.visualization.Histogram(document.getElementById("replytreechartdiv"));
       chart.draw(data, options)

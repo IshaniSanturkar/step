@@ -32,11 +32,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.IOException;
-import java.text.DateFormat; 
-import java.text.SimpleDateFormat; 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -54,9 +50,8 @@ public class ReplyTreeChartServlet extends HttpServlet {
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    HashMap<String, Integer> replyTreeSize = new HashMap<>();
-
-    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); 
+    // Maps each root comment text to the length of that comment's reply tree
+    ArrayList<Integer> replyTreeSize = new ArrayList<>();
 
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     Query<Entity> query = Query.newEntityQueryBuilder()
@@ -68,14 +63,14 @@ public class ReplyTreeChartServlet extends HttpServlet {
     while (results.hasNext()) {
       Entity comment = results.next();
       long rootId = comment.getKey().getId();
-      String id = String.valueOf(rootId);
 
       Query<Entity> childQuery = Query.newEntityQueryBuilder()
                                   .setKind("Comment")
                                   .setFilter(PropertyFilter.eq("rootid", rootId))
                                   .build();    
       Iterator<Entity> childResults = datastore.run(childQuery);
-      replyTreeSize.put(id, Iterators.size(childResults));
+      String text = comment.getString("comment");
+      replyTreeSize.add(Iterators.size(childResults));
     }
 
     Gson gson = new Gson();

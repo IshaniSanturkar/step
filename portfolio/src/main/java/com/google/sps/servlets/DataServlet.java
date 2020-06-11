@@ -132,18 +132,23 @@ public class DataServlet extends HttpServlet {
     long rootId = entity.getLong("rootid");
     long upvotes = entity.getLong("upvotes");
     long downvotes = upvotes - entity.getLong("score");
-    String voters = entity.getString("voters");
     String commenterId = entity.getString("userid");
     
-    JsonObject obj = UtilityFunctions.stringToJsonObject(voters);
     String userId = UtilityFunctions.getCurrentUserId();
     boolean isEditable = commenterId.equals(userId);
     UserComment.voteStatus votingStatus = UserComment.voteStatus.NOTVOTED;
 
-    if (obj.has(userId)) {
-        votingStatus = obj.get(userId).getAsBoolean() ? 
-            UserComment.voteStatus.UPVOTED : 
-            UserComment.voteStatus.DOWNVOTED;
+    /*
+     * Has value:
+     * 1 if user has upvoted this comment
+     * -1 if user has downvoted this comment
+     * 0 if user has not voted for this comment
+     */
+    int voteValue = UtilityFunctions.getVoteInDatastore(userId, id);
+    if (voteValue != 0) {
+      votingStatus = (voteValue == 1) ?
+      UserComment.voteStatus.UPVOTED :
+      UserComment.voteStatus.DOWNVOTED;
     }
 
     UserComment userComment = UserComment.create(name, email, comment, time, id, parentId, rootId,

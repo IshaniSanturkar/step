@@ -18,9 +18,16 @@ import com.google.appengine.api.users.UserServiceFactory;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
+import com.google.cloud.datastore.EntityQuery.Builder;
 import com.google.cloud.datastore.FullEntity;
 import com.google.cloud.datastore.IncompleteKey;
+import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.KeyFactory;
+import com.google.cloud.datastore.Query;
+import com.google.cloud.datastore.QueryResults;
+import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
+import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
+import com.google.common.collect.Iterators;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -73,7 +80,108 @@ public class UtilityFunctions {
           .set("voters", "{}")
           .set("userid", getCurrentUserId())
           .build();
-    datastore.add(thisComment);
+    Entity inserted = datastore.add(thisComment);
+
+    long commentId = inserted.getKey().getId();
+    addTimestampToDatastore(commentId, rootId, dateTime);
+  }
+
+  /*
+   * Adds an entry to datastore to represent that comment 'commentId' with root Id 'rootId'
+   * was submitted at time 'time'
+   */
+  public static void addTimestampToDatastore(long commentId, long rootId, long time) {
+    Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+    KeyFactory dateKeyFactory = datastore.newKeyFactory().setKind("DateEntry");
+    IncompleteKey dateKey = dateKeyFactory.setKind("DateEntry").newKey();
+    FullEntity<IncompleteKey> thisCommentDate =
+        FullEntity.newBuilder(dateKey)
+          .set("commentid", commentId)
+          .set("rootid", rootId)
+          .set("time", time)
+          .build();
+    datastore.add(thisCommentDate);
+  }
+
+  // updates the stored timestamp of comment 'commentId' to be newTime
+  public static void editTimestampInDatastore(long commentId, long newTime) {
+    Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+    Query<Entity> query  = Query.newEntityQueryBuilder()
+                            .setKind("DateEntry")
+                            .setFilter(PropertyFilter.eq("commentid", commentId))
+                            .build();
+    QueryResults<Entity> results = datastore.run(query);
+    
+    // This comment's timestamp has never been registered (impossible)
+    if (!results.hasNext()) {
+      return;
+    } else {
+      Entity timestamp = results.next();
+      // There is more than one timestamp for this comment (impossible)
+      if (results.hasNext()) {
+        return;
+      }
+      Entity updatedTimestamp = Entity.newBuilder(timestamp).set("time", newTime).build();
+      datastore.update(updatedTimestamp);
+    }
+  }
+
+  /*
+   * Adds a vote made by user userId on comment commentId which is an upvote if isUpvote
+   * is true and a downvote otherwise to the database to prevent them from voting multiple 
+   * times on the same comment
+   */
+  public static void addVoteToDatastore(String userId, long commentId, boolean isUpvote) {
+    Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+    KeyFactory keyFactory = datastore.newKeyFactory().setKind("Vote");
+    IncompleteKey key = keyFactory.setKind("Vote").newKey();
+    FullEntity<IncompleteKey> thisVote =
+        FullEntity.newBuilder(key)
+          .set("userid", userId)
+          .set("commentid", commentId)
+          .set("isupvote", isUpvote)
+          .build();
+    datastore.add(thisVote);
+  }
+
+  /*
+   * Returns 1 if the user userId has upvoted comment commentId, -1 if
+   * they have downvoted it and 0 if they have not voted for it
+   */
+  public static int getVoteInDatastore(String userId, long commentId) {
+    Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+    Query<Entity> query  = Query.newEntityQueryBuilder()
+                            .setKind("Vote")
+                            .setFilter(CompositeFilter.and(
+                            PropertyFilter.eq("userid", userId), 
+                            PropertyFilter.eq("commentid", commentId)))
+                            .build();
+    QueryResults<Entity> results = datastore.run(query);
+    // The current user has not voted for this comment
+    if (!results.hasNext()) {
+      return 0;
+    } else {
+      Entity vote = results.next();
+      // If there is more than one entry for a user-vote pair (impossible)
+      if (results.hasNext()) {
+        return 0;
+      }
+      int voteValue = (vote.getBoolean("isupvote")) ? 1 : -1;
+      return voteValue;
+    }
+  }
+ 
+  // Removes user userId's vote on comment commentId from database
+  public static void removeVoteInDatastore(String userId, long commentId) {
+    Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+    Query<Key> query =
+      Query.newKeyQueryBuilder()
+        .setKind("Vote")
+        .setFilter(CompositeFilter.and(PropertyFilter.eq("userid", userId),
+                    PropertyFilter.eq("commentid", commentId)))
+        .build();
+    Key[] keys = Iterators.toArray(datastore.run(query), Key.class);
+    datastore.delete(keys);
   }
 
   /*

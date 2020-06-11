@@ -81,31 +81,35 @@ public class VoteServlet extends HttpServlet {
     KeyFactory keyFactory = datastore.newKeyFactory().setKind("Comment");
     Entity comment = datastore.get(keyFactory.newKey(commentId));
 
-    String voters = comment.getString("voters");
-    JsonObject obj = UtilityFunctions.stringToJsonObject(voters);
     String userId = UtilityFunctions.getCurrentUserId();
+    /*
+     * Possible Values:
+     * 0 - current user has not voted for this comment
+     * 1 - current user has upvoted this comment
+     * -1 - current user has downvoted this comment
+     */
+    int voteValue = UtilityFunctions.getVoteInDatastore(userId, commentId);
 
-    if (obj.has(userId) && amount == 1) {
+    if (voteValue != 0 && amount == 1) {
       /* 
        * The user has upvoted a comment and is trying to downvote it 
        * or has downvoted the comment and is trying to upvote it. In
        * this case, no change should occur. 
        */
       return;
-    } else if (obj.has(userId) && amount == -1) {
+    } else if (voteValue != 0 && amount == -1) {
       /*
        * User has upvoted/downvoted the comment and is trying to 
        * revert their vote
        */
-      boolean status = obj.get(userId).getAsBoolean();
-      // Making sure that the user is reverting the exact vote they made
-      if(status != isUpvote) {
+      // User has upvoted but is trying to revert downvote or vice versa (impossible)
+      if ((voteValue == 1 && !isUpvote) || (voteValue == -1 && isUpvote)) {
         return;
-      } 
-      obj.remove(userId);
+      }
+      UtilityFunctions.removeVoteInDatastore(userId, commentId);
     } else {
-        // User has no vote on this comment currently and is making a fresh vote
-        obj.addProperty(userId, isUpvote);
+      // User has no vote on this comment currently and is making a fresh vote
+      UtilityFunctions.addVoteToDatastore(userId, commentId, isUpvote);
     }
 
     long upvotes = comment.getLong("upvotes");
@@ -113,11 +117,14 @@ public class VoteServlet extends HttpServlet {
     long downvotes = upvotes - score;
     Entity updatedComment;
     if (isUpvote) {
-      updatedComment = Entity.newBuilder(comment).set("upvotes", upvotes + amount)
-          .set("score", score + amount).set("voters", obj.toString()).build();
+      updatedComment = Entity.newBuilder(comment)
+                      .set("upvotes", upvotes + amount)
+                      .set("score", score + amount)
+                      .build();
     } else {
-      updatedComment = Entity.newBuilder(comment).set("score", score - amount)
-          .set("voters", obj.toString()).build();
+      updatedComment = Entity.newBuilder(comment)
+                      .set("score", score - amount)
+                      .build();
     }
     datastore.update(updatedComment);
   }
