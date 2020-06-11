@@ -19,13 +19,9 @@ import com.google.appengine.api.users.UserServiceFactory;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.KeyFactory;
-import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Entity;
 import com.google.common.io.CharStreams;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import java.io.IOException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -45,35 +41,34 @@ public class VoteServlet extends HttpServlet {
     UserService userService = UserServiceFactory.getUserService();
     // Make sure user is logged in
     if (!userService.isUserLoggedIn()) {
-        return;
+      return;
     }
     String parsedBody = CharStreams.toString(request.getReader());
     JsonObject jsonVote = UtilityFunctions.stringToJsonObject(parsedBody);
 
-    long commentId = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(
-        jsonVote, "id", "0"));
-    long amount = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(
-        jsonVote, "amt", "0"));
-    
+    long commentId = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(jsonVote, "id", "0"));
+    long amount = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(jsonVote, "amt", "0"));
+
     // Prevent a POST request from changing vote count by more than 1
-    if(amount != 1 && amount != -1) {
-        return;
+    if (amount != 1 && amount != -1) {
+      return;
     }
 
     if (commentId != 0 && amount != 0) {
-      boolean isUpvote = Boolean.parseBoolean(UtilityFunctions.getFieldFromJsonObject(
-        jsonVote, "isupvote", "true"));
+      boolean isUpvote =
+          Boolean.parseBoolean(
+              UtilityFunctions.getFieldFromJsonObject(jsonVote, "isupvote", "true"));
       changeVoteInDatastore(commentId, isUpvote, amount);
     }
   }
 
-  /* 
+  /*
    * Registers that the comment represented by commentId has been upvoted (if isUpvote
    * is true) or downvoted (if isUpvote is false) if amount is 1 and the user hasn't
    * already upvoted or downvoted the same comment. If they have, no change occurs.
    * If amount is -1 and the user has upvoted [downvoted] a comment and isUpvote is true
    * [false] then the vote is deregistered so that the user has no vote towards this comment.
-   * If amount is -1 and isUpvote is true and the user has downvoted the comment, no change 
+   * If amount is -1 and isUpvote is true and the user has downvoted the comment, no change
    * occurs.
    */
   private void changeVoteInDatastore(long commentId, boolean isUpvote, long amount) {
@@ -91,15 +86,15 @@ public class VoteServlet extends HttpServlet {
     int voteValue = UtilityFunctions.getVoteInDatastore(userId, commentId);
 
     if (voteValue != 0 && amount == 1) {
-      /* 
-       * The user has upvoted a comment and is trying to downvote it 
+      /*
+       * The user has upvoted a comment and is trying to downvote it
        * or has downvoted the comment and is trying to upvote it. In
-       * this case, no change should occur. 
+       * this case, no change should occur.
        */
       return;
     } else if (voteValue != 0 && amount == -1) {
       /*
-       * User has upvoted/downvoted the comment and is trying to 
+       * User has upvoted/downvoted the comment and is trying to
        * revert their vote
        */
       // User has upvoted but is trying to revert downvote or vice versa (impossible)
@@ -117,14 +112,13 @@ public class VoteServlet extends HttpServlet {
     long downvotes = upvotes - score;
     Entity updatedComment;
     if (isUpvote) {
-      updatedComment = Entity.newBuilder(comment)
-                      .set("upvotes", upvotes + amount)
-                      .set("score", score + amount)
-                      .build();
+      updatedComment =
+          Entity.newBuilder(comment)
+              .set("upvotes", upvotes + amount)
+              .set("score", score + amount)
+              .build();
     } else {
-      updatedComment = Entity.newBuilder(comment)
-                      .set("score", score - amount)
-                      .build();
+      updatedComment = Entity.newBuilder(comment).set("score", score - amount).build();
     }
     datastore.update(updatedComment);
   }

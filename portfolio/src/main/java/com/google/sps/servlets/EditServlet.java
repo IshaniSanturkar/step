@@ -19,16 +19,9 @@ import com.google.appengine.api.users.UserServiceFactory;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.KeyFactory;
-import com.google.cloud.datastore.Key;
-import com.google.cloud.datastore.Query;
-import com.google.cloud.datastore.QueryResults;
-import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.cloud.datastore.Entity;
 import com.google.common.io.CharStreams;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import java.io.IOException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -48,23 +41,24 @@ public class EditServlet extends HttpServlet {
     UserService userService = UserServiceFactory.getUserService();
     // Make sure user is logged in
     if (!userService.isUserLoggedIn()) {
-        return;
+      return;
     }
     String parsedBody = CharStreams.toString(request.getReader());
     JsonObject jsonObject = UtilityFunctions.stringToJsonObject(parsedBody);
 
-    long commentId = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(
-        jsonObject, "id", "0"));
+    long commentId = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(jsonObject, "id", "0"));
     String newComment = UtilityFunctions.getFieldFromJsonObject(jsonObject, "comment", "");
-    long time = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(
-        jsonObject, "time", String.valueOf(System.currentTimeMillis())));
+    long time =
+        Long.parseLong(
+            UtilityFunctions.getFieldFromJsonObject(
+                jsonObject, "time", String.valueOf(System.currentTimeMillis())));
 
     if (newComment.length() != 0) {
       editInDatastore(commentId, newComment, time);
     }
   }
 
-  /* 
+  /*
    * Edits comment represented by commentId in the datastore to reflect
    * that its content is newComment. Also records its new timestamp.
    */
@@ -74,16 +68,14 @@ public class EditServlet extends HttpServlet {
     Entity comment = datastore.get(keyFactory.newKey(commentId));
     String commentUserId = comment.getString("userid");
     // Make sure editing user is the same as the comment author
-    if(!commentUserId.equals(UtilityFunctions.getCurrentUserId())) {
-        return;
+    if (!commentUserId.equals(UtilityFunctions.getCurrentUserId())) {
+      return;
     }
-    Entity updatedComment = Entity.newBuilder(comment)
-                            .set("comment", newComment)
-                            .set("time", time)
-                            .build();
+    Entity updatedComment =
+        Entity.newBuilder(comment).set("comment", newComment).set("time", time).build();
     datastore.update(updatedComment);
 
     // Update timestamp of this comment in datastore
     UtilityFunctions.editTimestampInDatastore(commentId, time);
-  } 
-}  
+  }
+}

@@ -16,7 +16,7 @@ package com.google.sps.servlets;
 
 import com.google.auto.value.AutoValue;
 
-@AutoValue 
+@AutoValue
 abstract class UserComment {
 
   public enum voteStatus {
@@ -35,10 +35,20 @@ abstract class UserComment {
       long rootId,
       long upvotes,
       long downvotes,
-      boolean isEditable, 
+      boolean isEditable,
       voteStatus votingStatus) {
-    return new AutoValue_UserComment(name, email, comment, timestamp, id, parentId,
-        rootId, upvotes, downvotes, isEditable, votingStatus);
+    return new AutoValue_UserComment(
+        name,
+        email,
+        comment,
+        timestamp,
+        id,
+        parentId,
+        rootId,
+        upvotes,
+        downvotes,
+        isEditable,
+        votingStatus);
   }
 
   /*
@@ -67,9 +77,9 @@ abstract class UserComment {
   abstract String comment();
 
   /*
-   * Represents the difference, measured in milliseconds, between the 
+   * Represents the difference, measured in milliseconds, between the
    * time of form submission by the client and midnight, January 1, 1970 UTC
-   * Default Value: The difference, measured in milliseconds, between the 
+   * Default Value: The difference, measured in milliseconds, between the
    * time of form receipt by the server and midnight, January 1, 1970 UTC
    * Invariants: - Is always non-negative
    */
@@ -83,7 +93,7 @@ abstract class UserComment {
   abstract long id();
 
   /*
-   * Represents the ID of the parent comment of this comment, if 
+   * Represents the ID of the parent comment of this comment, if
    * this is a reply and 0 if this is a root comment.
    * Default Value: -
    * Invariants: Always non-negative
@@ -91,9 +101,9 @@ abstract class UserComment {
   abstract long parentId();
 
   /*
-   * Represents the ID of the root of the comment tree that 
+   * Represents the ID of the root of the comment tree that
    * this reply is part of. If this is the root, rootId is
-   * 0. 
+   * 0.
    * Default Value: -
    * Invariants: Always non-negative
    */
@@ -116,11 +126,11 @@ abstract class UserComment {
    * comment and can edit it
    */
   abstract boolean isEditable();
-  
+
   /*
    * Represents whether the current user has upvoted (UPVOTED), downvoted
-   * (DOWNVOTED) or not voted for (NOTVOTED) the given comment. 
-   * Invariants: The above conditions are mutually exclusive. 
+   * (DOWNVOTED) or not voted for (NOTVOTED) the given comment.
+   * Invariants: The above conditions are mutually exclusive.
    */
   abstract voteStatus votingStatus();
 }

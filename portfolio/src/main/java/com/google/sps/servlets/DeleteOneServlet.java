@@ -19,13 +19,9 @@ import com.google.appengine.api.users.UserServiceFactory;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.KeyFactory;
-import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Entity;
 import com.google.common.io.CharStreams;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import java.io.IOException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -36,7 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 public class DeleteOneServlet extends HttpServlet {
 
   /*
-   * Called when a POST request is submitted to /delete-one, deletes the 
+   * Called when a POST request is submitted to /delete-one, deletes the
    * comment that was clicked as well as all of its replies
    * Invariant: The comment must have been authored by the current user
    */
@@ -45,20 +41,19 @@ public class DeleteOneServlet extends HttpServlet {
     UserService userService = UserServiceFactory.getUserService();
     // Make sure user is logged in
     if (!userService.isUserLoggedIn()) {
-        return;
+      return;
     }
     String parsedBody = CharStreams.toString(request.getReader());
     JsonObject jsonObject = UtilityFunctions.stringToJsonObject(parsedBody);
 
-    long commentId = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(
-        jsonObject, "id", "0"));
+    long commentId = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(jsonObject, "id", "0"));
 
     if (commentId != 0) {
       deleteInDatastore(commentId);
     }
   }
 
-  /* 
+  /*
    * Deletes comment represented by commentId from the datastore
    */
   private void deleteInDatastore(long commentId) {
@@ -67,8 +62,8 @@ public class DeleteOneServlet extends HttpServlet {
     Entity comment = datastore.get(keyFactory.newKey(commentId));
     String commentUserId = comment.getString("userid");
     // Make sure user is the same as the author of the comment
-    if(!commentUserId.equals(UtilityFunctions.getCurrentUserId())) {
-        return;
+    if (!commentUserId.equals(UtilityFunctions.getCurrentUserId())) {
+      return;
     }
     datastore.delete(keyFactory.newKey(commentId));
   }
