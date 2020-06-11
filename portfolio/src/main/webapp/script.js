@@ -379,7 +379,7 @@ function formatCommentVoteButtons(comment, thisCommentDiv) {
         /*
          * upvote button was pressed and user is now pressing it again so we 
          * decrease upvotes by 1 and undo the vote
-         */
+         */ 
         changeVote(comment, true, -1);
         upvoteButton.classList.replace("pressed", "unpressed");
       }
@@ -399,7 +399,7 @@ function formatCommentVoteButtons(comment, thisCommentDiv) {
       /*
        * downvote button was unpressed and user is now pressing it so we 
        * increase downvotes by 1
-       */
+       */ 
       changeVote(comment, false, 1);
       downvoteButton.classList.replace("unpressed", "pressed");
     } else {
