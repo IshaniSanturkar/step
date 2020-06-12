@@ -218,7 +218,7 @@ public class UtilityFunctions {
   }
 
   /*
-   * Add the language represented by langCode as a language comments were translated into in 
+   * Add the language represented by langCode as a language comments were translated into in
    * Datastore
    */
   public static void addLangToDatastore(String langCode) {
