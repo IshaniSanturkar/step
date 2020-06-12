@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,9 +34,9 @@ import javax.servlet.http.HttpServletResponse;
 public class ReplyTreeChartServlet extends HttpServlet {
 
   /*
-   * Called when a client submits a POST request to the /chart URL
-   * Prepares data about the number of comments each day and submits
-   * it to the client for rendering
+   * Called when a client submits a POST request to the /replytree-chart URL
+   * Prepares data about the length of the reply tree for each top-level comment
+   * and sends it to the client for rendering
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
