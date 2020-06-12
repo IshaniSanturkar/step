@@ -28,7 +28,6 @@ import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.cloud.translate.Translate;
 import com.google.cloud.translate.TranslateOptions;
 import com.google.cloud.translate.Translation;
-import com.google.common.collect.Lists;
 import com.google.common.io.CharStreams;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -72,8 +71,8 @@ public class DataServlet extends HttpServlet {
     }
 
     ArrayList<UserComment> comments = new ArrayList<>();
-    populateRootComments(comments, maxComments, sortOrder, sortMetric, filterMetric,
-        filterText, commentLanguage);
+    populateRootComments(
+        comments, maxComments, sortOrder, sortMetric, filterMetric, filterText, commentLanguage);
 
     Gson gson = new Gson();
     response.setContentType("application/json;charset=UTF-8");
@@ -118,9 +117,9 @@ public class DataServlet extends HttpServlet {
     }
   }
 
-  // Returns a list containing all replies of the comment with ID rootId 
-  private void populateChildComments(ArrayList<UserComment> comments, long rootId,
-      String langCode) {
+  // Returns a list containing all replies of the comment with ID rootId
+  private void populateChildComments(
+      ArrayList<UserComment> comments, long rootId, String langCode) {
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     Builder builder = Query.newEntityQueryBuilder();
     builder = builder.setKind("Comment").setFilter(PropertyFilter.eq("rootid", rootId));
@@ -146,7 +145,7 @@ public class DataServlet extends HttpServlet {
     long upvotes = entity.getLong("upvotes");
     long downvotes = upvotes - entity.getLong("score");
     String commenterId = entity.getString("userid");
-    
+
     String translatedName = name, translatedComment = comment;
     if (!langCode.equals("en")) {
       Translate translate = TranslateOptions.getDefaultInstance().getService();
@@ -175,9 +174,19 @@ public class DataServlet extends HttpServlet {
           (voteValue == 1) ? UserComment.voteStatus.UPVOTED : UserComment.voteStatus.DOWNVOTED;
     }
 
-    UserComment userComment = UserComment.create(translatedName, email,
-        translatedComment, time, id, parentId, rootId, upvotes, downvotes,
-        isEditable, votingStatus);
+    UserComment userComment =
+        UserComment.create(
+            translatedName,
+            email,
+            translatedComment,
+            time,
+            id,
+            parentId,
+            rootId,
+            upvotes,
+            downvotes,
+            isEditable,
+            votingStatus);
     return userComment;
   }
 
