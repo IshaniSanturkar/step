@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,11 +30,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet("/chart")
-public class ChartServlet extends HttpServlet {
+@WebServlet("/numcomment-chart")
+public class NumCommentChartServlet extends HttpServlet {
 
   /*
-   * Called when a client submits a POST request to the /chart URL
+   * Called when a client submits a POST request to the /numcomment-chart URL
    * Prepares data about the number of comments each day and submits
    * it to the client for rendering
    */
