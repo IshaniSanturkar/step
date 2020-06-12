@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -41,19 +41,24 @@ function drawChart() {
         "pointSize": 5,
         "vAxis": {
           "format": "0",
-          "minValue": 0
+          "minValue": 0,
+          "title": "Number of Comments"
         },
-        "hAxis": { "format": "M/d/yy" }
+        "hAxis": {
+          "format": "M/d/yy",
+          "title": "Day"
+        }
       };
       const chart = new google.visualization.LineChart(document.getElementById("numcommentchartdiv"));
       chart.draw(data, options)
     });
-    fetch("/replytree-chart")
+  let numRoots = 0;
+  fetch("/replytree-chart")
     .then(response => response.json())
     .then(replyTreeLength => {
+      numRoots = replyTreeLength.length;
       const data = new google.visualization.DataTable();
-    //   data.addColumn("string", "ID");
-      data.addColumn("number", "Reply Tree Length")
+      data.addColumn("number", "Reply Tree Length");
       replyTreeLength.forEach((treeLength) => {
         data.addRow([treeLength]);
       });
@@ -63,10 +68,16 @@ function drawChart() {
         "width": 525,
         "vAxis": {
           "format": "0",
-          "minValue": 0
+          "minValue": 0,
+          "title": "Number of Root Comments"
         },
-        "histogram": { "bucketSize": 2,
-                       "hideBucketItems": true }
+        "hAxis": {
+          "title": "Length of Reply Tree"
+        },
+        "histogram": {
+          "bucketSize": (numRoots < 2) ? "auto" : 2,
+          "hideBucketItems": true
+        }
       };
       const chart = new google.visualization.Histogram(document.getElementById("replytreechartdiv"));
       chart.draw(data, options)

@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,28 +13,18 @@
 // limitations under the License.
 
 package com.google.sps.servlets;
-import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
+
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
-import com.google.cloud.datastore.EntityQuery.Builder;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
-import com.google.cloud.datastore.StructuredQuery;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
-import com.google.common.io.CharStreams;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -44,9 +34,9 @@ import javax.servlet.http.HttpServletResponse;
 public class ReplyTreeChartServlet extends HttpServlet {
 
   /*
-   * Called when a client submits a POST request to the /chart URL
-   * Prepares data about the number of comments each day and submits
-   * it to the client for rendering
+   * Called when a client submits a POST request to the /replytree-chart URL
+   * Prepares data about the length of the reply tree for each top-level comment
+   * and sends it to the client for rendering
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -54,20 +44,22 @@ public class ReplyTreeChartServlet extends HttpServlet {
     ArrayList<Integer> replyTreeSize = new ArrayList<>();
 
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-    Query<Entity> query = Query.newEntityQueryBuilder()
-                          .setKind("Comment")
-                          .setFilter(PropertyFilter.eq("rootid", 0))
-                          .build();
+    Query<Entity> query =
+        Query.newEntityQueryBuilder()
+            .setKind("Comment")
+            .setFilter(PropertyFilter.eq("rootid", 0))
+            .build();
     QueryResults<Entity> results = datastore.run(query);
 
     while (results.hasNext()) {
       Entity comment = results.next();
       long rootId = comment.getKey().getId();
 
-      Query<Entity> childQuery = Query.newEntityQueryBuilder()
-                                  .setKind("Comment")
-                                  .setFilter(PropertyFilter.eq("rootid", rootId))
-                                  .build();    
+      Query<Entity> childQuery =
+          Query.newEntityQueryBuilder()
+              .setKind("Comment")
+              .setFilter(PropertyFilter.eq("rootid", rootId))
+              .build();
       Iterator<Entity> childResults = datastore.run(childQuery);
       String text = comment.getString("comment");
       replyTreeSize.add(Iterators.size(childResults));
