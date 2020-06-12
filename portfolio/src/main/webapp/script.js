@@ -604,11 +604,11 @@ function drawChart() {
       const chart = new google.visualization.LineChart(document.getElementById("numcommentchartdiv"));
       chart.draw(data, options)
     });
-    fetch("/replytree-chart")
+  fetch("/replytree-chart")
     .then(response => response.json())
     .then(replyTreeLength => {
       const data = new google.visualization.DataTable();
-    //   data.addColumn("string", "ID");
+      //   data.addColumn("string", "ID");
       data.addColumn("number", "Reply Tree Length")
       replyTreeLength.forEach((treeLength) => {
         data.addRow([treeLength]);
@@ -621,8 +621,10 @@ function drawChart() {
           "format": "0",
           "minValue": 0
         },
-        "histogram": { "bucketSize": 2,
-                       "hideBucketItems": true }
+        "histogram": {
+          "bucketSize": 2,
+          "hideBucketItems": true
+        }
       };
       const chart = new google.visualization.Histogram(document.getElementById("replytreechartdiv"));
       chart.draw(data, options)
