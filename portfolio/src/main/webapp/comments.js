@@ -285,7 +285,7 @@ function formatCommentVoteButtons(comment, thisCommentDiv) {
         /*
          * upvote button was pressed and user is now pressing it again so we 
          * decrease upvotes by 1 and undo the vote
-         */ 
+         */
         changeVote(comment, true, -1);
         upvoteButton.classList.replace("pressed", "unpressed");
       }
@@ -305,7 +305,7 @@ function formatCommentVoteButtons(comment, thisCommentDiv) {
       /*
        * downvote button was unpressed and user is now pressing it so we 
        * increase downvotes by 1
-       */ 
+       */
       changeVote(comment, false, 1);
       downvoteButton.classList.replace("unpressed", "pressed");
     } else {
@@ -328,7 +328,7 @@ function formatCommentVoteButtons(comment, thisCommentDiv) {
 // Formats comment name and timestamp into an HTML p element
 function formatCommentMetadata(comment) {
   let date = new Date(comment["timestamp"]);
-  const metadata = `${comment["name"]} (${comment["email"]}) at ${date.toLocaleString()} said`;
+  const metadata = `${comment["name"]} (${comment["email"]}) @ ${date.toLocaleString()}:`;
   const pElem = document.createElement("p");
   pElem.innerText = metadata;
   pElem.className = "comment_metadata";
@@ -338,7 +338,6 @@ function formatCommentMetadata(comment) {
 // Formats comment text into an HTML blockquote element
 function formatCommentText(comment) {
   const quote = document.createElement("blockquote");
-  console.log(comment["comment"]);
   quote.innerText = comment["comment"];
   return quote;
 }
@@ -372,8 +371,8 @@ function formatCommentReply(comment) {
  */
 function changeVote(comment, isUpvote, amount) {
   // Prevent a POST request from changing vote count by more than 1
-  if(amount !== 1 && amount !== -1) {
-      return;
+  if (amount !== 1 && amount !== -1) {
+    return;
   }
   const updateObj = {};
   updateObj["id"] = comment["id"];

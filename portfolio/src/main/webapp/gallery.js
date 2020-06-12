@@ -80,7 +80,7 @@ function togglePause() {
     const statusImg = document.getElementById("pauseplay")
     statusImg.src = "/images/play.png";
     statusImg.style.display = "block";
-    window.setTimeout(function () {
+    window.setTimeout(function() {
       $("#pauseplay").fadeOut();
       statusImg.style.display = "none";
     }, 500);
@@ -91,7 +91,7 @@ function togglePause() {
     const statusImg = document.getElementById("pauseplay")
     statusImg.src = "/images/pause.png";
     statusImg.style.display = "block";
-    window.setTimeout(function () {
+    window.setTimeout(function() {
       $("#pauseplay").fadeOut();
       statusImg.style.display = "none";
     }, 500);
