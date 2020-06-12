@@ -597,19 +597,24 @@ function drawChart() {
         "pointSize": 5,
         "vAxis": {
           "format": "0",
-          "minValue": 0
+          "minValue": 0,
+          "title": "Number of Comments"
         },
-        "hAxis": { "format": "M/d/yy" }
+        "hAxis": {
+          "format": "M/d/yy",
+          "title": "Day"
+        }
       };
       const chart = new google.visualization.LineChart(document.getElementById("numcommentchartdiv"));
       chart.draw(data, options)
     });
+  let numRoots = 0;
   fetch("/replytree-chart")
     .then(response => response.json())
     .then(replyTreeLength => {
+      numRoots = replyTreeLength.length;
       const data = new google.visualization.DataTable();
-      //   data.addColumn("string", "ID");
-      data.addColumn("number", "Reply Tree Length")
+      data.addColumn("number", "Reply Tree Length");
       replyTreeLength.forEach((treeLength) => {
         data.addRow([treeLength]);
       });
@@ -619,10 +624,14 @@ function drawChart() {
         "width": 525,
         "vAxis": {
           "format": "0",
-          "minValue": 0
+          "minValue": 0,
+          "title": "Number of Root Comments"
+        },
+        "hAxis": {
+          "title": "Length of Reply Tree"
         },
         "histogram": {
-          "bucketSize": 2,
+          "bucketSize": (numRoots < 2) ? "auto" : 2,
           "hideBucketItems": true
         }
       };
