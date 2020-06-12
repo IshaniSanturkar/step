@@ -13,6 +13,7 @@
 // limitations under the License.
 
 package com.google.sps.servlets;
+
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -30,12 +31,9 @@ import com.google.cloud.translate.Translation;
 import com.google.common.collect.Lists;
 import com.google.common.io.CharStreams;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -55,10 +53,11 @@ public class DataServlet extends HttpServlet {
     UserService userService = UserServiceFactory.getUserService();
     // Make sure user is logged in
     if (!userService.isUserLoggedIn()) {
-        return;
+      return;
     }
-    int maxComments = Integer.parseInt(UtilityFunctions.getFieldFromResponse(
-        request, "maxcomments", defaultMaxComment));
+    int maxComments =
+        Integer.parseInt(
+            UtilityFunctions.getFieldFromResponse(request, "maxcomments", defaultMaxComment));
     String sortMetric = UtilityFunctions.getFieldFromResponse(request, "metric", "time");
     String sortOrder = UtilityFunctions.getFieldFromResponse(request, "order", "desc");
     String filterMetric = UtilityFunctions.getFieldFromResponse(request, "filterby", "comment");
@@ -82,9 +81,9 @@ public class DataServlet extends HttpServlet {
   }
 
   /*
-   * Returns a list containing atmost maxComments top-level queries and all their replies. 
+   * Returns a list containing atmost maxComments top-level queries and all their replies.
    * The top-level queries are sorted by sortMetric in sortOrder
-   */ 
+   */
   private void populateRootComments(
       ArrayList<UserComment> comments,
       int maxComments,
@@ -104,9 +103,9 @@ public class DataServlet extends HttpServlet {
     }
 
     if (filterText.length() != 0) {
-        builder = builder.setFilter(PropertyFilter.eq(filterMetric, filterText));
+      builder = builder.setFilter(PropertyFilter.eq(filterMetric, filterText));
     }
-    
+
     builder = builder.setLimit(maxComments);
 
     Query<Entity> query = builder.build();
@@ -140,7 +139,7 @@ public class DataServlet extends HttpServlet {
     long id = entity.getKey().getId();
     String name = entity.getString("name");
     String email = entity.getString("email");
-    long time =  entity.getLong("time");
+    long time = entity.getLong("time");
     String comment = entity.getString("comment");
     long parentId = entity.getLong("parentid");
     long rootId = entity.getLong("rootid");
@@ -159,7 +158,6 @@ public class DataServlet extends HttpServlet {
           translate.translate(comment, Translate.TranslateOption.targetLanguage(langCode));
       translatedComment = commentTranslation.getTranslatedText();
     }
-    
 
     String userId = UtilityFunctions.getCurrentUserId();
     boolean isEditable = commenterId.equals(userId);
@@ -173,9 +171,8 @@ public class DataServlet extends HttpServlet {
      */
     int voteValue = UtilityFunctions.getVoteInDatastore(userId, id);
     if (voteValue != 0) {
-      votingStatus = (voteValue == 1) ?
-      UserComment.voteStatus.UPVOTED :
-      UserComment.voteStatus.DOWNVOTED;
+      votingStatus =
+          (voteValue == 1) ? UserComment.voteStatus.UPVOTED : UserComment.voteStatus.DOWNVOTED;
     }
 
     UserComment userComment = UserComment.create(translatedName, email,
@@ -187,14 +184,14 @@ public class DataServlet extends HttpServlet {
   /*
    * Called when a client submits a POST request to the /data URL
    * Adds submitted comment to internal record if the comment is
-   * non-empty. 
+   * non-empty.
    */
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     UserService userService = UserServiceFactory.getUserService();
     // Make sure user is logged in
     if (!userService.isUserLoggedIn()) {
-        return;
+      return;
     }
     String parsedBody = CharStreams.toString(request.getReader());
     JsonObject jsonComment = UtilityFunctions.stringToJsonObject(parsedBody);
@@ -205,12 +202,19 @@ public class DataServlet extends HttpServlet {
       User currUser = userService.getCurrentUser();
       String userEmail = currUser != null ? currUser.getEmail() : "janedoe@gmail.com";
       String currDate = String.valueOf(System.currentTimeMillis());
-      long userDate = Long.parseLong(UtilityFunctions.getFieldFromJsonObject(
-          jsonComment, "timestamp", currDate));
-      UtilityFunctions.addToDatastore(userName, userEmail, userDate, userComment,
-          /* parentId = */ 0, /* rootId = */ 0, /* isReply = */ false, /* upvotes = */ 0,
-              /* downvotes = */ 0);
-
+      long userDate =
+          Long.parseLong(
+              UtilityFunctions.getFieldFromJsonObject(jsonComment, "timestamp", currDate));
+      UtilityFunctions.addToDatastore(
+          userName,
+          userEmail,
+          userDate,
+          userComment,
+          /* parentId = */ 0,
+          /* rootId = */ 0,
+          /* isReply = */ false,
+          /* upvotes = */ 0,
+          /* downvotes = */ 0);
     }
   }
 }
