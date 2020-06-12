@@ -14,7 +14,6 @@
 
 package com.google.sps.servlets;
 
-import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.cloud.datastore.Datastore;
@@ -26,9 +25,6 @@ import com.google.common.io.CharStreams;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import javax.servlet.annotation.WebServlet;
@@ -41,8 +37,8 @@ public class CommentLangChartServlet extends HttpServlet {
 
   /*
    * Called when client submits a POST request to the /commentlang-chart URL
-   * The request language is retrieved and the number of times it has been 
-   * accessed is either updated or initialized in datastore. 
+   * The request language is retrieved and the number of times it has been
+   * accessed is either updated or initialized in datastore.
    */
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
