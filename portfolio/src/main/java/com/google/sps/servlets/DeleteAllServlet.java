@@ -14,15 +14,12 @@
 
 package com.google.sps.servlets;
 
-import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
-import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Query;
-import com.google.cloud.datastore.QueryResults;
 import com.google.common.collect.Iterators;
 import java.io.IOException;
 import javax.servlet.annotation.WebServlet;
@@ -42,18 +39,12 @@ public class DeleteAllServlet extends HttpServlet {
     UserService userService = UserServiceFactory.getUserService();
     // Make sure user is logged in and they are the website admin
     if (!userService.isUserLoggedIn() || !userService.isUserAdmin()) {
-        return;
+      return;
     }
 
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-    Query<Key> query =
-      Query.newKeyQueryBuilder()
-        .setKind("Comment")
-        .build();
+    Query<Key> query = Query.newKeyQueryBuilder().setKind("Comment").build();
     Key[] keys = Iterators.toArray(datastore.run(query), Key.class);
     datastore.delete(keys);
   }
 }
-
-
-

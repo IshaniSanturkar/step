@@ -13,31 +13,18 @@
 // limitations under the License.
 
 package com.google.sps.servlets;
-import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
+
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
-import com.google.cloud.datastore.EntityQuery.Builder;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
-import com.google.cloud.datastore.StructuredQuery;
-import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
-import com.google.common.collect.Lists;
-import com.google.common.io.CharStreams;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import java.io.IOException;
-import java.text.DateFormat; 
-import java.text.SimpleDateFormat; 
-import java.util.ArrayList;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
-import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -61,7 +48,7 @@ public class NumCommentChartServlet extends HttpServlet {
      */
     HashMap<String, DayComments> numCommentsOnDay = new HashMap<>();
 
-    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); 
+    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     Query<Entity> query = Query.newEntityQueryBuilder().setKind("DateEntry").build();

@@ -13,12 +13,12 @@
 // limitations under the License.
 
 package com.google.sps.servlets;
+
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
-import com.google.cloud.datastore.EntityQuery.Builder;
 import com.google.cloud.datastore.FullEntity;
 import com.google.cloud.datastore.IncompleteKey;
 import com.google.cloud.datastore.Key;
@@ -28,7 +28,6 @@ import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
 import com.google.common.collect.Iterators;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import javax.servlet.http.HttpServletRequest;
@@ -40,9 +39,7 @@ public class UtilityFunctions {
    * and returns defaultValue if it is not or the value is empty
    */
   public static String getFieldFromJsonObject(
-      JsonObject jsonObject,
-      String fieldName,
-      String defaultValue) {
+      JsonObject jsonObject, String fieldName, String defaultValue) {
     if (jsonObject.has(fieldName)) {
       String fieldValue = jsonObject.get(fieldName).getAsString();
       return (fieldValue.length() == 0) ? defaultValue : fieldValue;
@@ -50,7 +47,7 @@ public class UtilityFunctions {
     return defaultValue;
   }
 
-  // Adds a comment with the given metadata to the database  
+  // Adds a comment with the given metadata to the database
   public static void addToDatastore(
       String name,
       String email,
@@ -62,24 +59,24 @@ public class UtilityFunctions {
       long upvotes,
       long downvotes) {
     if ((isReply && (parentId == 0)) || (isReply && (rootId == 0))) {
-        return;
+      return;
     }
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     KeyFactory keyFactory = datastore.newKeyFactory().setKind("Comment");
     IncompleteKey key = keyFactory.setKind("Comment").newKey();
     FullEntity<IncompleteKey> thisComment =
         FullEntity.newBuilder(key)
-          .set("name", name)
-          .set("email", email)
-          .set("time", dateTime)
-          .set("comment", comment)
-          .set("parentid", parentId)
-          .set("rootid", rootId)
-          .set("upvotes", upvotes)
-          .set("score", upvotes - downvotes)
-          .set("voters", "{}")
-          .set("userid", getCurrentUserId())
-          .build();
+            .set("name", name)
+            .set("email", email)
+            .set("time", dateTime)
+            .set("comment", comment)
+            .set("parentid", parentId)
+            .set("rootid", rootId)
+            .set("upvotes", upvotes)
+            .set("score", upvotes - downvotes)
+            .set("voters", "{}")
+            .set("userid", getCurrentUserId())
+            .build();
     Entity inserted = datastore.add(thisComment);
 
     long commentId = inserted.getKey().getId();
@@ -96,22 +93,23 @@ public class UtilityFunctions {
     IncompleteKey dateKey = dateKeyFactory.setKind("DateEntry").newKey();
     FullEntity<IncompleteKey> thisCommentDate =
         FullEntity.newBuilder(dateKey)
-          .set("commentid", commentId)
-          .set("rootid", rootId)
-          .set("time", time)
-          .build();
+            .set("commentid", commentId)
+            .set("rootid", rootId)
+            .set("time", time)
+            .build();
     datastore.add(thisCommentDate);
   }
 
   // updates the stored timestamp of comment 'commentId' to be newTime
   public static void editTimestampInDatastore(long commentId, long newTime) {
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-    Query<Entity> query  = Query.newEntityQueryBuilder()
-                            .setKind("DateEntry")
-                            .setFilter(PropertyFilter.eq("commentid", commentId))
-                            .build();
+    Query<Entity> query =
+        Query.newEntityQueryBuilder()
+            .setKind("DateEntry")
+            .setFilter(PropertyFilter.eq("commentid", commentId))
+            .build();
     QueryResults<Entity> results = datastore.run(query);
-    
+
     // This comment's timestamp has never been registered (impossible)
     if (!results.hasNext()) {
       return;
@@ -128,7 +126,7 @@ public class UtilityFunctions {
 
   /*
    * Adds a vote made by user userId on comment commentId which is an upvote if isUpvote
-   * is true and a downvote otherwise to the database to prevent them from voting multiple 
+   * is true and a downvote otherwise to the database to prevent them from voting multiple
    * times on the same comment
    */
   public static void addVoteToDatastore(String userId, long commentId, boolean isUpvote) {
@@ -137,10 +135,10 @@ public class UtilityFunctions {
     IncompleteKey key = keyFactory.setKind("Vote").newKey();
     FullEntity<IncompleteKey> thisVote =
         FullEntity.newBuilder(key)
-          .set("userid", userId)
-          .set("commentid", commentId)
-          .set("isupvote", isUpvote)
-          .build();
+            .set("userid", userId)
+            .set("commentid", commentId)
+            .set("isupvote", isUpvote)
+            .build();
     datastore.add(thisVote);
   }
 
@@ -150,12 +148,13 @@ public class UtilityFunctions {
    */
   public static int getVoteInDatastore(String userId, long commentId) {
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-    Query<Entity> query  = Query.newEntityQueryBuilder()
-                            .setKind("Vote")
-                            .setFilter(CompositeFilter.and(
-                            PropertyFilter.eq("userid", userId), 
-                            PropertyFilter.eq("commentid", commentId)))
-                            .build();
+    Query<Entity> query =
+        Query.newEntityQueryBuilder()
+            .setKind("Vote")
+            .setFilter(
+                CompositeFilter.and(
+                    PropertyFilter.eq("userid", userId), PropertyFilter.eq("commentid", commentId)))
+            .build();
     QueryResults<Entity> results = datastore.run(query);
     // The current user has not voted for this comment
     if (!results.hasNext()) {
@@ -170,16 +169,17 @@ public class UtilityFunctions {
       return voteValue;
     }
   }
- 
+
   // Removes user userId's vote on comment commentId from database
   public static void removeVoteInDatastore(String userId, long commentId) {
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     Query<Key> query =
-      Query.newKeyQueryBuilder()
-        .setKind("Vote")
-        .setFilter(CompositeFilter.and(PropertyFilter.eq("userid", userId),
-                    PropertyFilter.eq("commentid", commentId)))
-        .build();
+        Query.newKeyQueryBuilder()
+            .setKind("Vote")
+            .setFilter(
+                CompositeFilter.and(
+                    PropertyFilter.eq("userid", userId), PropertyFilter.eq("commentid", commentId)))
+            .build();
     Key[] keys = Iterators.toArray(datastore.run(query), Key.class);
     datastore.delete(keys);
   }
@@ -189,9 +189,7 @@ public class UtilityFunctions {
    * or the associated value is empty. Raise an exception if fieldName is mapped to multiple values.
    */
   public static String getFieldFromResponse(
-      HttpServletRequest request,
-      String fieldName,
-      String defaultValue) {
+      HttpServletRequest request, String fieldName, String defaultValue) {
     String[] defaultArr = {defaultValue};
     String[] fieldValues = request.getParameterMap().getOrDefault(fieldName, defaultArr);
     if (fieldValues.length > 1) {
