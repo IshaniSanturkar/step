@@ -399,3 +399,8 @@ select, button, #submitform {
 .showclearbutton {
   display: inline;
 }
+
+#numcommentchartdiv, #replytreechartdiv, #commentlangchartdiv {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}

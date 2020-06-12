@@ -217,56 +217,67 @@ public class UtilityFunctions {
     return userId;
   }
 
+  /*
+   * Add the language represented by langCode as a language comments were translated into in 
+   * Datastore
+   */
   public static void addLangToDatastore(String langCode) {
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-    KeyFactory keyFactory = datastore.newKeyFactory().setKind("commentLang");
-    IncompleteKey key = keyFactory.setKind("commentLang").newKey();
+    KeyFactory keyFactory = datastore.newKeyFactory().setKind("CommentLang");
+    IncompleteKey key = keyFactory.setKind("CommentLang").newKey();
     FullEntity<IncompleteKey> thisLang =
         FullEntity.newBuilder(key).set("lang", langCode).set("comments", 1).build();
     datastore.add(thisLang);
   }
 
-  public static long getLangInDatastore(String langCode) {
+  /*
+   * Return whether language 'langCode' has ever been requested as the comment language
+   */
+  public static boolean isLangInDatastore(String langCode) {
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     Query<Entity> query =
         Query.newEntityQueryBuilder()
-            .setKind("commentLang")
+            .setKind("CommentLang")
             .setFilter(PropertyFilter.eq("lang", langCode))
             .build();
     QueryResults<Entity> results = datastore.run(query);
-    // The current user has not voted for this comment
+    // This language has never been requested
     if (!results.hasNext()) {
-      return 0;
+      return false;
     } else {
-      Entity numComments = results.next();
-      // If there is more than one entry for a user-vote pair (impossible)
+      results.next();
+      // There are multiple entries for this language (impossible)
       if (results.hasNext()) {
-        return 0;
+        return false;
       }
-      return numComments.getLong("comments");
+      return true;
     }
   }
 
-  public static void editLangInDatastore(String langCode) {
+  /*
+   * Increment the number of times language 'langCode' has been requested in datastore
+   * by one
+   */
+  public static void incLangInDatastore(String langCode) {
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     Query<Entity> query =
         Query.newEntityQueryBuilder()
-            .setKind("commentLang")
+            .setKind("CommentLang")
             .setFilter(PropertyFilter.eq("lang", langCode))
             .build();
     QueryResults<Entity> results = datastore.run(query);
 
-    // This comment's timestamp has never been registered (impossible)
+    // This language has never been registered (impossible)
     if (!results.hasNext()) {
       return;
     } else {
       Entity lang = results.next();
-      // There is more than one timestamp for this comment (impossible)
+      // There are multiple entries for this language (impossible)
       if (results.hasNext()) {
         return;
       }
-      long numComments = lang.getLong("comments");
-      Entity updatedLang = Entity.newBuilder(lang).set("comments", numComments + 1).build();
+      long numCommentsInLang = lang.getLong("comments");
+      Entity updatedLang = Entity.newBuilder(lang).set("comments", numCommentsInLang + 1).build();
       datastore.update(updatedLang);
     }
   }

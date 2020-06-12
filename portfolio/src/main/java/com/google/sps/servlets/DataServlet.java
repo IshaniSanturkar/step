@@ -63,13 +63,6 @@ public class DataServlet extends HttpServlet {
     String filterText = UtilityFunctions.getFieldFromResponse(request, "filtertext", "");
     String commentLanguage = UtilityFunctions.getFieldFromResponse(request, "lang", "en");
 
-    long numCommentsInLang = UtilityFunctions.getLangInDatastore(commentLanguage);
-    if (numCommentsInLang == 0) {
-      UtilityFunctions.addLangToDatastore(commentLanguage);
-    } else {
-      UtilityFunctions.editLangInDatastore(commentLanguage);
-    }
-
     ArrayList<UserComment> comments = new ArrayList<>();
     populateRootComments(
         comments, maxComments, sortOrder, sortMetric, filterMetric, filterText, commentLanguage);

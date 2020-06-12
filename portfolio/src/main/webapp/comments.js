@@ -17,6 +17,7 @@
  * submits a GET request to /data, receives the response
  * and displays it on the page
  */
+
 function loadComments() {
   const loginString = "/login";
   fetch(loginString)
@@ -465,4 +466,23 @@ function changeSortOrder() {
     sortOrderButton.innerText = "arrow_drop_down";
   }
   loadComments();
+}
+
+/**
+ *  Submits a POST request to the server informing it of a change in comment display language
+ *  and then reloads the comments
+ */
+function changeCommentLang() {
+  const langChoice = document.getElementById("lang").value;
+  const langObj = {};
+  langObj["lang"] = langChoice;
+  fetch('/commentlang-chart', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(langObj),
+  }).then(response => {
+    loadComments();
+  });
 }
