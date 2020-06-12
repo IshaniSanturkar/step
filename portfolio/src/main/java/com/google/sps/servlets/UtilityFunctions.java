@@ -74,7 +74,6 @@ public class UtilityFunctions {
             .set("rootid", rootId)
             .set("upvotes", upvotes)
             .set("score", upvotes - downvotes)
-            .set("voters", "{}")
             .set("userid", getCurrentUserId())
             .build();
     Entity inserted = datastore.add(thisComment);
@@ -230,11 +229,11 @@ public class UtilityFunctions {
     datastore.add(thisLang);
   }
 
-  public static int getLangInDatastore(String langCode) {
+  public static long getLangInDatastore(String langCode) {
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     Query<Entity> query  = Query.newEntityQueryBuilder()
                             .setKind("commentLang")
-                            .setFilter(PropertyFilter.eq("lang", langCode)))
+                           .setFilter(PropertyFilter.eq("lang", langCode))
                             .build();
     QueryResults<Entity> results = datastore.run(query);
     // The current user has not voted for this comment
@@ -246,7 +245,7 @@ public class UtilityFunctions {
       if (results.hasNext()) {
         return 0;
       }
-      return numComments;
+      return numComments.getLong("comments");
     }
   }
 
