@@ -52,11 +52,11 @@ public class CommentLangChartServlet extends HttpServlet {
       return;
     }
     String parsedBody = CharStreams.toString(request.getReader());
-    JsonObject jsonComment = UtilityFunctions.stringToJsonObject(parsedBody);
+    JsonObject jsonLang = UtilityFunctions.stringToJsonObject(parsedBody);
 
-    String commentLang = UtilityFunctions.getFieldFromJsonObject(jsonComment, "lang", "en");
+    String commentLang = UtilityFunctions.getFieldFromJsonObject(jsonLang, "lang", "en");
 
-    boolean isLangInDatastore = UtilityFunctions.getLangInDatastore(commentLang);
+    boolean isLangInDatastore = UtilityFunctions.isLangInDatastore(commentLang);
 
     if (!isLangInDatastore) {
       // Language has never been accessed before

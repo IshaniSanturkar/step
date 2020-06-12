@@ -218,8 +218,8 @@ public class UtilityFunctions {
   }
 
   /*
-   * Add the language represented by langCode as a language comments were translated into in 
-   * Datastore
+   * Add the language represented by langCode as a language comments were translated into once
+   * in Datastore
    */
   public static void addLangToDatastore(String langCode) {
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();

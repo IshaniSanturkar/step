@@ -73,7 +73,7 @@ public class DataServlet extends HttpServlet {
   }
 
   /*
-   * Returns a list containing atmost maxComments top-level queries and all their replies.
+   * Populates comments with atmost maxComments top-level queries and all their replies.
    * The top-level queries are sorted by sortMetric in sortOrder
    */
   private void populateRootComments(
@@ -110,7 +110,7 @@ public class DataServlet extends HttpServlet {
     }
   }
 
-  // Returns a list containing all replies of the comment with ID rootId
+  // Populates comments with all replies of the comment with ID rootId
   private void populateChildComments(
       ArrayList<UserComment> comments, long rootId, String langCode) {
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
