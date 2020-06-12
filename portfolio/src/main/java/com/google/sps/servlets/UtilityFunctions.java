@@ -219,4 +219,59 @@ public class UtilityFunctions {
     String userId = userService.getCurrentUser().getUserId();
     return userId;
   }
+
+  public static void addLangToDatastore(String langCode) {
+    Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+    KeyFactory keyFactory = datastore.newKeyFactory().setKind("commentLang");
+    IncompleteKey key = keyFactory.setKind("commentLang").newKey();
+    FullEntity<IncompleteKey> thisLang =
+        FullEntity.newBuilder(key)
+          .set("lang", langCode)
+          .set("comments", 1)
+          .build();
+    datastore.add(thisLang);
+  }
+
+  public static int getLangInDatastore(String langCode) {
+    Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+    Query<Entity> query  = Query.newEntityQueryBuilder()
+                            .setKind("commentLang")
+                            .setFilter(PropertyFilter.eq("lang", langCode)))
+                            .build();
+    QueryResults<Entity> results = datastore.run(query);
+    // The current user has not voted for this comment
+    if (!results.hasNext()) {
+      return 0;
+    } else {
+      Entity numComments = results.next();
+      // If there is more than one entry for a user-vote pair (impossible)
+      if (results.hasNext()) {
+        return 0;
+      }
+      return numComments;
+    }
+  }
+
+  public static void editLangInDatastore(String langCode) {
+    Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+    Query<Entity> query  = Query.newEntityQueryBuilder()
+                            .setKind("commentLang")
+                            .setFilter(PropertyFilter.eq("lang", langCode))
+                            .build();
+    QueryResults<Entity> results = datastore.run(query);
+    
+    // This comment's timestamp has never been registered (impossible)
+    if (!results.hasNext()) {
+      return;
+    } else {
+      Entity lang = results.next();
+      // There is more than one timestamp for this comment (impossible)
+      if (results.hasNext()) {
+        return;
+      }
+      long numComments = lang.getLong("comments");
+      Entity updatedLang = Entity.newBuilder(lang).set("comments", numComments+1).build();
+      datastore.update(updatedLang);
+    }
+  }
 }
