@@ -104,8 +104,7 @@ public final class FindMeetingQuery {
       if (i >= startPoint && i <= endPoint) {
         // Replace all the entries between startPoint and endPoint with the coalesced entry
         continue;
-      } 
-      else {
+      } else {
         newBusyTimes.add(busyTimes.get(i));
       }
     }
@@ -158,13 +157,12 @@ public final class FindMeetingQuery {
     HashSet<String> attendees = new HashSet<>(request.getAttendees());
     HashSet<String> optAttendees = new HashSet<>(request.getOptionalAttendees());
 
-
     Iterator<Event> iterator = events.iterator();
     while (iterator.hasNext()) {
       Event meeting = iterator.next();
       Set<String> meetingAttendees = meeting.getAttendees();
       if (Sets.intersection(attendees, meetingAttendees).isEmpty()) {
-        if(!Sets.intersection(optAttendees, meetingAttendees).isEmpty()) {
+        if (!Sets.intersection(optAttendees, meetingAttendees).isEmpty()) {
           optBusy = addToBusy(optBusy, meeting);
         }
       } else {
@@ -173,7 +171,7 @@ public final class FindMeetingQuery {
       }
     }
     ArrayList<TimeRange> optFree = findFreeTimes(optBusy, request.getDuration());
-    if(optFree.size() == 0 && attendees.size() != 0) {
+    if (optFree.size() == 0 && attendees.size() != 0) {
       return findFreeTimes(reqBusy, request.getDuration());
     }
     return optFree;
