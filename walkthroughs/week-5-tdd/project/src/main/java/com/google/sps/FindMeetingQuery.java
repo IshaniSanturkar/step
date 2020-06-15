@@ -56,11 +56,11 @@ public final class FindMeetingQuery {
       endTime = nextElem.overlaps(meetingTime) ? nextElem.end() : meetingTime.end();
     }
     TimeRange newBusy = TimeRange.fromStartEnd(startTime, endTime, false);
-    if(endPoint < 0) {
+    if (endPoint < 0) {
       newBusyTimes.add(newBusy);
     }
-    for(int i = 0; i < busyTimes.size(); i++) {
-      if(i == startPoint && endPoint >= 0 && startPoint < busyTimes.size()) {
+    for (int i = 0; i < busyTimes.size(); i++) {
+      if (i == startPoint && endPoint >= 0 && startPoint < busyTimes.size()) {
         System.out.println(startPoint + " " + endPoint);
         newBusyTimes.add(newBusy);
         i = endPoint;
@@ -102,7 +102,7 @@ public final class FindMeetingQuery {
       }
       start = thisEnd;
     }
-    if(start != end) {
+    if (start != end) {
       TimeRange newFree = TimeRange.fromStartEnd(start, end, true);
       freeTimes.add(newFree);
       // if(newFree.duration() >= duration) {

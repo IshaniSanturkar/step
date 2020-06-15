@@ -164,7 +164,8 @@ public final class FindMeetingQueryTest {
 
   // @Test
   // public void nestedEvents() {
-  //   // Have an event for each person, but have one person's event fully contain another's event. We
+  //   // Have an event for each person, but have one person's event fully contain another's event.
+  // We
   //   // should see two options.
   //   //
   //   // Events  :       |----A----|

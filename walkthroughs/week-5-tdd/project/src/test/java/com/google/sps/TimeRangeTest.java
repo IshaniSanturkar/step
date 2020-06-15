@@ -14,8 +14,6 @@
 
 package com.google.sps;
 
-import org.junit.Assert;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
@@ -24,7 +22,8 @@ import org.junit.runners.JUnit4;
 public final class TimeRangeTest {
   // @Test
   // public void equality() {
-  //   Assert.assertEquals(TimeRange.fromStartDuration(100, 50), TimeRange.fromStartDuration(100, 50));
+  //   Assert.assertEquals(TimeRange.fromStartDuration(100, 50), TimeRange.fromStartDuration(100,
+  // 50));
 
   //   Assert.assertNotEquals(
   //       TimeRange.fromStartDuration(100, 50), TimeRange.fromStartDuration(100, 51));
