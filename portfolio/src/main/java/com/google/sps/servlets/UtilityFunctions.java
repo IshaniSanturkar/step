@@ -234,7 +234,7 @@ public class UtilityFunctions {
       KeyFactory keyFactory = datastore.newKeyFactory().setKind("CommentLang");
       IncompleteKey key = keyFactory.setKind("CommentLang").newKey();
       FullEntity<IncompleteKey> thisLang =
-      FullEntity.newBuilder(key).set("lang", langCode).set("comments", 1).build();
+          FullEntity.newBuilder(key).set("lang", langCode).set("comments", 1).build();
       datastore.add(thisLang);
       return;
     } else {

@@ -18,7 +18,6 @@ import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -77,7 +76,7 @@ public final class FindMeetingQuery {
       //   newBusyTimes.add(busyTimes.get(i));
       // }
     }
-    if(startPoint >= busyTimes.size() || endPoint <= 0) {
+    if (startPoint >= busyTimes.size() || endPoint <= 0) {
       newBusyTimes.add(newBusy);
     }
     return newBusyTimes;
@@ -89,12 +88,12 @@ public final class FindMeetingQuery {
     ArrayList<TimeRange> freeTimes = new ArrayList<>();
     int start = TimeRange.START_OF_DAY;
     int end = TimeRange.END_OF_DAY;
-    for(int i = 0; i < busyTimes.size(); i++) {
+    for (int i = 0; i < busyTimes.size(); i++) {
       TimeRange curr = busyTimes.get(i);
 
       int thisStart = curr.start();
       int thisEnd = curr.end();
-      if(start != thisStart) {
+      if (start != thisStart) {
         TimeRange newFree = TimeRange.fromStartEnd(start, thisStart, false);
         // if(newFree.duration() < duration) {
         //   continue;
@@ -117,7 +116,7 @@ public final class FindMeetingQuery {
     ArrayList<TimeRange> busy = new ArrayList<>();
     HashSet<String> attendees = new HashSet<>(request.getAttendees());
     Iterator<Event> iterator = events.iterator();
-    while(iterator.hasNext()) {
+    while (iterator.hasNext()) {
       Event meeting = iterator.next();
       Set<String> meetingAttendees = meeting.getAttendees();
       if (Sets.intersection(attendees, meetingAttendees).isEmpty()) {
