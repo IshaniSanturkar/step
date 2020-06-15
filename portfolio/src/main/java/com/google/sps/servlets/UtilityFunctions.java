@@ -45,7 +45,7 @@ public class UtilityFunctions {
       return (fieldValue.length() == 0) ? defaultValue : fieldValue;
     }
     return defaultValue;
-    }
+  }
 
   // Adds a comment with the given metadata to the database
   public static void addToDatastore(
@@ -243,7 +243,7 @@ public class UtilityFunctions {
       KeyFactory keyFactory = datastore.newKeyFactory().setKind("CommentLang");
       IncompleteKey key = keyFactory.setKind("CommentLang").newKey();
       FullEntity<IncompleteKey> thisLang =
-      FullEntity.newBuilder(key).set("lang", langCode).set("comments", 1).build();
+          FullEntity.newBuilder(key).set("lang", langCode).set("comments", 1).build();
       datastore.add(thisLang);
     }
   }
