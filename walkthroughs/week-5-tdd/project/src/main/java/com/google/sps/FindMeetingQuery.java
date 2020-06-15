@@ -14,10 +14,99 @@
 
 package com.google.sps;
 
+import com.google.common.collect.Sets;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Iterator;
 
 public final class FindMeetingQuery {
+
+  private Collection<TimeRange> addToBusy(ArrayList<TimeRange> busyTimes, Event meeting) {
+    TimeRange meetingTime = meeting.getWhen();
+    int startIndex = Collections.binarySearch(busyTimes, meetingTime, TimeRange.ORDER_BY_START);
+    int endIndex = Collections.binarySearch(busyTimes, meetingTime, TimeRange.ORDER_BY_START);
+    int currStart = (startIndex < 0) ? (-(startIndex + 1)) : startIndex;
+    int prev = currStart - 1;
+    int next = (endIndex < 0) ? (-(endIndex + 1)) : endIndex;
+    ArrayList<TimeRange> newBusyTimes = new ArrayList<>();
+
+    int startPoint = 0;
+    int startTime = 0;
+    int endPoint = 0;
+    int endTime = 0;
+
+    if (prev < 0) {
+      startPoint = currStart;
+      startTime = meetingTime.start();
+    } else {
+      TimeRange prevElem = busyTimes.get(prev);
+      startPoint = prevElem.overlaps(meetingTime) ? prev : currStart;
+      startTime = prevElem.overlaps(meetingTime) ? prevElem.start() : meetingTime.start();
+    }
+
+    if (next >= busyTimes.size()) {
+      endPoint = next - 1;
+      endTime = meetingTime.end();
+    } else {
+      TimeRange nextElem = busyTimes.get(next);
+      endPoint = nextElem.overlaps(meetingTime) ? next : next - 1;
+      endTime = nextElem.overlaps(meetingTime) ? nextElem.end() : meetingTime.end();
+    }
+    TimeRange newBusy = TimeRange.fromStartEnd(startTime, endTime, false);
+    for(int i = 0; i < busyTimes.size(); i++) {
+      if(i == startPoint) {
+        newBusyTimes.add(newBusy);
+      } 
+      if (i >= startPoint && i <= endPoint) {
+        continue;
+      } else {
+        newBusyTimes.add(busyTimes.get(i));
+      }
+    }
+    if(startPoint >= busyTimes.size() || endPoint <= 0) {
+      newBusyTimes.add(newBusy);
+    }
+    return newBusyTimes;
+  }
+
+  private Collection<TimeRange> findFreeTimes(ArrayList<TimeRange> busyTimes) {
+    ArrayList<TimeRange> freeTimes = new ArrayList<>();
+    int start = TimeRange.START_OF_DAY;
+    int end = TimeRange.END_OF_DAY;
+    for(int i = 0; i < busyTimes.size(); i++) {
+      TimeRange curr = busyTimes.get(i);
+      int thisStart = curr.start();
+      int thisEnd = curr.end();
+      if(start != thisStart) {
+        TimeRange newFree = TimeRange.fromStartEnd(start, thisStart, false);
+        freeTimes.add(newFree);
+      }
+      start = thisEnd;
+    }
+    if(start != end) {
+      TimeRange newFree = TimeRange.fromStartEnd(start, end, false);
+      freeTimes.add(newFree);
+    }
+    return freeTimes;
+  }
+
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
-    throw new UnsupportedOperationException("TODO: Implement this method.");
+    ArrayList<TimeRange> busy = new ArrayList<>();
+    HashSet<String> attendees = new HashSet<>(request.getAttendees());
+    Iterator<Event> iterator = events.iterator();
+    while(iterator.hasNext()) {
+      Event meeting = iterator.next();
+      Set<String> meetingAttendees = meeting.getAttendees();
+      if (Sets.intersection(attendees, meetingAttendees).isEmpty()) {
+        continue;
+      } else {
+        busy = addToBusy(busy, meeting);
+      }
+    }
+    return findFreeTimes(busy);
   }
 }
