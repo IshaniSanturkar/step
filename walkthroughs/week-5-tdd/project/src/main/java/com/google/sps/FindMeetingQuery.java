@@ -153,6 +153,8 @@ public final class FindMeetingQuery {
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
     ArrayList<TimeRange> busy = new ArrayList<>();
     HashSet<String> attendees = new HashSet<>(request.getAttendees());
+    // HashSet<String> optAttendees = new HashSet<>(request.getOptionalAttendees());
+    // attendees.addAll(optAttendees);
     Iterator<Event> iterator = events.iterator();
     while (iterator.hasNext()) {
       Event meeting = iterator.next();
