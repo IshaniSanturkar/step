@@ -31,7 +31,6 @@ public final class FindMeetingQuery {
    */
   private ArrayList<TimeRange> addToBusy(ArrayList<TimeRange> busyTimes, Event meeting) {
     TimeRange meetingTime = meeting.getWhen();
-
     /*
      * Stores the index of the search key, if it is contained in the list; otherwise,
      * (-(insertion point) - 1). The insertion point is defined as the point at which
@@ -100,10 +99,13 @@ public final class FindMeetingQuery {
     }
     for (int i = 0; i < busyTimes.size(); i++) {
       if (i == startPoint && endPoint >= 0 && startPoint < busyTimes.size()) {
-        // Replace all the entries between startPoint and endPoint with the coalesced entry
         newBusyTimes.add(newBusy);
-        i = endPoint;
-      } else {
+      }
+      if (i >= startPoint && i <= endPoint) {
+        // Replace all the entries between startPoint and endPoint with the coalesced entry
+        continue;
+      } 
+      else {
         newBusyTimes.add(busyTimes.get(i));
       }
     }
@@ -151,24 +153,29 @@ public final class FindMeetingQuery {
   }
 
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
-    ArrayList<TimeRange> busy = new ArrayList<>();
+    ArrayList<TimeRange> reqBusy = new ArrayList<>();
+    ArrayList<TimeRange> optBusy = new ArrayList<>();
     HashSet<String> attendees = new HashSet<>(request.getAttendees());
-    // HashSet<String> optAttendees = new HashSet<>(request.getOptionalAttendees());
-    // attendees.addAll(optAttendees);
+    HashSet<String> optAttendees = new HashSet<>(request.getOptionalAttendees());
+
+
     Iterator<Event> iterator = events.iterator();
     while (iterator.hasNext()) {
       Event meeting = iterator.next();
       Set<String> meetingAttendees = meeting.getAttendees();
       if (Sets.intersection(attendees, meetingAttendees).isEmpty()) {
-        /*
-         * If none of the meeting attendees need to be there for the new meeting
-         * ignore it
-         */
-        continue;
+        if(!Sets.intersection(optAttendees, meetingAttendees).isEmpty()) {
+          optBusy = addToBusy(optBusy, meeting);
+        }
       } else {
-        busy = addToBusy(busy, meeting);
+        reqBusy = addToBusy(reqBusy, meeting);
+        optBusy = addToBusy(optBusy, meeting);
       }
     }
-    return findFreeTimes(busy, request.getDuration());
+    ArrayList<TimeRange> optFree = findFreeTimes(optBusy, request.getDuration());
+    if(optFree.size() == 0 && attendees.size() != 0) {
+      return findFreeTimes(reqBusy, request.getDuration());
+    }
+    return optFree;
   }
 }
