@@ -48,6 +48,8 @@ public final class FindMeetingQuery {
     }
 
     if (next >= busyTimes.size()) {
+      System.out.println(busyTimes);
+      System.out.println(meetingTime);
       endPoint = next - 1;
       endTime = meetingTime.end();
     } else {
@@ -61,22 +63,13 @@ public final class FindMeetingQuery {
     }
     for(int i = 0; i < busyTimes.size(); i++) {
       if(i == startPoint && endPoint >= 0 && startPoint < busyTimes.size()) {
-        System.out.println(startPoint + " " + endPoint);
         newBusyTimes.add(newBusy);
         i = endPoint;
       } else {
         newBusyTimes.add(busyTimes.get(i));
       }
-      // if (i >= startPoint && i <= endPoint) {
-      //   continue;
-      // }
-      // if(i == startPoint && endPoint >= 0 && startPoint < busyTimes.size()) {
-      //   newBusyTimes.add(newBusy);
-      // } else {
-      //   newBusyTimes.add(busyTimes.get(i));
-      // }
     }
-    if (startPoint >= busyTimes.size() || endPoint <= 0) {
+    if (startPoint >= busyTimes.size() && endPoint >= 0) {
       newBusyTimes.add(newBusy);
     }
     return newBusyTimes;
@@ -95,19 +88,17 @@ public final class FindMeetingQuery {
       int thisEnd = curr.end();
       if (start != thisStart) {
         TimeRange newFree = TimeRange.fromStartEnd(start, thisStart, false);
-        // if(newFree.duration() < duration) {
-        //   continue;
-        // }
-        freeTimes.add(newFree);
+        if (newFree.duration() >= duration) {
+          freeTimes.add(newFree);
+        }
       }
       start = thisEnd;
     }
     if(start != end) {
       TimeRange newFree = TimeRange.fromStartEnd(start, end, true);
-      freeTimes.add(newFree);
-      // if(newFree.duration() >= duration) {
-      //   freeTimes.add(newFree);
-      // }
+      if(newFree.duration() >= duration) {
+        freeTimes.add(newFree);
+      }
     }
     return freeTimes;
   }
