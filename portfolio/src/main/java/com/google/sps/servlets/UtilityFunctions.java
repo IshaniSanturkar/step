@@ -74,7 +74,6 @@ public class UtilityFunctions {
             .set("rootid", rootId)
             .set("upvotes", upvotes)
             .set("score", upvotes - downvotes)
-            .set("voters", "{}")
             .set("userid", getCurrentUserId())
             .build();
     Entity inserted = datastore.add(thisComment);
@@ -216,5 +215,36 @@ public class UtilityFunctions {
     UserService userService = UserServiceFactory.getUserService();
     String userId = userService.getCurrentUser().getUserId();
     return userId;
+  }
+
+  /*
+   * If language 'langCode' has never been requested, register that it has now been requested once.
+   * Otherwise, increase its request count by 1 in the database.
+   */
+  public static void updateLangInDatastoreIfPresent(String langCode) {
+    Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+    Query<Entity> query =
+        Query.newEntityQueryBuilder()
+            .setKind("CommentLang")
+            .setFilter(PropertyFilter.eq("lang", langCode))
+            .build();
+    QueryResults<Entity> results = datastore.run(query);
+    if (results.hasNext()) {
+      Entity lang = results.next();
+      // There are multiple entries for this language (impossible)
+      if (results.hasNext()) {
+        return;
+      }
+      long numCommentsInLang = lang.getLong("comments");
+      Entity updatedLang = Entity.newBuilder(lang).set("comments", numCommentsInLang + 1).build();
+      datastore.update(updatedLang);
+    } else {
+      // This language has never been requested so add it to datastore with one request
+      KeyFactory keyFactory = datastore.newKeyFactory().setKind("CommentLang");
+      IncompleteKey key = keyFactory.setKind("CommentLang").newKey();
+      FullEntity<IncompleteKey> thisLang =
+          FullEntity.newBuilder(key).set("lang", langCode).set("comments", 1).build();
+      datastore.add(thisLang);
+    }
   }
 }

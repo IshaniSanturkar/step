@@ -69,6 +69,16 @@
         <button id="sortorder" class="desc material-icons" onclick="changeSortOrder()">arrow_drop_down</button>
       </span>
       <span class="commentparam">
+        <label for="lang">Comment Language:</label>
+        <select name="lang" id="lang" onchange="changeCommentLang()">
+          <option value="ar">Arabic</option>
+          <option value="zh">Chinese</option>
+          <option value="en" selected>English</option>
+          <option value="hi">Hindi</option>
+          <option value="es">Spanish</option>
+        </select>
+      </span>
+      <span class="commentparam">
         <button id="clearcomments" onclick="clearComments()">Clear</button>
       </span>
       <div id="filterdiv">
@@ -87,6 +97,9 @@
     <div class="row">
       <div id="numcommentchartdiv" class="column"></div>
       <div id="replytreechartdiv" class="column"></div>
+    </div>
+    <div class="row">
+      <div id="commentlangchartdiv" class="column"></div>
     </div>
   </section>
   <footer>

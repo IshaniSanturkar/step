@@ -25,6 +25,9 @@ import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.StructuredQuery;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
+import com.google.cloud.translate.Translate;
+import com.google.cloud.translate.TranslateOptions;
+import com.google.cloud.translate.Translation;
 import com.google.common.io.CharStreams;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -58,17 +61,19 @@ public class DataServlet extends HttpServlet {
     String sortOrder = UtilityFunctions.getFieldFromResponse(request, "order", "desc");
     String filterMetric = UtilityFunctions.getFieldFromResponse(request, "filterby", "comment");
     String filterText = UtilityFunctions.getFieldFromResponse(request, "filtertext", "");
+    String commentLanguage = UtilityFunctions.getFieldFromResponse(request, "lang", "en");
 
     ArrayList<UserComment> comments = new ArrayList<>();
-    populateRootComments(comments, maxComments, sortOrder, sortMetric, filterMetric, filterText);
+    populateRootComments(
+        comments, maxComments, sortOrder, sortMetric, filterMetric, filterText, commentLanguage);
 
     Gson gson = new Gson();
-    response.setContentType("application/json;");
+    response.setContentType("application/json;charset=UTF-8");
     response.getWriter().println(gson.toJson(comments));
   }
 
   /*
-   * Returns a list containing atmost maxComments top-level queries and all their replies.
+   * Populates comments with atmost maxComments top-level queries and all their replies.
    * The top-level queries are sorted by sortMetric in sortOrder
    */
   private void populateRootComments(
@@ -77,7 +82,8 @@ public class DataServlet extends HttpServlet {
       String sortOrder,
       String sortMetric,
       String filterMetric,
-      String filterText) {
+      String filterText,
+      String langCode) {
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     Builder builder = Query.newEntityQueryBuilder();
     builder = builder.setKind("Comment").setFilter(PropertyFilter.eq("rootid", 0));
@@ -98,14 +104,15 @@ public class DataServlet extends HttpServlet {
     QueryResults<Entity> results = datastore.run(query);
     while (results.hasNext()) {
       Entity entity = results.next();
-      UserComment comment = entityToComment(entity);
+      UserComment comment = entityToComment(entity, langCode);
       comments.add(comment);
-      populateChildComments(comments, entity.getKey().getId());
+      populateChildComments(comments, entity.getKey().getId(), langCode);
     }
   }
 
-  // Returns a list containing all replies of the comment with ID rootId
-  private void populateChildComments(ArrayList<UserComment> comments, long rootId) {
+  // Populates comments with all replies of the comment with ID rootId
+  private void populateChildComments(
+      ArrayList<UserComment> comments, long rootId, String langCode) {
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     Builder builder = Query.newEntityQueryBuilder();
     builder = builder.setKind("Comment").setFilter(PropertyFilter.eq("rootid", rootId));
@@ -114,13 +121,13 @@ public class DataServlet extends HttpServlet {
     QueryResults<Entity> results = datastore.run(query);
     while (results.hasNext()) {
       Entity entity = results.next();
-      UserComment comment = entityToComment(entity);
+      UserComment comment = entityToComment(entity, langCode);
       comments.add(comment);
     }
   }
 
   // Creates a UserComment object from the given entity
-  private UserComment entityToComment(Entity entity) {
+  private UserComment entityToComment(Entity entity, String langCode) {
     long id = entity.getKey().getId();
     String name = entity.getString("name");
     String email = entity.getString("email");
@@ -131,6 +138,18 @@ public class DataServlet extends HttpServlet {
     long upvotes = entity.getLong("upvotes");
     long downvotes = upvotes - entity.getLong("score");
     String commenterId = entity.getString("userid");
+
+    String translatedName = name, translatedComment = comment;
+    if (!langCode.equals("en")) {
+      Translate translate = TranslateOptions.getDefaultInstance().getService();
+      Translation nameTranslation =
+          translate.translate(name, Translate.TranslateOption.targetLanguage(langCode));
+      translatedName = nameTranslation.getTranslatedText();
+
+      Translation commentTranslation =
+          translate.translate(comment, Translate.TranslateOption.targetLanguage(langCode));
+      translatedComment = commentTranslation.getTranslatedText();
+    }
 
     String userId = UtilityFunctions.getCurrentUserId();
     boolean isEditable = commenterId.equals(userId);
@@ -150,9 +169,9 @@ public class DataServlet extends HttpServlet {
 
     UserComment userComment =
         UserComment.create(
-            name,
+            translatedName,
             email,
-            comment,
+            translatedComment,
             time,
             id,
             parentId,

@@ -48,6 +48,8 @@ function loadComments() {
   const sortMetric = document.getElementById("sortby").value;
   const filterMetric = document.getElementById("filterby").value;
   const filterText = document.getElementById("filtertext").value;
+  // comment language
+  const lang = document.getElementById("lang").value;
 
   let sortOrder = "";
   if (document.getElementById("sortorder").classList.contains("desc")) {
@@ -56,7 +58,7 @@ function loadComments() {
     sortOrder = "asc";
   }
   let fetchString = `/data?maxcomments=${maxcomments}&metric=${sortMetric}&order=${sortOrder}`;
-  fetchString = fetchString + `&filterby=${filterMetric}&filtertext=${filterText}`;
+  fetchString = fetchString + `&filterby=${filterMetric}&filtertext=${filterText}&lang=${lang}`;
   fetch(fetchString).then(response => response.json()).then(comments => {
     const commentList = document.getElementById("toplevelcomments");
     while (commentList.lastChild) {
@@ -326,7 +328,7 @@ function formatCommentVoteButtons(comment, thisCommentDiv) {
 // Formats comment name and timestamp into an HTML p element
 function formatCommentMetadata(comment) {
   let date = new Date(comment["timestamp"]);
-  const metadata = `${comment["name"]} (${comment["email"]}) at ${date.toLocaleString()} said`;
+  const metadata = `${comment["name"]} (${comment["email"]}) @ ${date.toLocaleString()}:`;
   const pElem = document.createElement("p");
   pElem.innerText = metadata;
   pElem.className = "comment_metadata";
@@ -463,4 +465,23 @@ function changeSortOrder() {
     sortOrderButton.innerText = "arrow_drop_down";
   }
   loadComments();
+}
+
+/**
+ *  Submits a POST request to the server informing it of a change in comment display language
+ *  and then reloads the comments
+ */
+function changeCommentLang() {
+  const langChoice = document.getElementById("lang").value;
+  const langObj = {};
+  langObj["lang"] = langChoice;
+  fetch('/commentlang-chart', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(langObj),
+  }).then(response => {
+    loadComments();
+  });
 }

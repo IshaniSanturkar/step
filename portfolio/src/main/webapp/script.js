@@ -15,9 +15,12 @@
 google.charts.load('current', { 'packages': ['corechart'] });
 google.charts.setOnLoadCallback(drawChart);
 
+
 /**
- * Fetches data about number of comments per day from server and then
- * displays it on the page as a line graph
+ * Fetches data about the number of comments per day, the length of
+ * the reply tree for all root level comments and the number of times
+ * comments were accessed in various languages and displays it on 
+ * the page in graphs
  */
 function drawChart() {
   fetch("/numcomment-chart")
@@ -78,6 +81,23 @@ function drawChart() {
         }
       };
       const chart = new google.visualization.Histogram(document.getElementById("replytreechartdiv"));
+      chart.draw(data, options)
+    });
+  fetch("/commentlang-chart")
+    .then(response => response.json())
+    .then(commentLangs => {
+      const data = new google.visualization.DataTable();
+      data.addColumn("string", "Language");
+      data.addColumn("number", "Number of Requests")
+      Object.keys(commentLangs).forEach((lang) => {
+        data.addRow([lang, commentLangs[lang]]);
+      });
+      const options = {
+        "title": "Number of Loads of Comments Section by Language",
+        "height": 400,
+        "width": 525
+      };
+      const chart = new google.visualization.PieChart(document.getElementById("commentlangchartdiv"));
       chart.draw(data, options)
     });
 }
