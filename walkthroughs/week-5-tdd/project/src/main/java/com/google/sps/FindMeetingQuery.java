@@ -27,7 +27,7 @@ public final class FindMeetingQuery {
   private ArrayList<TimeRange> addToBusy(ArrayList<TimeRange> busyTimes, Event meeting) {
     TimeRange meetingTime = meeting.getWhen();
     int startIndex = Collections.binarySearch(busyTimes, meetingTime, TimeRange.ORDER_BY_START);
-    int endIndex = Collections.binarySearch(busyTimes, meetingTime, TimeRange.ORDER_BY_START);
+    int endIndex = Collections.binarySearch(busyTimes, meetingTime, TimeRange.ORDER_BY_END);
     int currStart = (startIndex < 0) ? (-(startIndex + 1)) : startIndex;
     int prev = currStart - 1;
     int next = (endIndex < 0) ? (-(endIndex + 1)) : endIndex;
@@ -46,10 +46,7 @@ public final class FindMeetingQuery {
       startPoint = prevElem.overlaps(meetingTime) ? prev : currStart;
       startTime = prevElem.overlaps(meetingTime) ? prevElem.start() : meetingTime.start();
     }
-
     if (next >= busyTimes.size()) {
-      System.out.println(busyTimes);
-      System.out.println(meetingTime);
       endPoint = next - 1;
       endTime = meetingTime.end();
     } else {
@@ -76,7 +73,6 @@ public final class FindMeetingQuery {
   }
 
   private ArrayList<TimeRange> findFreeTimes(ArrayList<TimeRange> busyTimes, long duration) {
-    System.out.println(busyTimes);
     Collections.sort(busyTimes, TimeRange.ORDER_BY_START);
     ArrayList<TimeRange> freeTimes = new ArrayList<>();
     int start = TimeRange.START_OF_DAY;
