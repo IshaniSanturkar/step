@@ -51,16 +51,7 @@ public class CommentLangChartServlet extends HttpServlet {
     JsonObject jsonLang = UtilityFunctions.stringToJsonObject(parsedBody);
 
     String commentLang = UtilityFunctions.getFieldFromJsonObject(jsonLang, "lang", "en");
-
-    boolean isLangInDatastore = UtilityFunctions.isLangInDatastore(commentLang);
-
-    if (!isLangInDatastore) {
-      // Language has never been accessed before
-      UtilityFunctions.addLangToDatastore(commentLang);
-    } else {
-      // Language has been accessed so we increase its counter by 1
-      UtilityFunctions.incLangInDatastore(commentLang);
-    }
+    UtilityFunctions.updateLangInDatastoreIfPresent(commentLang);
   }
 
   /*

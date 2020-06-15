@@ -218,22 +218,10 @@ public class UtilityFunctions {
   }
 
   /*
-   * Add the language represented by langCode as a language comments were translated into once
-   * in Datastore
+   * If language 'langCode' has never been requested, register that it has now been requested once.
+   * Otherwise, increase its request count by 1 in the database.
    */
-  public static void addLangToDatastore(String langCode) {
-    Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-    KeyFactory keyFactory = datastore.newKeyFactory().setKind("CommentLang");
-    IncompleteKey key = keyFactory.setKind("CommentLang").newKey();
-    FullEntity<IncompleteKey> thisLang =
-        FullEntity.newBuilder(key).set("lang", langCode).set("comments", 1).build();
-    datastore.add(thisLang);
-  }
-
-  /*
-   * Return whether language 'langCode' has ever been requested as the comment language
-   */
-  public static boolean isLangInDatastore(String langCode) {
+  public static void updateLangInDatastoreIfPresent(String langCode) {
     Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     Query<Entity> query =
         Query.newEntityQueryBuilder()
@@ -241,34 +229,13 @@ public class UtilityFunctions {
             .setFilter(PropertyFilter.eq("lang", langCode))
             .build();
     QueryResults<Entity> results = datastore.run(query);
-    // This language has never been requested
+    // This language has never been requested so add it to datastore with one request
     if (!results.hasNext()) {
-      return false;
-    } else {
-      results.next();
-      // There are multiple entries for this language (impossible)
-      if (results.hasNext()) {
-        return false;
-      }
-      return true;
-    }
-  }
-
-  /*
-   * Increment the number of times language 'langCode' has been requested in datastore
-   * by one
-   */
-  public static void incLangInDatastore(String langCode) {
-    Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-    Query<Entity> query =
-        Query.newEntityQueryBuilder()
-            .setKind("CommentLang")
-            .setFilter(PropertyFilter.eq("lang", langCode))
-            .build();
-    QueryResults<Entity> results = datastore.run(query);
-
-    // This language has never been registered (impossible)
-    if (!results.hasNext()) {
+      KeyFactory keyFactory = datastore.newKeyFactory().setKind("CommentLang");
+      IncompleteKey key = keyFactory.setKind("CommentLang").newKey();
+      FullEntity<IncompleteKey> thisLang =
+      FullEntity.newBuilder(key).set("lang", langCode).set("comments", 1).build();
+      datastore.add(thisLang);
       return;
     } else {
       Entity lang = results.next();

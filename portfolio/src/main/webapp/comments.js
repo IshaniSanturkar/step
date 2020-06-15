@@ -17,7 +17,6 @@
  * submits a GET request to /data, receives the response
  * and displays it on the page
  */
-
 function loadComments() {
   const loginString = "/login";
   fetch(loginString)
