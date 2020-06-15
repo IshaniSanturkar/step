@@ -25,7 +25,7 @@ import java.util.Iterator;
 
 public final class FindMeetingQuery {
 
-  private Collection<TimeRange> addToBusy(ArrayList<TimeRange> busyTimes, Event meeting) {
+  private ArrayList<TimeRange> addToBusy(ArrayList<TimeRange> busyTimes, Event meeting) {
     TimeRange meetingTime = meeting.getWhen();
     int startIndex = Collections.binarySearch(busyTimes, meetingTime, TimeRange.ORDER_BY_START);
     int endIndex = Collections.binarySearch(busyTimes, meetingTime, TimeRange.ORDER_BY_START);
@@ -57,15 +57,25 @@ public final class FindMeetingQuery {
       endTime = nextElem.overlaps(meetingTime) ? nextElem.end() : meetingTime.end();
     }
     TimeRange newBusy = TimeRange.fromStartEnd(startTime, endTime, false);
+    if(endPoint < 0) {
+      newBusyTimes.add(newBusy);
+    }
     for(int i = 0; i < busyTimes.size(); i++) {
-      if(i == startPoint) {
+      if(i == startPoint && endPoint >= 0 && startPoint < busyTimes.size()) {
+        System.out.println(startPoint + " " + endPoint);
         newBusyTimes.add(newBusy);
-      } 
-      if (i >= startPoint && i <= endPoint) {
-        continue;
+        i = endPoint;
       } else {
         newBusyTimes.add(busyTimes.get(i));
       }
+      // if (i >= startPoint && i <= endPoint) {
+      //   continue;
+      // }
+      // if(i == startPoint && endPoint >= 0 && startPoint < busyTimes.size()) {
+      //   newBusyTimes.add(newBusy);
+      // } else {
+      //   newBusyTimes.add(busyTimes.get(i));
+      // }
     }
     if(startPoint >= busyTimes.size() || endPoint <= 0) {
       newBusyTimes.add(newBusy);
@@ -73,23 +83,32 @@ public final class FindMeetingQuery {
     return newBusyTimes;
   }
 
-  private Collection<TimeRange> findFreeTimes(ArrayList<TimeRange> busyTimes) {
+  private ArrayList<TimeRange> findFreeTimes(ArrayList<TimeRange> busyTimes, long duration) {
+    System.out.println(busyTimes);
+    Collections.sort(busyTimes, TimeRange.ORDER_BY_START);
     ArrayList<TimeRange> freeTimes = new ArrayList<>();
     int start = TimeRange.START_OF_DAY;
     int end = TimeRange.END_OF_DAY;
     for(int i = 0; i < busyTimes.size(); i++) {
       TimeRange curr = busyTimes.get(i);
+
       int thisStart = curr.start();
       int thisEnd = curr.end();
       if(start != thisStart) {
         TimeRange newFree = TimeRange.fromStartEnd(start, thisStart, false);
+        // if(newFree.duration() < duration) {
+        //   continue;
+        // }
         freeTimes.add(newFree);
       }
       start = thisEnd;
     }
     if(start != end) {
-      TimeRange newFree = TimeRange.fromStartEnd(start, end, false);
+      TimeRange newFree = TimeRange.fromStartEnd(start, end, true);
       freeTimes.add(newFree);
+      // if(newFree.duration() >= duration) {
+      //   freeTimes.add(newFree);
+      // }
     }
     return freeTimes;
   }
@@ -107,6 +126,6 @@ public final class FindMeetingQuery {
         busy = addToBusy(busy, meeting);
       }
     }
-    return findFreeTimes(busy);
+    return findFreeTimes(busy, request.getDuration());
   }
 }
