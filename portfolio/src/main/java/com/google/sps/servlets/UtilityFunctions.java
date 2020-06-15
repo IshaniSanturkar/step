@@ -229,15 +229,8 @@ public class UtilityFunctions {
             .setFilter(PropertyFilter.eq("lang", langCode))
             .build();
     QueryResults<Entity> results = datastore.run(query);
-    // This language has never been requested so add it to datastore with one request
-    if (!results.hasNext()) {
-      KeyFactory keyFactory = datastore.newKeyFactory().setKind("CommentLang");
-      IncompleteKey key = keyFactory.setKind("CommentLang").newKey();
-      FullEntity<IncompleteKey> thisLang =
-          FullEntity.newBuilder(key).set("lang", langCode).set("comments", 1).build();
-      datastore.add(thisLang);
-      return;
-    } else {
+
+    if (results.hasNext()) {
       Entity lang = results.next();
       // There are multiple entries for this language (impossible)
       if (results.hasNext()) {
@@ -246,6 +239,13 @@ public class UtilityFunctions {
       long numCommentsInLang = lang.getLong("comments");
       Entity updatedLang = Entity.newBuilder(lang).set("comments", numCommentsInLang + 1).build();
       datastore.update(updatedLang);
+    } else {
+      // This language has never been requested so add it to datastore with one request
+      KeyFactory keyFactory = datastore.newKeyFactory().setKind("CommentLang");
+      IncompleteKey key = keyFactory.setKind("CommentLang").newKey();
+      FullEntity<IncompleteKey> thisLang =
+          FullEntity.newBuilder(key).set("lang", langCode).set("comments", 1).build();
+      datastore.add(thisLang);
     }
   }
 }
