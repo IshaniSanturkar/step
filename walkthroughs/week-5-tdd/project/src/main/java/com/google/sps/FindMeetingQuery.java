@@ -102,9 +102,9 @@ public final class FindMeetingQuery {
       // Insert the new entry in its appropriate location ordered by start times
       if (i == startIndex && endIndex >= 0) {
         newBusyTimes.add(newBusy);
-      } 
+      }
       // And remove all redundant entries between its start and end points
-      if(i < startIndex || i > endIndex) {
+      if (i < startIndex || i > endIndex) {
         newBusyTimes.add(busyTimes.get(i));
       }
     }
@@ -129,7 +129,7 @@ public final class FindMeetingQuery {
      * This variable represents the start time of the current free block. It starts
      * out as the value of the start of the day and iteratively takes on the value of the
      * end of each busy block
-     */ 
+     */
     int start = TimeRange.START_OF_DAY;
     for (int i = 0; i < busyTimes.size(); i++) {
       TimeRange curr = busyTimes.get(i);
@@ -149,7 +149,7 @@ public final class FindMeetingQuery {
     /*
      * This represents the integer value of the end of the day. If possible, a free block
      * will be created from the end of the last busy block to the end of the day
-     */ 
+     */
     int end = TimeRange.END_OF_DAY;
     TimeRange newFree = TimeRange.fromStartEnd(start, end, true);
     if (newFree.duration() >= duration) {
@@ -160,7 +160,7 @@ public final class FindMeetingQuery {
 
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
     /*
-     * Stores a list of non-overlapping time periods when at least one required 
+     * Stores a list of non-overlapping time periods when at least one required
      * meeting attendee is busy.
      */
     ArrayList<TimeRange> busy = new ArrayList<>();
