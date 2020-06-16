@@ -229,6 +229,7 @@ public class UtilityFunctions {
             .setFilter(PropertyFilter.eq("lang", langCode))
             .build();
     QueryResults<Entity> results = datastore.run(query);
+
     if (results.hasNext()) {
       Entity lang = results.next();
       // There are multiple entries for this language (impossible)
