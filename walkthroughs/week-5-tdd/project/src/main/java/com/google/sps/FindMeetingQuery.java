@@ -39,28 +39,28 @@ public final class FindMeetingQuery {
      * than the key, or list.size() if all elements in the list are less than the specified key.
      * This variable signifies where the start time of the meeting fits into the list.
      */
-    int startIndex = Collections.binarySearch(busyTimes, meetingTime, TimeRange.ORDER_BY_START);
+    int startLoc = Collections.binarySearch(busyTimes, meetingTime, TimeRange.ORDER_BY_START);
     // The position where the end time of the meeting fits into the sorted list
-    int endIndex = Collections.binarySearch(busyTimes, meetingTime, TimeRange.ORDER_BY_END);
+    int endLoc = Collections.binarySearch(busyTimes, meetingTime, TimeRange.ORDER_BY_END);
     // Finding the actual position from the above value, which may be negative
-    int startPos = (startIndex < 0) ? (-(startIndex + 1)) : startIndex;
+    int startPos = (startLoc < 0) ? (-(startLoc + 1)) : startLoc;
     int prev = startPos - 1;
     // Finding the nonnegative position of the next element
-    int next = (endIndex < 0) ? (-(endIndex + 1)) : endIndex;
+    int next = (endLoc < 0) ? (-(endLoc + 1)) : endLoc;
     ArrayList<TimeRange> newBusyTimes = new ArrayList<>();
 
     // stores the index in the array from which this meeting begins
-    int startPoint = 0;
+    int startIndex = 0;
     // stores the time at which this meeting begins
     int startTime = 0;
     // stores the index in the array at which this meeting ends
-    int endPoint = 0;
+    int endIndex = 0;
     // stores the time at which this meeting ends
     int endTime = 0;
 
     if (prev < 0) {
-      // If the meeting is to be inserted at the start of the list, startPoint = 0
-      startPoint = startPos;
+      // If the meeting is to be inserted at the start of the list, startIndex = 0
+      startIndex = startPos;
       startTime = meetingTime.start();
     } else {
       TimeRange prevElem = busyTimes.get(prev);
@@ -69,13 +69,13 @@ public final class FindMeetingQuery {
        * If it does, coalesce it with the previous meeting otherwise keep them
        * separate
        */
-      startPoint = prevElem.overlaps(meetingTime) ? prev : startPos;
+      startIndex = prevElem.overlaps(meetingTime) ? prev : startPos;
       startTime = prevElem.overlaps(meetingTime) ? prevElem.start() : meetingTime.start();
     }
 
     if (next >= busyTimes.size()) {
-      // If this element is to be inserted at the end of the list, endPoint = last element of list
-      endPoint = next - 1;
+      // If this element is to be inserted at the end of the list, endIndex = last element of list
+      endIndex = next - 1;
       endTime = meetingTime.end();
     } else {
       /*
@@ -84,7 +84,7 @@ public final class FindMeetingQuery {
        * separate
        */
       TimeRange nextElem = busyTimes.get(next);
-      endPoint = nextElem.overlaps(meetingTime) ? next : next - 1;
+      endIndex = nextElem.overlaps(meetingTime) ? next : next - 1;
       endTime = nextElem.overlaps(meetingTime) ? nextElem.end() : meetingTime.end();
     }
 
@@ -95,15 +95,16 @@ public final class FindMeetingQuery {
      * This meeting ends before the current first meeting starts, so add it to the
      * beginning of the list
      */
-    if (endPoint < 0) {
+    if (endIndex < 0) {
       newBusyTimes.add(newBusy);
     }
     for (int i = 0; i < busyTimes.size(); i++) {
-      if (i == startPoint && endPoint >= 0 && startPoint < busyTimes.size()) {
-        // Replace all the entries between startPoint and endPoint with the coalesced entry
+      // Insert the new entry in its appropriate location ordered by start times
+      if (i == startIndex && endIndex >= 0) {
         newBusyTimes.add(newBusy);
-        i = endPoint;
-      } else {
+      } 
+      // And remove all redundant entries between its start and end points
+      if(i < startIndex || i > endIndex) {
         newBusyTimes.add(busyTimes.get(i));
       }
     }
@@ -111,7 +112,7 @@ public final class FindMeetingQuery {
      * This meeting starts after the current last meeting ends, so add it to the end of
      * the list
      */
-    if (startPoint >= busyTimes.size() && endPoint >= 0) {
+    if (startIndex >= busyTimes.size() && endIndex >= 0) {
       newBusyTimes.add(newBusy);
     }
     return newBusyTimes;
@@ -123,10 +124,13 @@ public final class FindMeetingQuery {
    * are scheduled
    */
   private ArrayList<TimeRange> findFreeTimes(ArrayList<TimeRange> busyTimes, long duration) {
-    Collections.sort(busyTimes, TimeRange.ORDER_BY_START);
     ArrayList<TimeRange> freeTimes = new ArrayList<>();
+    /*
+     * This variable represents the start time of the current free block. It starts
+     * out as the value of the start of the day and iteratively takes on the value of the
+     * end of each busy block
+     */ 
     int start = TimeRange.START_OF_DAY;
-    int end = TimeRange.END_OF_DAY;
     for (int i = 0; i < busyTimes.size(); i++) {
       TimeRange curr = busyTimes.get(i);
 
@@ -142,7 +146,11 @@ public final class FindMeetingQuery {
       }
       start = thisEnd;
     }
-    // Create a free slot from the end of the last meeting to the end of the day if possible
+    /*
+     * This represents the integer value of the end of the day. If possible, a free block
+     * will be created from the end of the last busy block to the end of the day
+     */ 
+    int end = TimeRange.END_OF_DAY;
     TimeRange newFree = TimeRange.fromStartEnd(start, end, true);
     if (newFree.duration() >= duration) {
       freeTimes.add(newFree);
@@ -151,19 +159,21 @@ public final class FindMeetingQuery {
   }
 
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
+    /*
+     * Stores a list of non-overlapping time periods when at least one required 
+     * meeting attendee is busy.
+     */
     ArrayList<TimeRange> busy = new ArrayList<>();
     HashSet<String> attendees = new HashSet<>(request.getAttendees());
     Iterator<Event> iterator = events.iterator();
     while (iterator.hasNext()) {
       Event meeting = iterator.next();
       Set<String> meetingAttendees = meeting.getAttendees();
-      if (Sets.intersection(attendees, meetingAttendees).isEmpty()) {
-        /*
-         * If none of the meeting attendees need to be there for the new meeting
-         * ignore it
-         */
-        continue;
-      } else {
+      /*
+       * If this meeting involves at least one of the required attendees of the new meeting
+       * register it in the list of busy times
+       */
+      if (!Sets.intersection(attendees, meetingAttendees).isEmpty()) {
         busy = addToBusy(busy, meeting);
       }
     }
