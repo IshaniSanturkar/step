@@ -73,14 +73,20 @@ public final class FindMeetingQuery {
       second.addOptBusy(first.getOptBusy());
       TimeRange newFirst = TimeRange.fromStartEnd(first.start(), second.start(), false);
       newFirst.addOptBusy(first.getOptBusy());
+      TimeRange newThird = TimeRange.fromStartEnd(second.end(), first.end(), false);
+      newThird.addOptBusy(first.getOptBusy());
       busyTimes.set(index, newFirst);
-      return index;
+      busyTimes.add(index + 2, newThird);
+      return index + 1;
     } else if(second.contains(first)) {
       first.addOptBusy(second.getOptBusy());
-      TimeRange newSecond = TimeRange.fromStartEnd(first.end(), second.end(), false);
-      newSecond.addOptBusy(second.getOptBusy());
-      busyTimes.set(index + 1, newSecond);
-      return index;
+      TimeRange newThird = TimeRange.fromStartEnd(first.end(), second.end(), false);
+      newThird.addOptBusy(second.getOptBusy());
+      TimeRange newFirst = TimeRange.fromStartEnd(second.start(), first.start(), false);
+      newFirst.addOptBusy(second.getOptBusy());
+      busyTimes.set(index + 1, newThird);
+      busyTimes.add(index, newFirst);
+      return index + 1;
     } else {
       TimeRange newFirst = TimeRange.fromStartEnd(first.start(), second.start(), false);
       newFirst.addOptBusy(first.getOptBusy());
