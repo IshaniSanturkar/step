@@ -308,19 +308,30 @@ public final class FindMeetingQuery {
   }
 
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
+    // A list of all busy times when at least one optional or required meeting attendee is busy
     ArrayList<TimeRange> busy = new ArrayList<>();
-    ArrayList<TimeRange> optBusy = new ArrayList<>();
     HashSet<String> attendees = new HashSet<>(request.getAttendees());
     HashSet<String> optAttendees = new HashSet<>(request.getOptionalAttendees());
     Iterator<Event> iterator = events.iterator();
+
     while (iterator.hasNext()) {
       Event meeting = iterator.next();
       Set<String> meetingAttendees = meeting.getAttendees();
+
       if (!Sets.intersection(attendees, meetingAttendees).isEmpty()) {
+        /*
+         * If this meeting involves at least one required attendee of the new meeting, add it to 
+         * the list as a required busy time
+         */
         TimeRange meetingTime = meeting.getWhen();
         busy.add(meetingTime);
       } else {
         SetView<String> optInMeeting = Sets.intersection(optAttendees, meetingAttendees);
+        /*
+         * If this meeting involves at least one optional attendee of the new meeting but no
+         * required attendees, add it to the list as an optional busy time with the common
+         * optional attendees
+         */
         if (optInMeeting.size() != 0) {
           TimeRange meetingTime = meeting.getWhen();
           meetingTime.addOptBusy(optInMeeting);
@@ -330,7 +341,9 @@ public final class FindMeetingQuery {
     }
     Collections.sort(busy, TimeRange.ORDER_BY_START);
     coalesceOverlap(busy);
+    // Try to accomodate optional employees
     ArrayList<TimeRange> freeOpt = findFreeTimes(busy, request.getDuration(), false);
+    // If you can't and there is at least one required employees, return times that work for them
     if (freeOpt.size() == 0 && attendees.size() != 0) {
       return findFreeTimes(busy, request.getDuration(), true);
     }

@@ -57,6 +57,10 @@ public final class TimeRange {
 
   private final int start;
   private final int duration;
+  /*
+   * A set of all optional meeting attendees who are busy during this time
+   * If at least one required attendee is busy then, this set is empty
+   */
   private HashSet<String> optBusy;
 
   private TimeRange(int start, int duration) {
@@ -65,14 +69,17 @@ public final class TimeRange {
     this.optBusy = new HashSet<>();
   }
 
+  // Returns whether at least one required employee is busy during this time
   public boolean isReq() {
     return optBusy.size() == 0;
   }
 
+  // Returns the set of busy optional attendees
   public HashSet<String> getOptBusy() {
     return optBusy;
   }
 
+  // Adds people to the list of optional attendees who are busy in this time slot
   public void addOptBusy(Set<String> people) {
     optBusy.addAll(people);
   }
