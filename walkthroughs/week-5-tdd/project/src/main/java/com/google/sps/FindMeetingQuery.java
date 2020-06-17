@@ -80,7 +80,7 @@ public final class FindMeetingQuery {
       busyTimes.set(index, newFirst);
       busyTimes.add(index + 2, newThird);
       return index + 1;
-    } else if(second.contains(first)) {
+    } else if (second.contains(first)) {
       first.addOptBusy(second.getOptBusy());
       TimeRange newThird = TimeRange.fromStartEnd(first.end(), second.end(), false);
       newThird.addOptBusy(second.getOptBusy());
