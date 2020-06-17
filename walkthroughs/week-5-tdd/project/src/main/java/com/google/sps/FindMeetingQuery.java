@@ -31,7 +31,6 @@ public final class FindMeetingQuery {
    */
   private ArrayList<TimeRange> addToBusy(ArrayList<TimeRange> busyTimes, Event meeting) {
     TimeRange meetingTime = meeting.getWhen();
-
     /*
      * Stores the index of the search key, if it is contained in the list; otherwise,
      * (-(insertion point) - 1). The insertion point is defined as the point at which
@@ -163,20 +162,37 @@ public final class FindMeetingQuery {
      * Stores a list of non-overlapping time periods when at least one required
      * meeting attendee is busy.
      */
-    ArrayList<TimeRange> busy = new ArrayList<>();
+    ArrayList<TimeRange> reqBusy = new ArrayList<>();
+
+    /*
+     * Stores a list of non-overlapping time periods when at least one required or optional
+     * meeting attendee is busy.
+     */
+    ArrayList<TimeRange> optBusy = new ArrayList<>();
     HashSet<String> attendees = new HashSet<>(request.getAttendees());
+    HashSet<String> optAttendees = new HashSet<>(request.getOptionalAttendees());
+
     Iterator<Event> iterator = events.iterator();
     while (iterator.hasNext()) {
       Event meeting = iterator.next();
       Set<String> meetingAttendees = meeting.getAttendees();
-      /*
-       * If this meeting involves at least one of the required attendees of the new meeting
-       * register it in the list of busy times
-       */
       if (!Sets.intersection(attendees, meetingAttendees).isEmpty()) {
-        busy = addToBusy(busy, meeting);
+        // If this meeting involves required attendees, add it to both busy lists
+        reqBusy = addToBusy(reqBusy, meeting);
+        optBusy = addToBusy(optBusy, meeting);
+      } else {
+        if (!Sets.intersection(optAttendees, meetingAttendees).isEmpty()) {
+          // If this meeting involves only optional attendees, add it to the optional busy list
+          optBusy = addToBusy(optBusy, meeting);
+        }
       }
     }
-    return findFreeTimes(busy, request.getDuration());
+    // Try to accomodate optional attendees
+    ArrayList<TimeRange> optFree = findFreeTimes(optBusy, request.getDuration());
+    if (optFree.size() == 0 && attendees.size() != 0) {
+      // If that fails and there are some required attendees, find time slots that accomodate them
+      return findFreeTimes(reqBusy, request.getDuration());
+    }
+    return optFree;
   }
 }
