@@ -15,6 +15,8 @@
 package com.google.sps;
 
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Class representing a span of time, enforcing properties (e.g. start comes before end) and
@@ -44,12 +46,35 @@ public final class TimeRange {
         }
       };
 
+  public static final Comparator<TimeRange> ORDER_BY_START_END =
+      new Comparator<TimeRange>() {
+        @Override
+        public int compare(TimeRange a, TimeRange b) {
+          int comp = Long.compare(a.start(), b.start());
+          return comp == 0 ? Long.compare(a.end(), b.end()) : comp;
+        }
+      };
+
   private final int start;
   private final int duration;
+  private HashSet<String> optBusy;
 
   private TimeRange(int start, int duration) {
     this.start = start;
     this.duration = duration;
+    this.optBusy = new HashSet<>();
+  }
+
+  public boolean isReq() {
+    return optBusy.size() == 0;
+  }
+
+  public HashSet<String> getOptBusy() {
+    return optBusy;
+  }
+
+  public void addOptBusy(Set<String> people) {
+    optBusy.addAll(people);
   }
 
   /** Returns the start of the range in minutes. */

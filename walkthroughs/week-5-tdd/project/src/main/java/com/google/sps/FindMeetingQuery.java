@@ -15,6 +15,7 @@
 package com.google.sps;
 
 import com.google.common.collect.Sets;
+import com.google.common.collect.Sets.SetView;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,104 +26,11 @@ import java.util.Set;
 public final class FindMeetingQuery {
 
   /*
-   * Takes in a list of non-overlapping time ranges sorted by start (and end) as well as a new
-   * event. Returns a list of non-overlapping time ranges covered by the existing list as well
-   * as the given event.
-   */
-  private ArrayList<TimeRange> addToBusy(ArrayList<TimeRange> busyTimes, Event meeting) {
-    TimeRange meetingTime = meeting.getWhen();
-    /*
-     * Stores the index of the search key, if it is contained in the list; otherwise,
-     * (-(insertion point) - 1). The insertion point is defined as the point at which
-     * the key would be inserted into the list: the index of the first element greater
-     * than the key, or list.size() if all elements in the list are less than the specified key.
-     * This variable signifies where the start time of the meeting fits into the list.
-     */
-    int startLoc = Collections.binarySearch(busyTimes, meetingTime, TimeRange.ORDER_BY_START);
-    // The position where the end time of the meeting fits into the sorted list
-    int endLoc = Collections.binarySearch(busyTimes, meetingTime, TimeRange.ORDER_BY_END);
-    // Finding the actual position from the above value, which may be negative
-    int startPos = (startLoc < 0) ? (-(startLoc + 1)) : startLoc;
-    int prev = startPos - 1;
-    // Finding the nonnegative position of the next element
-    int next = (endLoc < 0) ? (-(endLoc + 1)) : endLoc;
-    ArrayList<TimeRange> newBusyTimes = new ArrayList<>();
-
-    // stores the index in the array from which this meeting begins
-    int startIndex = 0;
-    // stores the time at which this meeting begins
-    int startTime = 0;
-    // stores the index in the array at which this meeting ends
-    int endIndex = 0;
-    // stores the time at which this meeting ends
-    int endTime = 0;
-
-    if (prev < 0) {
-      // If the meeting is to be inserted at the start of the list, startIndex = 0
-      startIndex = startPos;
-      startTime = meetingTime.start();
-    } else {
-      TimeRange prevElem = busyTimes.get(prev);
-      /*
-       * Otherwise find out whether this meeting overlaps with the previous meeting
-       * If it does, coalesce it with the previous meeting otherwise keep them
-       * separate
-       */
-      startIndex = prevElem.overlaps(meetingTime) ? prev : startPos;
-      startTime = prevElem.overlaps(meetingTime) ? prevElem.start() : meetingTime.start();
-    }
-
-    if (next >= busyTimes.size()) {
-      // If this element is to be inserted at the end of the list, endIndex = last element of list
-      endIndex = next - 1;
-      endTime = meetingTime.end();
-    } else {
-      /*
-       * Otherwise find out whether this meeting overlaps with the next meeting
-       * If it does, coalesce it with the next meeting otherwise keep them
-       * separate
-       */
-      TimeRange nextElem = busyTimes.get(next);
-      endIndex = nextElem.overlaps(meetingTime) ? next : next - 1;
-      endTime = nextElem.overlaps(meetingTime) ? nextElem.end() : meetingTime.end();
-    }
-
-    // create a new meeting with the given start and end times
-    TimeRange newBusy = TimeRange.fromStartEnd(startTime, endTime, false);
-
-    /*
-     * This meeting ends before the current first meeting starts, so add it to the
-     * beginning of the list
-     */
-    if (endIndex < 0) {
-      newBusyTimes.add(newBusy);
-    }
-    for (int i = 0; i < busyTimes.size(); i++) {
-      // Insert the new entry in its appropriate location ordered by start times
-      if (i == startIndex && endIndex >= 0) {
-        newBusyTimes.add(newBusy);
-      }
-      // And remove all redundant entries between its start and end points
-      if (i < startIndex || i > endIndex) {
-        newBusyTimes.add(busyTimes.get(i));
-      }
-    }
-    /*
-     * This meeting starts after the current last meeting ends, so add it to the end of
-     * the list
-     */
-    if (startIndex >= busyTimes.size() && endIndex >= 0) {
-      newBusyTimes.add(newBusy);
-    }
-    return newBusyTimes;
-  }
-
-  /*
    * Given a list of busy times in non-overlapping, sorted order and a meeting duration
    * returns a list of time slots of atleast 'duration' length during which no meetings
    * are scheduled
    */
-  private ArrayList<TimeRange> findFreeTimes(ArrayList<TimeRange> busyTimes, long duration) {
+  private ArrayList<TimeRange> findFreeTimes(ArrayList<TimeRange> busyTimes, long duration, boolean ignoreOpt) {
     ArrayList<TimeRange> freeTimes = new ArrayList<>();
     /*
      * This variable represents the start time of the current free block. It starts
@@ -132,6 +40,9 @@ public final class FindMeetingQuery {
     int start = TimeRange.START_OF_DAY;
     for (int i = 0; i < busyTimes.size(); i++) {
       TimeRange curr = busyTimes.get(i);
+      if(ignoreOpt && !curr.isReq()) {
+        continue;
+      }
 
       int thisStart = curr.start();
       int thisEnd = curr.end();
@@ -140,7 +51,7 @@ public final class FindMeetingQuery {
        * the beginning of the next busy one
        */
       TimeRange newFree = TimeRange.fromStartEnd(start, thisStart, false);
-      if (newFree.duration() >= duration) {
+      if (newFree.duration() >= duration && (ignoreOpt || newFree.getOptBusy().size() == 0)) {
         freeTimes.add(newFree);
       }
       start = thisEnd;
@@ -157,42 +68,131 @@ public final class FindMeetingQuery {
     return freeTimes;
   }
 
-  public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
-    /*
-     * Stores a list of non-overlapping time periods when at least one required
-     * meeting attendee is busy.
-     */
-    ArrayList<TimeRange> reqBusy = new ArrayList<>();
+  private int coalesceOptOpt(TimeRange first, TimeRange second, ArrayList<TimeRange> busyTimes, int index) {
+    if(first.contains(second)) {
+      second.addOptBusy(first.getOptBusy());
+      TimeRange newFirst = TimeRange.fromStartEnd(first.start(), second.start(), false);
+      newFirst.addOptBusy(first.getOptBusy());
+      busyTimes.set(index, newFirst);
+      return index;
+    } else if(second.contains(first)) {
+      first.addOptBusy(second.getOptBusy());
+      TimeRange newSecond = TimeRange.fromStartEnd(first.end(), second.end(), false);
+      newSecond.addOptBusy(second.getOptBusy());
+      busyTimes.set(index + 1, newSecond);
+      return index;
+    } else {
+      TimeRange newFirst = TimeRange.fromStartEnd(first.start(), second.start(), false);
+      newFirst.addOptBusy(first.getOptBusy());
+      TimeRange newSecond = TimeRange.fromStartEnd(first.end(), second.end(), false);
+      newSecond.addOptBusy(second.getOptBusy());
+      TimeRange newMiddle = TimeRange.fromStartEnd(second.start(), first.end(), false);
+      newMiddle.addOptBusy(first.getOptBusy());
+      newMiddle.addOptBusy(second.getOptBusy());
+      busyTimes.set(index, newFirst);
+      busyTimes.set(index + 1, newSecond);
+      busyTimes.add(index + 1, newMiddle);
+      return index + 1;
+    }
+  }
 
-    /*
-     * Stores a list of non-overlapping time periods when at least one required or optional
-     * meeting attendee is busy.
-     */
+  private int coalesceOptReq(TimeRange first, TimeRange second, ArrayList<TimeRange> busyTimes, int index) {
+    if (second.contains(first)) {
+      busyTimes.remove(index);
+      return index - 1;
+    } else if (first.contains(second)) {
+      TimeRange newFirst = TimeRange.fromStartEnd(first.start(), second.start(), false);
+      newFirst.addOptBusy(first.getOptBusy());
+      TimeRange newSecond = TimeRange.fromStartEnd(second.end(), first.end(), false);
+      newSecond.addOptBusy(first.getOptBusy());
+      busyTimes.set(index, newFirst);
+      busyTimes.add(index + 2, newSecond);
+      return index + 1;
+    } else {
+      TimeRange newFirst = TimeRange.fromStartEnd(first.start(), second.start(), false);
+      newFirst.addOptBusy(first.getOptBusy());
+      busyTimes.set(index, newFirst);
+      return index;
+    }
+  }
+
+  private int coalesceReqOpt(TimeRange first, TimeRange second, ArrayList<TimeRange> busyTimes, int index) {
+    if(first.contains(second)) {
+      busyTimes.remove(index + 1);
+      return index - 1;
+    } else if(second.contains(first)) {
+      TimeRange newFirst = TimeRange.fromStartEnd(second.start(), first.start(), false);
+      newFirst.addOptBusy(second.getOptBusy());
+      TimeRange newSecond = TimeRange.fromStartEnd(first.end(), second.end(), false);
+      newSecond.addOptBusy(second.getOptBusy());
+      busyTimes.set(index + 1, newSecond);
+      busyTimes.add(index, newFirst);
+      return index + 1;
+    } else {
+      TimeRange newSecond = TimeRange.fromStartEnd(first.end(), second.end(), false);
+      newSecond.addOptBusy(second.getOptBusy());
+      busyTimes.set(index + 1, newSecond);
+      return index;
+    }
+  }
+
+  private int coalesceReqReq(TimeRange first, TimeRange second, ArrayList<TimeRange> busyTimes, int index) {
+    busyTimes.remove(index);
+    if (first.contains(second)) {
+      busyTimes.set(index, first);
+    } else if(second.contains(first)) {
+      busyTimes.set(index, second);
+    } else {
+      busyTimes.set(index, TimeRange.fromStartEnd(first.start(), second.end(), false)); 
+    }
+    return index - 1;
+  }
+
+  private void coalesceOverlap(ArrayList<TimeRange> busyTimes) {
+    for(int i = 0; i < busyTimes.size() - 1; i++) {
+      TimeRange curr = busyTimes.get(i);
+      TimeRange next = busyTimes.get(i+1);
+      if(curr.overlaps(next)) {
+        if(curr.isReq() && next.isReq()) {
+          i = coalesceReqReq(curr, next, busyTimes, i);
+        } else if(curr.isReq()) {
+          i = coalesceReqOpt(curr, next, busyTimes, i);
+        } else if(next.isReq()) {
+          i = coalesceOptReq(curr, next, busyTimes, i);
+        } else {
+          i = coalesceOptOpt(curr, next, busyTimes, i);
+        }
+      }
+    }
+  }
+
+  public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
+    ArrayList<TimeRange> busy = new ArrayList<>();
     ArrayList<TimeRange> optBusy = new ArrayList<>();
     HashSet<String> attendees = new HashSet<>(request.getAttendees());
     HashSet<String> optAttendees = new HashSet<>(request.getOptionalAttendees());
-
     Iterator<Event> iterator = events.iterator();
     while (iterator.hasNext()) {
       Event meeting = iterator.next();
       Set<String> meetingAttendees = meeting.getAttendees();
       if (!Sets.intersection(attendees, meetingAttendees).isEmpty()) {
-        // If this meeting involves required attendees, add it to both busy lists
-        reqBusy = addToBusy(reqBusy, meeting);
-        optBusy = addToBusy(optBusy, meeting);
+        TimeRange meetingTime = meeting.getWhen();
+        busy.add(meetingTime);
       } else {
-        if (!Sets.intersection(optAttendees, meetingAttendees).isEmpty()) {
-          // If this meeting involves only optional attendees, add it to the optional busy list
-          optBusy = addToBusy(optBusy, meeting);
+        SetView<String> optInMeeting = Sets.intersection(optAttendees, meetingAttendees);
+        if(optInMeeting.size() != 0) {
+          TimeRange meetingTime = meeting.getWhen();
+          meetingTime.addOptBusy(optInMeeting);
+          busy.add(meetingTime);
         }
       }
     }
-    // Try to accomodate optional attendees
-    ArrayList<TimeRange> optFree = findFreeTimes(optBusy, request.getDuration());
-    if (optFree.size() == 0 && attendees.size() != 0) {
-      // If that fails and there are some required attendees, find time slots that accomodate them
-      return findFreeTimes(reqBusy, request.getDuration());
+    Collections.sort(busy, TimeRange.ORDER_BY_START);
+    coalesceOverlap(busy);
+    ArrayList<TimeRange> freeOpt = findFreeTimes(busy, request.getDuration(), false);
+    if(freeOpt.size() == 0 && attendees.size() != 0) {
+      return findFreeTimes(busy, request.getDuration(), true); 
     }
-    return optFree;
+    return freeOpt;
   }
 }
