@@ -32,9 +32,12 @@ public final class FindMeetingQuery {
    * are ignored.
    */
   private ArrayList<TimeRange> findFreeTimes(
-      ArrayList<TimeRange> busyTimes, long duration, boolean ignoreOpt) {
+      ArrayList<TimeRange> busyTimes, long duration, HashSet<String> attendees) {
 
     ArrayList<TimeRange> freeTimes = new ArrayList<>();
+    int minOptBusy = Integer.MAX_VALUE;
+    ArrayList<TimeRange> maxOptAttendTimes = new ArrayList<>();
+
     /*
      * This variable represents the start time of the current free block. It starts
      * out as the value of the start of the day and iteratively takes on the value of the
@@ -43,10 +46,11 @@ public final class FindMeetingQuery {
     int start = TimeRange.START_OF_DAY;
     for (int i = 0; i < busyTimes.size(); i++) {
       TimeRange curr = busyTimes.get(i);
+      HashSet<String> optBusy = curr.getOptBusy();
       // If we can ignore times where optional attendees are busy and this is one of them, continue
-      if (ignoreOpt && !curr.isReq()) {
-        continue;
-      }
+      // if (ignoreOpt && !curr.isReq()) {
+      //   continue;
+      // }
 
       int thisStart = curr.start();
       int thisEnd = curr.end();
@@ -57,6 +61,15 @@ public final class FindMeetingQuery {
       TimeRange newFree = TimeRange.fromStartEnd(start, thisStart, false);
       if (newFree.duration() >= duration) {
         freeTimes.add(newFree);
+      }
+      if(!curr.isReq() && curr.duration() >= duration) {
+        if(optBusy.size() < minOptBusy) {
+          minOptBusy = optBusy.size();
+          maxOptAttendTimes = new ArrayList<>();
+          maxOptAttendTimes.add(curr);
+        } else if(optBusy.size() == minOptBusy) {
+          maxOptAttendTimes.add(curr);
+        }
       }
       start = thisEnd;
     }
@@ -69,7 +82,10 @@ public final class FindMeetingQuery {
     if (newFree.duration() >= duration) {
       freeTimes.add(newFree);
     }
-    return freeTimes;
+    if(freeTimes.size() > 0) {
+      return freeTimes;
+    }
+    return maxOptAttendTimes;
   }
 
   /*
@@ -342,11 +358,11 @@ public final class FindMeetingQuery {
     Collections.sort(busy, TimeRange.ORDER_BY_START);
     coalesceOverlap(busy);
     // Try to accomodate optional employees
-    ArrayList<TimeRange> freeOpt = findFreeTimes(busy, request.getDuration(), false);
+    ArrayList<TimeRange> freeOpt = findFreeTimes(busy, request.getDuration(), attendees);
     // If you can't and there is at least one required employees, return times that work for them
-    if (freeOpt.size() == 0 && attendees.size() != 0) {
-      return findFreeTimes(busy, request.getDuration(), true);
-    }
+    // if (freeOpt.size() == 0 && attendees.size() != 0) {
+    //   return findFreeTimes(busy, request.getDuration(), true);
+    // }
     return freeOpt;
   }
 }
