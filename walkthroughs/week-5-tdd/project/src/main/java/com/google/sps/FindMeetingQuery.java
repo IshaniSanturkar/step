@@ -29,7 +29,7 @@ public final class FindMeetingQuery {
    * Given a list of busy times in non-overlapping, sorted order and a meeting duration,
    * returns a list of time slots of atleast 'duration' length during which no meetings
    * are scheduled. If ignoreOpt is true, timeslots constrained only by optional attendees
-   * are ignored. 
+   * are ignored.
    */
   private ArrayList<TimeRange> findFreeTimes(
       ArrayList<TimeRange> busyTimes, long duration, boolean ignoreOpt) {
@@ -98,7 +98,7 @@ public final class FindMeetingQuery {
        * Before coalesce: |-------------first--------------|
        *                          |-----second-----|
        *
-       * After coalesce:  |--nF--||-----second-----||--nT--| 
+       * After coalesce:  |--nF--||-----second-----||--nT--|
        */
       second.addOptBusy(firstOptBusy);
       TimeRange newFirst = TimeRange.fromStartEnd(first.start(), second.start(), false);
@@ -108,7 +108,7 @@ public final class FindMeetingQuery {
       busyTimes.set(index, newFirst);
       busyTimes.add(index + 2, newThird);
       return index + 1;
-    } else if(second.contains(first)) {
+    } else if (second.contains(first)) {
       /*
        * Before coalesce: |-------------second--------------|
        *                  |-----first-----|
@@ -116,7 +116,7 @@ public final class FindMeetingQuery {
        * Note that since first is before second in the sorted list, it must start before
        * or at the same time as second
        *
-       * After coalesce:  |-----first-----||-------nS-------| 
+       * After coalesce:  |-----first-----||-------nS-------|
        */
       first.addOptBusy(secondOptBusy);
       TimeRange newSecond = TimeRange.fromStartEnd(first.end(), second.end(), false);
@@ -128,7 +128,7 @@ public final class FindMeetingQuery {
        * Before coalesce: |-------------first--------------|
        *                          |---------------second-------------|
        *
-       * After coalesce:  |--nF--||------------nS----------||---nT---| 
+       * After coalesce:  |--nF--||------------nS----------||---nT---|
        */
       TimeRange newFirst = TimeRange.fromStartEnd(first.start(), second.start(), false);
       newFirst.addOptBusy(firstOptBusy);
@@ -156,12 +156,12 @@ public final class FindMeetingQuery {
      * time range
      */
     HashSet<String> firstOptBusy = first.getOptBusy();
-    if(first.contains(second)) {
+    if (first.contains(second)) {
       /*
        * Before coalesce: |-------------first-------------|
        *                          |_____second____|
        *
-       * After coalesce:  |--nF--||_____second____||--nT--| 
+       * After coalesce:  |--nF--||_____second____||--nT--|
        */
       TimeRange newFirst = TimeRange.fromStartEnd(first.start(), second.start(), false);
       newFirst.addOptBusy(firstOptBusy);
@@ -277,10 +277,10 @@ public final class FindMeetingQuery {
     return index - 1;
   }
 
-  /* 
+  /*
    * Iterates through a list of time ranges sorted by start times (and for equal start times,
    * end times). Each time range must be annotated as required or optional busy. Modifies the
-   * list into a list of non-overlapping time ranges annotated either as required busy or as 
+   * list into a list of non-overlapping time ranges annotated either as required busy or as
    * optional busy with all optional attendees who cannot make it during this time listed.
    */
   private void coalesceOverlap(ArrayList<TimeRange> busyTimes) {
