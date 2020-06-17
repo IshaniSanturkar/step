@@ -62,12 +62,12 @@ public final class FindMeetingQuery {
       if (newFree.duration() >= duration) {
         freeTimes.add(newFree);
       }
-      if(!curr.isReq() && curr.duration() >= duration) {
-        if(optBusy.size() < minOptBusy) {
+      if (!curr.isReq() && curr.duration() >= duration) {
+        if (optBusy.size() < minOptBusy) {
           minOptBusy = optBusy.size();
           maxOptAttendTimes = new ArrayList<>();
           maxOptAttendTimes.add(curr);
-        } else if(optBusy.size() == minOptBusy) {
+        } else if (optBusy.size() == minOptBusy) {
           maxOptAttendTimes.add(curr);
         }
       }
@@ -82,7 +82,7 @@ public final class FindMeetingQuery {
     if (newFree.duration() >= duration) {
       freeTimes.add(newFree);
     }
-    if(freeTimes.size() > 0) {
+    if (freeTimes.size() > 0) {
       return freeTimes;
     }
     return maxOptAttendTimes;
