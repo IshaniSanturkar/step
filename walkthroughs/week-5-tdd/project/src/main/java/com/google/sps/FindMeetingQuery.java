@@ -320,7 +320,7 @@ public final class FindMeetingQuery {
 
       if (!Sets.intersection(attendees, meetingAttendees).isEmpty()) {
         /*
-         * If this meeting involves at least one required attendee of the new meeting, add it to 
+         * If this meeting involves at least one required attendee of the new meeting, add it to
          * the list as a required busy time
          */
         TimeRange meetingTime = meeting.getWhen();
