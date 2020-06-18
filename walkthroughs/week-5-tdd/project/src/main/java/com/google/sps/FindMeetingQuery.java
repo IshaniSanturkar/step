@@ -24,6 +24,35 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public final class FindMeetingQuery {
+
+  /*
+   * Creates a time range of length at least duration from block and its subsequent optional
+   * blocks in busyTimes (which should have non-overlapping elements). Returns the end time 
+   * of this new block or -1 if it is not possible
+   */
+  private int createCombinedBlock(TimeRange block, TreeSet<TimeRange> busyTimes, long duration, HashSet<String> blockOptBusy) {
+    // Stores all time ranges later than this range
+    Iterator<TimeRange> sub = busyTimes.tailSet(block, false).iterator();
+    // Stores the start time of the larger time block
+    int blockStart = block.start();
+    // Stores the end time of the larger time block
+    int blockEnd = block.end();
+    // Stores the duration of the larger time block
+    int blockDuration = block.duration();
+    
+    blockOptBusy.addAll(block.getOptBusy());
+    while (sub.hasNext() && blockDuration < duration) {
+      TimeRange next = sub.next();
+      if (next.isReq()) {
+        break;
+      }
+      blockDuration += next.duration();
+      blockEnd = next.end();
+      blockOptBusy.addAll(next.getOptBusy());
+    }
+    return (blockDuration >= duration) ? blockEnd : -1;
+  }
+
   /*
    * Given a list of busy times in non-overlapping, sorted order and a meeting duration,
    * returns a list of time slots of atleast 'duration' length during which no meetings
@@ -78,63 +107,48 @@ public final class FindMeetingQuery {
           reqFreeTimes.add(newFreeReq);
         }
         reqStart = thisEnd;
-      }
-      /*
-       * Checks if this is a valid optional block with fewer busy attendees than the existing
-       * minimum (in which case it replaces the minimum with the current value) or equal busy
-       * attendees than the existing minimum in which case it is added to the list of such
-       * ranges
-       */
-      if (!curr.isReq() && curr.duration() >= duration) {
-        // In case this time block ends at the end of the day, make its end inclusive
-        if (thisEnd == TimeRange.END_OF_DAY) {
-          curr = TimeRange.fromStartEnd(thisStart, thisEnd, true);
+      } else {
+        /*
+         * Checks if this is a valid optional block with fewer busy attendees than the existing
+         * minimum (in which case it replaces the minimum with the current value) or equal busy
+         * attendees than the existing minimum in which case it is added to the list of such
+         * ranges
+         */
+        
+        /*
+         * Use this if else statement to try to convert the current block into a large 
+         * enough block for the meeting
+         */
+        if(curr.duration() >= duration) {
+          // This block is valid by itself
+
+          // In case this time block ends at the end of the day, make its end inclusive
+          if (thisEnd == TimeRange.END_OF_DAY) {
+            curr = TimeRange.fromStartEnd(thisStart, thisEnd, true);
+          }
+        } else {
+          // If this block doesn't work, we may be able to coalesce it with
+          // adjacent optional blocks and create a valid block
+
+          // Stores all optional attendees who are busy during the larger time block
+          HashSet<String> blockOptBusy = new HashSet<>();
+          int blockEnd = createCombinedBlock(curr, busyTimes, duration, blockOptBusy);
+
+          if (blockEnd != -1) {
+            if (blockEnd == TimeRange.END_OF_DAY) {
+              curr = TimeRange.fromStartEnd(thisStart, blockEnd, true);
+            } else {
+              curr = TimeRange.fromStartEnd(thisStart, blockEnd, false);
+            }
+          }
+          optBusy = blockOptBusy;
         }
-        if (optBusy.size() < minOptBusy) {
+        if (curr.duration() >= duration && optBusy.size() < minOptBusy) {
           minOptBusy = optBusy.size();
           maxOptAttendTimes = new ArrayList<>();
           maxOptAttendTimes.add(curr);
         } else if (optBusy.size() == minOptBusy) {
           maxOptAttendTimes.add(curr);
-        }
-      } else if (!curr.isReq() && curr.duration() < duration) {
-        // If this block doesn't work, we may be able to coalesce it with
-        // adjacent blocks and create a valid block
-
-        // Stores all time ranges later than this range
-        Iterator<TimeRange> sub = busyTimes.tailSet(curr, false).iterator();
-        // Stores the start time of the larger time block
-        int blockStart = thisStart;
-        // Stores the end time of the larger time block
-        int blockEnd = thisEnd;
-        // Stores the duration of the larger time block
-        int blockDuration = curr.duration();
-        // Stores all optional attendees who are busy during the larger time block
-        HashSet<String> blockOptBusy = new HashSet<>();
-        blockOptBusy.addAll(optBusy);
-        while (sub.hasNext() && blockDuration < duration) {
-          TimeRange next = sub.next();
-          if (next.isReq()) {
-            break;
-          }
-          int nextDuration = next.duration();
-          blockDuration += nextDuration;
-          blockEnd = next.end();
-          blockOptBusy.addAll(next.getOptBusy());
-        }
-        if (blockDuration >= duration) {
-          if (blockEnd == TimeRange.END_OF_DAY) {
-            curr = TimeRange.fromStartEnd(blockStart, blockEnd, true);
-          } else {
-            curr = TimeRange.fromStartEnd(blockStart, blockEnd, false);
-          }
-          if (blockOptBusy.size() < minOptBusy) {
-            minOptBusy = blockOptBusy.size();
-            maxOptAttendTimes = new ArrayList<>();
-            maxOptAttendTimes.add(curr);
-          } else if (blockOptBusy.size() == minOptBusy) {
-            maxOptAttendTimes.add(curr);
-          }
         }
       }
       start = thisEnd;
@@ -148,6 +162,8 @@ public final class FindMeetingQuery {
     TimeRange newFreeReq = TimeRange.fromStartEnd(reqStart, end, true);
     if (newFree.duration() >= duration) {
       freeTimes.add(newFree);
+    }
+    if(newFreeReq.duration() >= duration) {
       reqFreeTimes.add(newFreeReq);
     }
     if (freeTimes.size() > 0) {
