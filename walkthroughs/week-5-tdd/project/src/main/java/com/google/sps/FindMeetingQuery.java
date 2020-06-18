@@ -28,29 +28,38 @@ public final class FindMeetingQuery {
   /*
    * Given a list of busy times in non-overlapping, sorted order and a meeting duration,
    * returns a list of time slots of atleast 'duration' length during which no meetings
-   * are scheduled. If ignoreOpt is true, timeslots constrained only by optional attendees
-   * are ignored.
+   * are scheduled. First, the function tries to accomodate all optional and required 
+   * attendees. If that is not possible, it tries to find timeslots that all required 
+   * attendees and as many optional attendees as possible can attend. If no such 
+   * timeslots exist, timeslots that all required attendees can make are returned.
    */
   private ArrayList<TimeRange> findFreeTimes(
-      ArrayList<TimeRange> busyTimes, long duration, HashSet<String> attendees) {
-
+      ArrayList<TimeRange> busyTimes, long duration) {
+    
+    // stores the list of ranges where all required attendees are free
+    ArrayList<TimeRange> reqFreeTimes = new ArrayList<>();
+    // stores the list of ranges where required and all optional attendees are free
     ArrayList<TimeRange> freeTimes = new ArrayList<>();
+    // represents the minimum number of busy optional attendees for any range so far
     int minOptBusy = Integer.MAX_VALUE;
+    // stores all time ranges with minOptBusy number of busy optional attendees
     ArrayList<TimeRange> maxOptAttendTimes = new ArrayList<>();
 
     /*
-     * This variable represents the start time of the current free block. It starts
-     * out as the value of the start of the day and iteratively takes on the value of the
-     * end of each busy block
+     * This variable represents the start time of the current free (optional or required)
+     * block. It starts out as the value of the start of the day and iteratively takes on 
+     * the value of the end of each busy block
      */
     int start = TimeRange.START_OF_DAY;
+    /*
+     * This variable represents the start time of the current required free block. It starts
+     * out as the value of the start of the day and iteratively takes on the value of the
+     * end of each required busy block
+     */
+    int reqStart = TimeRange.START_OF_DAY;
     for (int i = 0; i < busyTimes.size(); i++) {
       TimeRange curr = busyTimes.get(i);
       HashSet<String> optBusy = curr.getOptBusy();
-      // If we can ignore times where optional attendees are busy and this is one of them, continue
-      // if (ignoreOpt && !curr.isReq()) {
-      //   continue;
-      // }
 
       int thisStart = curr.start();
       int thisEnd = curr.end();
@@ -62,7 +71,26 @@ public final class FindMeetingQuery {
       if (newFree.duration() >= duration) {
         freeTimes.add(newFree);
       }
+
+      // We skip over optional blocks while making modifications to reqFreeTimes
+      if(curr.isReq()) {
+        TimeRange newFreeReq = TimeRange.fromStartEnd(reqStart, thisStart, false);
+        if(newFreeReq.duration() >= duration) {
+          reqFreeTimes.add(newFreeReq);
+        }
+        reqStart = thisEnd;
+      }
+      /*
+       * Checks if this is a valid optional block with fewer busy attendees than the existing 
+       * minimum (in which case it replaces the minimum with the current value) or equal busy
+       * attendees than the existing minimum in which case it is added to the list of such 
+       * ranges
+       */
       if(!curr.isReq() && curr.duration() >= duration) {
+        // In case this time block ends at the end of the day, make its end inclusive
+        if(thisEnd == TimeRange.END_OF_DAY) {
+          curr = TimeRange.fromStartEnd(thisStart, thisEnd, true);
+        }
         if(optBusy.size() < minOptBusy) {
           minOptBusy = optBusy.size();
           maxOptAttendTimes = new ArrayList<>();
@@ -79,13 +107,21 @@ public final class FindMeetingQuery {
      */
     int end = TimeRange.END_OF_DAY;
     TimeRange newFree = TimeRange.fromStartEnd(start, end, true);
+    TimeRange newFreeReq = TimeRange.fromStartEnd(reqStart, end, true);
     if (newFree.duration() >= duration) {
       freeTimes.add(newFree);
+      reqFreeTimes.add(newFreeReq);
     }
     if(freeTimes.size() > 0) {
+      // Try to find times that work for everyone
       return freeTimes;
+    } else if(maxOptAttendTimes.size() != 0) {
+      // if that's not possible, try to get all required and a maximal number of optional attendees
+      // this case occurs when the duration of every optional time slot is too small
+      return maxOptAttendTimes;
     }
-    return maxOptAttendTimes;
+    // If no times work with optional attendees, just return times that work for required attendees
+    return reqFreeTimes;
   }
 
   /*
@@ -330,6 +366,7 @@ public final class FindMeetingQuery {
     HashSet<String> optAttendees = new HashSet<>(request.getOptionalAttendees());
     Iterator<Event> iterator = events.iterator();
 
+    // O(n) in the length of events
     while (iterator.hasNext()) {
       Event meeting = iterator.next();
       Set<String> meetingAttendees = meeting.getAttendees();
@@ -355,14 +392,12 @@ public final class FindMeetingQuery {
         }
       }
     }
+    // O(nlogn) in the length of events (comparator is O(1))
     Collections.sort(busy, TimeRange.ORDER_BY_START);
+    // O(n) in the length of events
     coalesceOverlap(busy);
-    // Try to accomodate optional employees
-    ArrayList<TimeRange> freeOpt = findFreeTimes(busy, request.getDuration(), attendees);
-    // If you can't and there is at least one required employees, return times that work for them
-    // if (freeOpt.size() == 0 && attendees.size() != 0) {
-    //   return findFreeTimes(busy, request.getDuration(), true);
-    // }
-    return freeOpt;
+    // O(n) in the length of events
+    ArrayList<TimeRange> freeTimes = findFreeTimes(busy, request.getDuration());
+    return freeTimes;
   }
 }
