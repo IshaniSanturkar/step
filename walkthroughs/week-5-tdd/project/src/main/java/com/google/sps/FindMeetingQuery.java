@@ -97,9 +97,8 @@ public final class FindMeetingQuery {
         } else if (optBusy.size() == minOptBusy) {
           maxOptAttendTimes.add(curr);
         }
-      }
-       else if(!curr.isReq() && curr.duration() < duration) {
-        // If this block doesn't work, we may be able to coalesce it with 
+      } else if (!curr.isReq() && curr.duration() < duration) {
+        // If this block doesn't work, we may be able to coalesce it with
         // adjacent blocks and create a valid block
 
         // Stores all time ranges later than this range
@@ -113,9 +112,9 @@ public final class FindMeetingQuery {
         // Stores all optional attendees who are busy during the larger time block
         HashSet<String> blockOptBusy = new HashSet<>();
         blockOptBusy.addAll(optBusy);
-        while(sub.hasNext() && blockDuration < duration) {
+        while (sub.hasNext() && blockDuration < duration) {
           TimeRange next = sub.next();
-          if(next.isReq()) {
+          if (next.isReq()) {
             break;
           }
           int nextDuration = next.duration();
@@ -123,7 +122,7 @@ public final class FindMeetingQuery {
           blockEnd = next.end();
           blockOptBusy.addAll(next.getOptBusy());
         }
-        if(blockDuration >= duration) {
+        if (blockDuration >= duration) {
           if (blockEnd == TimeRange.END_OF_DAY) {
             curr = TimeRange.fromStartEnd(blockStart, blockEnd, true);
           } else {
@@ -169,7 +168,6 @@ public final class FindMeetingQuery {
    * optional attendees (|---optional---|)
    * Required block - one that cannot be attended by all required attendees (|__required___|)
    */
-
 
   /*
    * Coalesces two overlapping optional blocks (constrained only by optional attendees)
@@ -338,7 +336,7 @@ public final class FindMeetingQuery {
   }
 
   /*
-   * Coalesces two overlapping required blocks in busyTimes, returning the next block 
+   * Coalesces two overlapping required blocks in busyTimes, returning the next block
    * to proceed with coalescing from
    */
   private TimeRange coalesceReqReq(
@@ -381,7 +379,7 @@ public final class FindMeetingQuery {
   /*
    * Given a set of busy times and a time range, coalesces the range with the
    * next larger range according to set order if they overlap. If there is no
-   * such range, return. Otherwise continue the process with the next range to 
+   * such range, return. Otherwise continue the process with the next range to
    * coalesce.
    */
   private void coalesceOverlap(TreeSet<TimeRange> busyTimes, TimeRange curr) {
