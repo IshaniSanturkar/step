@@ -18,7 +18,6 @@ import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -58,7 +57,7 @@ public final class FindMeetingQuery {
      */
     Iterator<TimeRange> iter = busyTimes.iterator();
     int reqStart = TimeRange.START_OF_DAY;
-    while(iter.hasNext()) {
+    while (iter.hasNext()) {
       TimeRange curr = iter.next();
       HashSet<String> optBusy = curr.getOptBusy();
 
@@ -342,7 +341,7 @@ public final class FindMeetingQuery {
       busyTimes.add(newCombined);
       return newCombined;
     }
-    //return index - 1;
+    // return index - 1;
   }
 
   /*
@@ -353,7 +352,7 @@ public final class FindMeetingQuery {
    */
   private void coalesceOverlap(TreeSet<TimeRange> busyTimes, TimeRange curr) {
     TimeRange next = busyTimes.higher(curr);
-    if(next == null) {
+    if (next == null) {
       return;
     }
     TimeRange nextStart = next;
@@ -394,7 +393,7 @@ public final class FindMeetingQuery {
 
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
     // A list of all busy times when at least one optional or required meeting attendee is busy
-    //ArrayList<TimeRange> busy = new ArrayList<>();
+    // ArrayList<TimeRange> busy = new ArrayList<>();
     TreeSet<TimeRange> busy = new TreeSet<>(TimeRange.ORDER_BY_START_END);
     HashSet<String> attendees = new HashSet<>(request.getAttendees());
     HashSet<String> optAttendees = new HashSet<>(request.getOptionalAttendees());
@@ -429,7 +428,7 @@ public final class FindMeetingQuery {
     // O(nlogn) in the length of events (comparator is O(1))
     // Collections.sort(busy, TimeRange.ORDER_BY_START);
     // O(n) in the length of events
-    if(!(busy.size() == 0)) {
+    if (!(busy.size() == 0)) {
       TimeRange first = busy.first();
       coalesceOverlap(busy, first);
     }
