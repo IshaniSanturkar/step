@@ -27,10 +27,11 @@ public final class FindMeetingQuery {
 
   /*
    * Creates a time range of length at least duration from block and its subsequent optional
-   * blocks in busyTimes (which should have non-overlapping elements). Returns the end time 
+   * blocks in busyTimes (which should have non-overlapping elements). Returns the end time
    * of this new block or -1 if it is not possible
    */
-  private int createCombinedBlock(TimeRange block, TreeSet<TimeRange> busyTimes, long duration, HashSet<String> blockOptBusy) {
+  private int createCombinedBlock(
+      TimeRange block, TreeSet<TimeRange> busyTimes, long duration, HashSet<String> blockOptBusy) {
     // Stores all time ranges later than this range
     Iterator<TimeRange> sub = busyTimes.tailSet(block, false).iterator();
     // Stores the start time of the larger time block
@@ -39,7 +40,7 @@ public final class FindMeetingQuery {
     int blockEnd = block.end();
     // Stores the duration of the larger time block
     int blockDuration = block.duration();
-    
+
     blockOptBusy.addAll(block.getOptBusy());
     while (sub.hasNext() && blockDuration < duration) {
       TimeRange next = sub.next();
@@ -114,12 +115,12 @@ public final class FindMeetingQuery {
          * attendees than the existing minimum in which case it is added to the list of such
          * ranges
          */
-        
+
         /*
-         * Use this if else statement to try to convert the current block into a large 
+         * Use this if else statement to try to convert the current block into a large
          * enough block for the meeting
          */
-        if(curr.duration() >= duration) {
+        if (curr.duration() >= duration) {
           // This block is valid by itself
 
           // In case this time block ends at the end of the day, make its end inclusive
@@ -163,7 +164,7 @@ public final class FindMeetingQuery {
     if (newFree.duration() >= duration) {
       freeTimes.add(newFree);
     }
-    if(newFreeReq.duration() >= duration) {
+    if (newFreeReq.duration() >= duration) {
       reqFreeTimes.add(newFreeReq);
     }
     if (freeTimes.size() > 0) {
