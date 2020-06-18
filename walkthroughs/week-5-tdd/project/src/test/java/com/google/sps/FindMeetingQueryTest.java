@@ -501,12 +501,13 @@ public final class FindMeetingQueryTest {
     request.addOptionalAttendee(PERSON_B);
 
     Collection<TimeRange> actual = query.query(events, request);
-    Collection<TimeRange> expected = Arrays.asList(
-        TimeRange.fromStartEnd(TimeRange.START_OF_DAY, TIME_0800AM, false), 
-        TimeRange.fromStartDuration(TIME_0800AM, DURATION_30_MINUTES),
-        TimeRange.fromStartEnd(TIME_0830AM, TIME_0900AM, false),
-        TimeRange.fromStartDuration(TIME_0900AM, DURATION_30_MINUTES),
-        TimeRange.fromStartEnd(TIME_0930AM, TimeRange.END_OF_DAY, true));
+    Collection<TimeRange> expected =
+        Arrays.asList(
+            TimeRange.fromStartEnd(TimeRange.START_OF_DAY, TIME_0800AM, false),
+            TimeRange.fromStartDuration(TIME_0800AM, DURATION_30_MINUTES),
+            TimeRange.fromStartEnd(TIME_0830AM, TIME_0900AM, false),
+            TimeRange.fromStartDuration(TIME_0900AM, DURATION_30_MINUTES),
+            TimeRange.fromStartEnd(TIME_0930AM, TimeRange.END_OF_DAY, true));
 
     Assert.assertEquals(expected, actual);
   }
@@ -518,7 +519,7 @@ public final class FindMeetingQueryTest {
     //
     // Events  :       |--A--|     |--A--|
     //           |--B--|                  |--B--|
-    //                       |--C--|     
+    //                       |--C--|
     //                       |--D--|
     // Day     : |------------------------------|
     // Options : |--1--|                  |--2--|
@@ -600,7 +601,6 @@ public final class FindMeetingQueryTest {
     request.addOptionalAttendee(PERSON_C);
     request.addOptionalAttendee(PERSON_D);
 
-
     Collection<TimeRange> actual = query.query(events, request);
     Collection<TimeRange> expected =
         Arrays.asList(
@@ -650,7 +650,6 @@ public final class FindMeetingQueryTest {
     request.addOptionalAttendee(PERSON_B);
     request.addOptionalAttendee(PERSON_C);
     request.addOptionalAttendee(PERSON_D);
-
 
     Collection<TimeRange> actual = query.query(events, request);
     Collection<TimeRange> expected =
