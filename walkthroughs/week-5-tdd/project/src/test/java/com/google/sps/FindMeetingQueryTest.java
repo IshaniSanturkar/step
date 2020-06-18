@@ -35,7 +35,6 @@ public final class FindMeetingQueryTest {
   private static final String PERSON_C = "Person C";
   private static final String PERSON_D = "Person D";
 
-
   // All dates are the first day of the year 2020.
   private static final int TIME_0800AM = TimeRange.getTimeInMinutes(8, 0);
   private static final int TIME_0830AM = TimeRange.getTimeInMinutes(8, 30);
@@ -551,7 +550,6 @@ public final class FindMeetingQueryTest {
     request.addOptionalAttendee(PERSON_B);
     request.addOptionalAttendee(PERSON_C);
     request.addOptionalAttendee(PERSON_D);
-
 
     Collection<TimeRange> actual = query.query(events, request);
     Collection<TimeRange> expected =

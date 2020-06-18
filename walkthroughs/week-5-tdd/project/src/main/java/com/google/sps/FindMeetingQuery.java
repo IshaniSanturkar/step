@@ -95,7 +95,7 @@ public final class FindMeetingQuery {
           minOptBusy = optBusy.size();
           maxOptAttendTimes = new ArrayList<>();
           maxOptAttendTimes.add(curr);
-        } else if(optBusy.size() == minOptBusy) {
+        } else if (optBusy.size() == minOptBusy) {
           maxOptAttendTimes.add(curr);
         }
       }
