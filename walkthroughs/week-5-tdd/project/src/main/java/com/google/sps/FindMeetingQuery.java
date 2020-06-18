@@ -24,7 +24,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public final class FindMeetingQuery {
-
   /*
    * Given a list of busy times in non-overlapping, sorted order and a meeting duration,
    * returns a list of time slots of atleast 'duration' length during which no meetings
@@ -99,6 +98,46 @@ public final class FindMeetingQuery {
           maxOptAttendTimes.add(curr);
         }
       }
+       else if(!curr.isReq() && curr.duration() < duration) {
+        // If this block doesn't work, we may be able to coalesce it with 
+        // adjacent blocks and create a valid block
+
+        // Stores all time ranges later than this range
+        Iterator<TimeRange> sub = busyTimes.tailSet(curr, false).iterator();
+        // Stores the start time of the larger time block
+        int blockStart = thisStart;
+        // Stores the end time of the larger time block
+        int blockEnd = thisEnd;
+        // Stores the duration of the larger time block
+        int blockDuration = curr.duration();
+        // Stores all optional attendees who are busy during the larger time block
+        HashSet<String> blockOptBusy = new HashSet<>();
+        blockOptBusy.addAll(optBusy);
+        while(sub.hasNext() && blockDuration < duration) {
+          TimeRange next = sub.next();
+          if(next.isReq()) {
+            break;
+          }
+          int nextDuration = next.duration();
+          blockDuration += nextDuration;
+          blockEnd = next.end();
+          blockOptBusy.addAll(next.getOptBusy());
+        }
+        if(blockDuration >= duration) {
+          if (blockEnd == TimeRange.END_OF_DAY) {
+            curr = TimeRange.fromStartEnd(blockStart, blockEnd, true);
+          } else {
+            curr = TimeRange.fromStartEnd(blockStart, blockEnd, false);
+          }
+          if (blockOptBusy.size() < minOptBusy) {
+            minOptBusy = blockOptBusy.size();
+            maxOptAttendTimes = new ArrayList<>();
+            maxOptAttendTimes.add(curr);
+          } else if (blockOptBusy.size() == minOptBusy) {
+            maxOptAttendTimes.add(curr);
+          }
+        }
+      }
       start = thisEnd;
     }
     /*
@@ -131,10 +170,10 @@ public final class FindMeetingQuery {
    * Required block - one that cannot be attended by all required attendees (|__required___|)
    */
 
+
   /*
    * Coalesces two overlapping optional blocks (constrained only by optional attendees)
-   * at index 'index' and 'index + 1' in busyTimes, returning the index before the
-   * next index to proceed with coalescing from
+   * in busyTimes, returning the next block to begin coalescing from
    */
   private TimeRange coalesceOptOpt(
       TimeRange first, TimeRange second, TreeSet<TimeRange> busyTimes) {
@@ -161,9 +200,6 @@ public final class FindMeetingQuery {
       busyTimes.add(newFirst);
       busyTimes.add(newThird);
       return newFirst;
-      // busyTimes.set(index, newFirst);
-      // busyTimes.add(index + 2, newThird);
-      // return index + 1;
     } else if (second.contains(first)) {
       /*
        * Before coalesce: |-------------second--------------|
@@ -205,8 +241,7 @@ public final class FindMeetingQuery {
 
   /*
    * Coalesces two overlapping blocks, the first optional and the second required
-   * at index 'index' and 'index + 1' in busyTimes, returning the index before the
-   * next index to proceed with coalescing from
+   * in busyTimes, returning the next block to begin coalescing from
    */
   private TimeRange coalesceOptReq(
       TimeRange first, TimeRange second, TreeSet<TimeRange> busyTimes) {
@@ -256,8 +291,7 @@ public final class FindMeetingQuery {
 
   /*
    * Coalesces two overlapping blocks, the first required and the second optional
-   * at index 'index' and 'index + 1' in busyTimes, returning the index before the
-   * next index to proceed with coalescing from
+   * in busyTimes, returning the next block to begin coalescing from
    */
   private TimeRange coalesceReqOpt(
       TimeRange first, TimeRange second, TreeSet<TimeRange> busyTimes) {
@@ -304,8 +338,8 @@ public final class FindMeetingQuery {
   }
 
   /*
-   * Coalesces two overlapping required blocks at index 'index' and 'index + 1' in busyTimes,
-   * returning the index before the next index to proceed with coalescing from
+   * Coalesces two overlapping required blocks in busyTimes, returning the next block 
+   * to proceed with coalescing from
    */
   private TimeRange coalesceReqReq(
       TimeRange first, TimeRange second, TreeSet<TimeRange> busyTimes) {
@@ -339,18 +373,19 @@ public final class FindMeetingQuery {
       busyTimes.remove(first);
       busyTimes.remove(second);
       busyTimes.add(newCombined);
-      return newCombined;
+      // the next range after first in the ordered set
+      return busyTimes.higher(first);
     }
-    // return index - 1;
   }
 
   /*
-   * Iterates through a list of time ranges sorted by start times (and for equal start times,
-   * end times). Each time range must be annotated as required or optional busy. Modifies the
-   * list into a list of non-overlapping time ranges annotated either as required busy or as
-   * optional busy with all optional attendees who cannot make it during this time listed.
+   * Given a set of busy times and a time range, coalesces the range with the
+   * next larger range according to set order if they overlap. If there is no
+   * such range, return. Otherwise continue the process with the next range to 
+   * coalesce.
    */
   private void coalesceOverlap(TreeSet<TimeRange> busyTimes, TimeRange curr) {
+    // Get the first time range that is "larger" than this one
     TimeRange next = busyTimes.higher(curr);
     if (next == null) {
       return;
@@ -368,38 +403,15 @@ public final class FindMeetingQuery {
       }
     }
     coalesceOverlap(busyTimes, nextStart);
-    // int i = 0;
-    // while (i < busyTimes.size() - 1) {
-    //   TimeRange curr = busyTimes.get(i);
-    //   TimeRange next = busyTimes.get(i + 1);
-    //   /*
-    //    * Coalesce the two blocks into one if they overlap and update the loop index
-    //    * to be the one before the next block that needs to be coalesced
-    //    */
-    //   if (curr.overlaps(next)) {
-    //     if (curr.isReq() && next.isReq()) {
-    //       i = coalesceReqReq(curr, next, busyTimes, i);
-    //     } else if (curr.isReq()) {
-    //       i = coalesceReqOpt(curr, next, busyTimes, i);
-    //     } else if (next.isReq()) {
-    //       i = coalesceOptReq(curr, next, busyTimes, i);
-    //     } else {
-    //       i = coalesceOptOpt(curr, next, busyTimes, i);
-    //     }
-    //   }
-    //   i++;
-    // }
   }
 
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
     // A list of all busy times when at least one optional or required meeting attendee is busy
-    // ArrayList<TimeRange> busy = new ArrayList<>();
     TreeSet<TimeRange> busy = new TreeSet<>(TimeRange.ORDER_BY_START_END);
     HashSet<String> attendees = new HashSet<>(request.getAttendees());
     HashSet<String> optAttendees = new HashSet<>(request.getOptionalAttendees());
     Iterator<Event> iterator = events.iterator();
 
-    // O(n) in the length of events
     while (iterator.hasNext()) {
       Event meeting = iterator.next();
       Set<String> meetingAttendees = meeting.getAttendees();
@@ -425,14 +437,11 @@ public final class FindMeetingQuery {
         }
       }
     }
-    // O(nlogn) in the length of events (comparator is O(1))
-    // Collections.sort(busy, TimeRange.ORDER_BY_START);
-    // O(n) in the length of events
     if (!(busy.size() == 0)) {
+      // find the earliest range in the list
       TimeRange first = busy.first();
       coalesceOverlap(busy, first);
     }
-    // O(n) in the length of events
     ArrayList<TimeRange> freeTimes = findFreeTimes(busy, request.getDuration());
     return freeTimes;
   }
