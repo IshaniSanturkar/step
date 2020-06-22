@@ -28,9 +28,9 @@ public final class FindMeetingQuery {
   /*
    * Creates a time range of length at least duration from block and all subsequent blocks
    * where only optional attendees are busy (no required attendees are busy)
-   * in busyTimes (which should have non-overlapping elements). Returns the end time
-   * of this new block or -1 if it is not possible. Populates blockOptBusy with all 
-   * optional attendees who are busy during the returned block.
+   * in busyTimes (which should have non-overlapping elements) that have atmost minOptBusy
+   * busy optional attendees. Returns the end time of this new block or -1 if it is not possible. 
+   * Populates blockOptBusy with all optional attendees who are busy during the returned block.
    */
   private int createCombinedBlock(
       TimeRange block, TreeSet<TimeRange> busyTimes, long duration, HashSet<String> blockOptBusy, int minOptBusy) {
@@ -49,12 +49,13 @@ public final class FindMeetingQuery {
       if (next.isReq()) {
         break;
       }
+      blockOptBusy.addAll(next.getOptBusy());
       if(blockOptBusy.size() > minOptBusy) {
+        blockOptBusy.removeAll(next.getOptBusy());
         break;
       }
       blockDuration += next.duration();
       blockEnd = next.end();
-      blockOptBusy.addAll(next.getOptBusy());
     }
     return (blockDuration >= duration) ? blockEnd : -1;
   }
@@ -92,7 +93,7 @@ public final class FindMeetingQuery {
     int reqStart = TimeRange.START_OF_DAY;
     /*
      * The end of the most recent free block. This is used to prevent adding overlapping
-     * redundant blocks that start before prevEnd.
+     * blocks that start before prevEnd.
      */
     int prevEnd = 0;
 
