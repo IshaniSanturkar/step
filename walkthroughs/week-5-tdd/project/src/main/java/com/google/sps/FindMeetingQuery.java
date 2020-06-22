@@ -26,12 +26,14 @@ import java.util.TreeSet;
 public final class FindMeetingQuery {
 
   /*
-   * Creates a time range of length at least duration from block and its subsequent optional
-   * blocks in busyTimes (which should have non-overlapping elements). Returns the end time
-   * of this new block or -1 if it is not possible
+   * Creates a time range of length at least duration from block and all subsequent blocks
+   * where only optional attendees are busy (no required attendees are busy)
+   * in busyTimes (which should have non-overlapping elements). Returns the end time
+   * of this new block or -1 if it is not possible. Populates blockOptBusy with all 
+   * optional attendees who are busy during the returned block.
    */
   private int createCombinedBlock(
-      TimeRange block, TreeSet<TimeRange> busyTimes, long duration, HashSet<String> blockOptBusy) {
+      TimeRange block, TreeSet<TimeRange> busyTimes, long duration, HashSet<String> blockOptBusy, int minOptBusy) {
     // Stores all time ranges later than this range
     Iterator<TimeRange> sub = busyTimes.tailSet(block, false).iterator();
     // Stores the start time of the larger time block
@@ -42,9 +44,12 @@ public final class FindMeetingQuery {
     int blockDuration = block.duration();
 
     blockOptBusy.addAll(block.getOptBusy());
-    while (sub.hasNext() && blockDuration < duration) {
+    while (sub.hasNext()) {
       TimeRange next = sub.next();
       if (next.isReq()) {
+        break;
+      }
+      if(blockOptBusy.size() > minOptBusy) {
         break;
       }
       blockDuration += next.duration();
@@ -68,10 +73,10 @@ public final class FindMeetingQuery {
     ArrayList<TimeRange> reqFreeTimes = new ArrayList<>();
     // stores the list of ranges where required and all optional attendees are free
     ArrayList<TimeRange> freeTimes = new ArrayList<>();
+    // stores all time ranges with minOptBusy (defined below) number of busy optional attendees
+    ArrayList<TimeRange> maxOptAttendTimes = new ArrayList<>();
     // represents the minimum number of busy optional attendees for any range so far
     int minOptBusy = Integer.MAX_VALUE;
-    // stores all time ranges with minOptBusy number of busy optional attendees
-    ArrayList<TimeRange> maxOptAttendTimes = new ArrayList<>();
 
     /*
      * This variable represents the start time of the current free (optional or required)
@@ -84,8 +89,14 @@ public final class FindMeetingQuery {
      * out as the value of the start of the day and iteratively takes on the value of the
      * end of each required busy block
      */
-    Iterator<TimeRange> iter = busyTimes.iterator();
     int reqStart = TimeRange.START_OF_DAY;
+    /*
+     * The end of the most recent free block. This is used to prevent adding overlapping
+     * redundant blocks that start before prevEnd.
+     */
+    int prevEnd = 0;
+
+    Iterator<TimeRange> iter = busyTimes.iterator();
     while (iter.hasNext()) {
       TimeRange curr = iter.next();
       HashSet<String> optBusy = curr.getOptBusy();
@@ -116,6 +127,9 @@ public final class FindMeetingQuery {
          * ranges
          */
 
+        // stores the end of the current combined block
+        int blockEnd = 0;
+
         /*
          * Use this if else statement to try to convert the current block into a large
          * enough block for the meeting
@@ -133,14 +147,10 @@ public final class FindMeetingQuery {
 
           // Stores all optional attendees who are busy during the larger time block
           HashSet<String> blockOptBusy = new HashSet<>();
-          int blockEnd = createCombinedBlock(curr, busyTimes, duration, blockOptBusy);
+          blockEnd = createCombinedBlock(curr, busyTimes, duration, blockOptBusy, minOptBusy);
 
           if (blockEnd != -1) {
-            if (blockEnd == TimeRange.END_OF_DAY) {
-              curr = TimeRange.fromStartEnd(thisStart, blockEnd, true);
-            } else {
-              curr = TimeRange.fromStartEnd(thisStart, blockEnd, false);
-            }
+            curr = TimeRange.fromStartEnd(thisStart, blockEnd, blockEnd == TimeRange.END_OF_DAY);
           }
           optBusy = blockOptBusy;
         }
@@ -148,7 +158,9 @@ public final class FindMeetingQuery {
           minOptBusy = optBusy.size();
           maxOptAttendTimes = new ArrayList<>();
           maxOptAttendTimes.add(curr);
-        } else if (optBusy.size() == minOptBusy) {
+          prevEnd = blockEnd;
+        } else if (curr.duration() >= duration && optBusy.size() == minOptBusy && thisStart >= prevEnd) {
+          // make sure blocks don't overlap
           maxOptAttendTimes.add(curr);
         }
       }
@@ -400,7 +412,7 @@ public final class FindMeetingQuery {
    * coalesce.
    */
   private void coalesceOverlap(TreeSet<TimeRange> busyTimes, TimeRange curr) {
-    // Get the first time range that is "larger" than this one
+    // Get the first time range that starts later than this one
     TimeRange next = busyTimes.higher(curr);
     if (next == null) {
       return;
