@@ -15,123 +15,96 @@
 package com.google.sps;
 
 import com.google.common.collect.Sets;
+import com.google.common.collect.Sets.SetView;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.TreeSet;
 
 public final class FindMeetingQuery {
 
   /*
-   * Takes in a list of non-overlapping time ranges sorted by start (and end) as well as a new
-   * event. Returns a list of non-overlapping time ranges covered by the existing list as well
-   * as the given event.
+   * Creates a time range of length at least duration from block and all subsequent blocks
+   * where only optional attendees are busy (no required attendees are busy)
+   * in busyTimes (which should have non-overlapping elements) that have atmost minOptBusy
+   * busy optional attendees. Returns the end time of this new block or -1 if it is not possible.
+   * Populates blockOptBusy with all optional attendees who are busy during the returned block.
    */
-  private ArrayList<TimeRange> addToBusy(ArrayList<TimeRange> busyTimes, Event meeting) {
-    TimeRange meetingTime = meeting.getWhen();
-    /*
-     * Stores the index of the search key, if it is contained in the list; otherwise,
-     * (-(insertion point) - 1). The insertion point is defined as the point at which
-     * the key would be inserted into the list: the index of the first element greater
-     * than the key, or list.size() if all elements in the list are less than the specified key.
-     * This variable signifies where the start time of the meeting fits into the list.
-     */
-    int startLoc = Collections.binarySearch(busyTimes, meetingTime, TimeRange.ORDER_BY_START);
-    // The position where the end time of the meeting fits into the sorted list
-    int endLoc = Collections.binarySearch(busyTimes, meetingTime, TimeRange.ORDER_BY_END);
-    // Finding the actual position from the above value, which may be negative
-    int startPos = (startLoc < 0) ? (-(startLoc + 1)) : startLoc;
-    int prev = startPos - 1;
-    // Finding the nonnegative position of the next element
-    int next = (endLoc < 0) ? (-(endLoc + 1)) : endLoc;
-    ArrayList<TimeRange> newBusyTimes = new ArrayList<>();
+  private int createCombinedBlock(
+      TimeRange block,
+      TreeSet<TimeRange> busyTimes,
+      long duration,
+      HashSet<String> blockOptBusy,
+      int minOptBusy) {
+    // Stores all time ranges later than this range
+    Iterator<TimeRange> sub = busyTimes.tailSet(block, false).iterator();
+    // Stores the start time of the larger time block
+    int blockStart = block.start();
+    // Stores the end time of the larger time block
+    int blockEnd = block.end();
+    // Stores the duration of the larger time block
+    int blockDuration = block.duration();
 
-    // stores the index in the array from which this meeting begins
-    int startIndex = 0;
-    // stores the time at which this meeting begins
-    int startTime = 0;
-    // stores the index in the array at which this meeting ends
-    int endIndex = 0;
-    // stores the time at which this meeting ends
-    int endTime = 0;
-
-    if (prev < 0) {
-      // If the meeting is to be inserted at the start of the list, startIndex = 0
-      startIndex = startPos;
-      startTime = meetingTime.start();
-    } else {
-      TimeRange prevElem = busyTimes.get(prev);
-      /*
-       * Otherwise find out whether this meeting overlaps with the previous meeting
-       * If it does, coalesce it with the previous meeting otherwise keep them
-       * separate
-       */
-      startIndex = prevElem.overlaps(meetingTime) ? prev : startPos;
-      startTime = prevElem.overlaps(meetingTime) ? prevElem.start() : meetingTime.start();
-    }
-
-    if (next >= busyTimes.size()) {
-      // If this element is to be inserted at the end of the list, endIndex = last element of list
-      endIndex = next - 1;
-      endTime = meetingTime.end();
-    } else {
-      /*
-       * Otherwise find out whether this meeting overlaps with the next meeting
-       * If it does, coalesce it with the next meeting otherwise keep them
-       * separate
-       */
-      TimeRange nextElem = busyTimes.get(next);
-      endIndex = nextElem.overlaps(meetingTime) ? next : next - 1;
-      endTime = nextElem.overlaps(meetingTime) ? nextElem.end() : meetingTime.end();
-    }
-
-    // create a new meeting with the given start and end times
-    TimeRange newBusy = TimeRange.fromStartEnd(startTime, endTime, false);
-
-    /*
-     * This meeting ends before the current first meeting starts, so add it to the
-     * beginning of the list
-     */
-    if (endIndex < 0) {
-      newBusyTimes.add(newBusy);
-    }
-    for (int i = 0; i < busyTimes.size(); i++) {
-      // Insert the new entry in its appropriate location ordered by start times
-      if (i == startIndex && endIndex >= 0) {
-        newBusyTimes.add(newBusy);
+    blockOptBusy.addAll(block.getOptBusy());
+    while (sub.hasNext()) {
+      TimeRange next = sub.next();
+      if (next.isReq()) {
+        break;
       }
-      // And remove all redundant entries between its start and end points
-      if (i < startIndex || i > endIndex) {
-        newBusyTimes.add(busyTimes.get(i));
+      blockOptBusy.addAll(next.getOptBusy());
+      if (blockOptBusy.size() > minOptBusy) {
+        blockOptBusy.removeAll(next.getOptBusy());
+        break;
       }
+      blockDuration += next.duration();
+      blockEnd = next.end();
     }
-    /*
-     * This meeting starts after the current last meeting ends, so add it to the end of
-     * the list
-     */
-    if (startIndex >= busyTimes.size() && endIndex >= 0) {
-      newBusyTimes.add(newBusy);
-    }
-    return newBusyTimes;
+    return (blockDuration >= duration) ? blockEnd : -1;
   }
 
   /*
-   * Given a list of busy times in non-overlapping, sorted order and a meeting duration
+   * Given a list of busy times in non-overlapping, sorted order and a meeting duration,
    * returns a list of time slots of atleast 'duration' length during which no meetings
-   * are scheduled
+   * are scheduled. First, the function tries to accomodate all optional and required
+   * attendees. If that is not possible, it tries to find timeslots that all required
+   * attendees and as many optional attendees as possible can attend. If no such
+   * timeslots exist, timeslots that all required attendees can make are returned.
    */
-  private ArrayList<TimeRange> findFreeTimes(ArrayList<TimeRange> busyTimes, long duration) {
+  private ArrayList<TimeRange> findFreeTimes(TreeSet<TimeRange> busyTimes, long duration) {
+
+    // stores the list of ranges where all required attendees are free
+    ArrayList<TimeRange> reqFreeTimes = new ArrayList<>();
+    // stores the list of ranges where required and all optional attendees are free
     ArrayList<TimeRange> freeTimes = new ArrayList<>();
+    // stores all time ranges with minOptBusy (defined below) number of busy optional attendees
+    ArrayList<TimeRange> maxOptAttendTimes = new ArrayList<>();
+    // represents the minimum number of busy optional attendees for any range so far
+    int minOptBusy = Integer.MAX_VALUE;
+
     /*
-     * This variable represents the start time of the current free block. It starts
-     * out as the value of the start of the day and iteratively takes on the value of the
-     * end of each busy block
+     * This variable represents the start time of the current free (optional or required)
+     * block. It starts out as the value of the start of the day and iteratively takes on
+     * the value of the end of each busy block
      */
     int start = TimeRange.START_OF_DAY;
-    for (int i = 0; i < busyTimes.size(); i++) {
-      TimeRange curr = busyTimes.get(i);
+    /*
+     * This variable represents the start time of the current required free block. It starts
+     * out as the value of the start of the day and iteratively takes on the value of the
+     * end of each required busy block
+     */
+    int reqStart = TimeRange.START_OF_DAY;
+    /*
+     * The end of the most recent free block. This is used to prevent adding overlapping
+     * blocks that start before prevEnd.
+     */
+    int prevEnd = 0;
+
+    Iterator<TimeRange> iter = busyTimes.iterator();
+    while (iter.hasNext()) {
+      TimeRange curr = iter.next();
+      HashSet<String> optBusy = curr.getOptBusy();
 
       int thisStart = curr.start();
       int thisEnd = curr.end();
@@ -143,6 +116,61 @@ public final class FindMeetingQuery {
       if (newFree.duration() >= duration) {
         freeTimes.add(newFree);
       }
+
+      // We skip over optional blocks while making modifications to reqFreeTimes
+      if (curr.isReq()) {
+        TimeRange newFreeReq = TimeRange.fromStartEnd(reqStart, thisStart, false);
+        if (newFreeReq.duration() >= duration) {
+          reqFreeTimes.add(newFreeReq);
+        }
+        reqStart = thisEnd;
+      } else {
+        /*
+         * Checks if this is a valid optional block with fewer busy attendees than the existing
+         * minimum (in which case it replaces the minimum with the current value) or equal busy
+         * attendees than the existing minimum in which case it is added to the list of such
+         * ranges
+         */
+
+        // stores the end of the current combined block
+        int blockEnd = 0;
+
+        /*
+         * Use this if else statement to try to convert the current block into a large
+         * enough block for the meeting
+         */
+        if (curr.duration() >= duration) {
+          // This block is valid by itself
+
+          // In case this time block ends at the end of the day, make its end inclusive
+          if (thisEnd == TimeRange.END_OF_DAY) {
+            curr = TimeRange.fromStartEnd(thisStart, thisEnd, true);
+          }
+        } else {
+          // If this block doesn't work, we may be able to coalesce it with
+          // adjacent optional blocks and create a valid block
+
+          // Stores all optional attendees who are busy during the larger time block
+          HashSet<String> blockOptBusy = new HashSet<>();
+          blockEnd = createCombinedBlock(curr, busyTimes, duration, blockOptBusy, minOptBusy);
+
+          if (blockEnd != -1) {
+            curr = TimeRange.fromStartEnd(thisStart, blockEnd, blockEnd == TimeRange.END_OF_DAY);
+          }
+          optBusy = blockOptBusy;
+        }
+        if (curr.duration() >= duration && optBusy.size() < minOptBusy) {
+          minOptBusy = optBusy.size();
+          maxOptAttendTimes = new ArrayList<>();
+          maxOptAttendTimes.add(curr);
+          prevEnd = blockEnd;
+        } else if (curr.duration() >= duration
+            && optBusy.size() == minOptBusy
+            && thisStart >= prevEnd) {
+          // make sure blocks don't overlap
+          maxOptAttendTimes.add(curr);
+        }
+      }
       start = thisEnd;
     }
     /*
@@ -151,48 +179,304 @@ public final class FindMeetingQuery {
      */
     int end = TimeRange.END_OF_DAY;
     TimeRange newFree = TimeRange.fromStartEnd(start, end, true);
+    TimeRange newFreeReq = TimeRange.fromStartEnd(reqStart, end, true);
     if (newFree.duration() >= duration) {
       freeTimes.add(newFree);
     }
-    return freeTimes;
+    if (newFreeReq.duration() >= duration) {
+      reqFreeTimes.add(newFreeReq);
+    }
+    if (freeTimes.size() > 0) {
+      // Try to find times that work for everyone
+      return freeTimes;
+    } else if (maxOptAttendTimes.size() != 0) {
+      // if that's not possible, try to get all required and a maximal number of optional attendees
+      // this case occurs when the duration of every optional time slot is too small
+      return maxOptAttendTimes;
+    }
+    // If no times work with optional attendees, just return times that work for required attendees
+    return reqFreeTimes;
+  }
+
+  /*
+   * Definitions:
+   * Optional block - one that can be attended by all required attendees but not by some
+   * optional attendees (|---optional---|)
+   * Required block - one that cannot be attended by all required attendees (|__required___|)
+   */
+
+  /*
+   * Coalesces two overlapping optional blocks (constrained only by optional attendees)
+   * in busyTimes, returning the next block to begin coalescing from
+   */
+  private TimeRange coalesceOptOpt(
+      TimeRange first, TimeRange second, TreeSet<TimeRange> busyTimes) {
+    /*
+     * Lists of those optional attendees of the new meeting who are busy during the first and second
+     * time ranges
+     */
+    HashSet<String> firstOptBusy = first.getOptBusy();
+    HashSet<String> secondOptBusy = second.getOptBusy();
+
+    if (first.contains(second)) {
+      /*
+       * Before coalesce: |-------------first--------------|
+       *                          |-----second-----|
+       *
+       * After coalesce:  |--nF--||-----second-----||--nT--|
+       */
+      second.addOptBusy(firstOptBusy);
+      TimeRange newFirst = TimeRange.fromStartEnd(first.start(), second.start(), false);
+      newFirst.addOptBusy(firstOptBusy);
+      TimeRange newThird = TimeRange.fromStartEnd(second.end(), first.end(), false);
+      newThird.addOptBusy(firstOptBusy);
+      busyTimes.remove(first);
+      busyTimes.add(newFirst);
+      busyTimes.add(newThird);
+      return newFirst;
+    } else if (second.contains(first)) {
+      /*
+       * Before coalesce: |-------------second--------------|
+       *                  |-----first-----|
+       *
+       * Note that since first is before second in the sorted list, it must start before
+       * or at the same time as second
+       *
+       * After coalesce:  |-----first-----||-------nS-------|
+       */
+      first.addOptBusy(secondOptBusy);
+      TimeRange newSecond = TimeRange.fromStartEnd(first.end(), second.end(), false);
+      newSecond.addOptBusy(secondOptBusy);
+      busyTimes.remove(second);
+      busyTimes.add(newSecond);
+      return first;
+    } else {
+      /*
+       * Before coalesce: |-------------first--------------|
+       *                          |---------------second-------------|
+       *
+       * After coalesce:  |--nF--||------------nS----------||---nT---|
+       */
+      TimeRange newFirst = TimeRange.fromStartEnd(first.start(), second.start(), false);
+      newFirst.addOptBusy(firstOptBusy);
+      TimeRange newSecond = TimeRange.fromStartEnd(second.start(), first.end(), false);
+      newSecond.addOptBusy(firstOptBusy);
+      newSecond.addOptBusy(secondOptBusy);
+      TimeRange newThird = TimeRange.fromStartEnd(first.end(), second.end(), false);
+      newThird.addOptBusy(secondOptBusy);
+      busyTimes.remove(first);
+      busyTimes.remove(second);
+      busyTimes.add(newFirst);
+      busyTimes.add(newSecond);
+      busyTimes.add(newThird);
+      return newFirst;
+    }
+  }
+
+  /*
+   * Coalesces two overlapping blocks, the first optional and the second required
+   * in busyTimes, returning the next block to begin coalescing from
+   */
+  private TimeRange coalesceOptReq(
+      TimeRange first, TimeRange second, TreeSet<TimeRange> busyTimes) {
+    /*
+     * List of those optional attendees of the new meeting who are busy during the first
+     * time range
+     */
+    HashSet<String> firstOptBusy = first.getOptBusy();
+    if (first.contains(second)) {
+      /*
+       * Before coalesce: |-------------first-------------|
+       *                          |_____second____|
+       *
+       * After coalesce:  |--nF--||_____second____||--nT--|
+       */
+      TimeRange newFirst = TimeRange.fromStartEnd(first.start(), second.start(), false);
+      newFirst.addOptBusy(firstOptBusy);
+      TimeRange newThird = TimeRange.fromStartEnd(second.end(), first.end(), false);
+      newThird.addOptBusy(firstOptBusy);
+      busyTimes.remove(first);
+      busyTimes.add(newFirst);
+      busyTimes.add(newThird);
+      return newFirst;
+    } else if (second.contains(first)) {
+      /*
+       * Before coalesce: |___________second___________|
+       *                  |----first-----|
+       *
+       * After coalesce:  |___________second___________|
+       */
+      busyTimes.remove(first);
+      return second;
+    } else {
+      /*
+       * Before coalesce: |----first-----|
+       *                          |___________second___________|
+       *
+       * After coalesce:  |--nF--||___________second___________|
+       */
+      TimeRange newFirst = TimeRange.fromStartEnd(first.start(), second.start(), false);
+      newFirst.addOptBusy(firstOptBusy);
+      busyTimes.remove(first);
+      busyTimes.add(newFirst);
+      return newFirst;
+    }
+  }
+
+  /*
+   * Coalesces two overlapping blocks, the first required and the second optional
+   * in busyTimes, returning the next block to begin coalescing from
+   */
+  private TimeRange coalesceReqOpt(
+      TimeRange first, TimeRange second, TreeSet<TimeRange> busyTimes) {
+
+    /*
+     * List of those optional attendees of the new meeting who are busy during the second
+     * time range
+     */
+    HashSet<String> secondOptBusy = second.getOptBusy();
+    if (first.contains(second)) {
+      /*
+       * Before coalesce: |___________first___________|
+       *                          |----second-----|
+       *
+       * After coalesce:  |___________first___________|
+       */
+      busyTimes.remove(second);
+      return first;
+    } else if (second.contains(first)) {
+      /*
+       * Before coalesce: |-------------second-------------|
+       *                  |_____first____|
+       *
+       * After coalesce:  |_____first____||-------nS-------|
+       */
+      TimeRange newSecond = TimeRange.fromStartEnd(first.end(), second.end(), false);
+      newSecond.addOptBusy(secondOptBusy);
+      busyTimes.remove(second);
+      busyTimes.add(newSecond);
+      return first;
+    } else {
+      /*
+       * Before coalesce: |____first____|
+       *                          |------second-----|
+       *
+       * After coalesce:  |_____first___||----nS----|
+       */
+      TimeRange newSecond = TimeRange.fromStartEnd(first.end(), second.end(), false);
+      newSecond.addOptBusy(secondOptBusy);
+      busyTimes.remove(second);
+      busyTimes.add(newSecond);
+      return first;
+    }
+  }
+
+  /*
+   * Coalesces two overlapping required blocks in busyTimes, returning the next block
+   * to proceed with coalescing from
+   */
+  private TimeRange coalesceReqReq(
+      TimeRange first, TimeRange second, TreeSet<TimeRange> busyTimes) {
+
+    if (first.contains(second)) {
+      /*
+       * Before coalesce: |___________first_____________|
+       *                         |___second___|
+       *
+       * After coalesce:  |___________first_____________|
+       */
+      busyTimes.remove(second);
+      return first;
+    } else if (second.contains(first)) {
+      /*
+       * Before coalesce: |___________second_____________|
+       *                  |___first___|
+       *
+       * After coalesce:  |___________second_____________|
+       */
+      busyTimes.remove(first);
+      return second;
+    } else {
+      /*
+       * Before coalesce: |___________first_____________|
+       *                                 |_______second_________|
+       *
+       * After coalesce:  |_____________nC______________________|
+       */
+      TimeRange newCombined = TimeRange.fromStartEnd(first.start(), second.end(), false);
+      busyTimes.remove(first);
+      busyTimes.remove(second);
+      busyTimes.add(newCombined);
+      // the next range after first in the ordered set
+      return busyTimes.higher(first);
+    }
+  }
+
+  /*
+   * Given a set of busy times and a time range, coalesces the range with the
+   * next larger range according to set order if they overlap. If there is no
+   * such range, return. Otherwise continue the process with the next range to
+   * coalesce.
+   */
+  private void coalesceOverlap(TreeSet<TimeRange> busyTimes, TimeRange curr) {
+    // Get the first time range that starts later than this one
+    TimeRange next = busyTimes.higher(curr);
+    if (next == null) {
+      return;
+    }
+    TimeRange nextStart = next;
+    if (curr.overlaps(next)) {
+      if (curr.isReq() && next.isReq()) {
+        nextStart = coalesceReqReq(curr, next, busyTimes);
+      } else if (curr.isReq()) {
+        nextStart = coalesceReqOpt(curr, next, busyTimes);
+      } else if (next.isReq()) {
+        nextStart = coalesceOptReq(curr, next, busyTimes);
+      } else {
+        nextStart = coalesceOptOpt(curr, next, busyTimes);
+      }
+    }
+    coalesceOverlap(busyTimes, nextStart);
   }
 
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
-    /*
-     * Stores a list of non-overlapping time periods when at least one required
-     * meeting attendee is busy.
-     */
-    ArrayList<TimeRange> reqBusy = new ArrayList<>();
-
-    /*
-     * Stores a list of non-overlapping time periods when at least one required or optional
-     * meeting attendee is busy.
-     */
-    ArrayList<TimeRange> optBusy = new ArrayList<>();
+    // A list of all busy times when at least one optional or required meeting attendee is busy
+    TreeSet<TimeRange> busy = new TreeSet<>(TimeRange.ORDER_BY_START_END);
     HashSet<String> attendees = new HashSet<>(request.getAttendees());
     HashSet<String> optAttendees = new HashSet<>(request.getOptionalAttendees());
-
     Iterator<Event> iterator = events.iterator();
+
     while (iterator.hasNext()) {
       Event meeting = iterator.next();
       Set<String> meetingAttendees = meeting.getAttendees();
+
       if (!Sets.intersection(attendees, meetingAttendees).isEmpty()) {
-        // If this meeting involves required attendees, add it to both busy lists
-        reqBusy = addToBusy(reqBusy, meeting);
-        optBusy = addToBusy(optBusy, meeting);
+        /*
+         * If this meeting involves at least one required attendee of the new meeting, add it to
+         * the list as a required busy time
+         */
+        TimeRange meetingTime = meeting.getWhen();
+        busy.add(meetingTime);
       } else {
-        if (!Sets.intersection(optAttendees, meetingAttendees).isEmpty()) {
-          // If this meeting involves only optional attendees, add it to the optional busy list
-          optBusy = addToBusy(optBusy, meeting);
+        SetView<String> optInMeeting = Sets.intersection(optAttendees, meetingAttendees);
+        /*
+         * If this meeting involves at least one optional attendee of the new meeting but no
+         * required attendees, add it to the list as an optional busy time with the common
+         * optional attendees
+         */
+        if (optInMeeting.size() != 0) {
+          TimeRange meetingTime = meeting.getWhen();
+          meetingTime.addOptBusy(optInMeeting);
+          busy.add(meetingTime);
         }
       }
     }
-    // Try to accomodate optional attendees
-    ArrayList<TimeRange> optFree = findFreeTimes(optBusy, request.getDuration());
-    if (optFree.size() == 0 && attendees.size() != 0) {
-      // If that fails and there are some required attendees, find time slots that accomodate them
-      return findFreeTimes(reqBusy, request.getDuration());
+    if (!(busy.size() == 0)) {
+      // find the earliest range in the list
+      TimeRange first = busy.first();
+      coalesceOverlap(busy, first);
     }
-    return optFree;
+    ArrayList<TimeRange> freeTimes = findFreeTimes(busy, request.getDuration());
+    return freeTimes;
   }
 }

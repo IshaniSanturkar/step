@@ -15,6 +15,8 @@
 package com.google.sps;
 
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Class representing a span of time, enforcing properties (e.g. start comes before end) and
@@ -44,12 +46,42 @@ public final class TimeRange {
         }
       };
 
+  public static final Comparator<TimeRange> ORDER_BY_START_END =
+      new Comparator<TimeRange>() {
+        @Override
+        public int compare(TimeRange a, TimeRange b) {
+          int comp = Long.compare(a.start(), b.start());
+          return comp == 0 ? Long.compare(a.end(), b.end()) : comp;
+        }
+      };
+
   private final int start;
   private final int duration;
+  /*
+   * A set of all optional meeting attendees who are busy during this time
+   * If at least one required attendee is busy then, this set is empty
+   */
+  private HashSet<String> optBusy;
 
   private TimeRange(int start, int duration) {
     this.start = start;
     this.duration = duration;
+    this.optBusy = new HashSet<>();
+  }
+
+  // Returns whether at least one required employee is busy during this time
+  public boolean isReq() {
+    return optBusy.size() == 0;
+  }
+
+  // Returns the set of busy optional attendees
+  public HashSet<String> getOptBusy() {
+    return optBusy;
+  }
+
+  // Adds people to the list of optional attendees who are busy in this time slot
+  public void addOptBusy(Set<String> people) {
+    optBusy.addAll(people);
   }
 
   /** Returns the start of the range in minutes. */
