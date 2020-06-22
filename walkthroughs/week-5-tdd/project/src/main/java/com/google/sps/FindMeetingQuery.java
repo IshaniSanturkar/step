@@ -29,11 +29,15 @@ public final class FindMeetingQuery {
    * Creates a time range of length at least duration from block and all subsequent blocks
    * where only optional attendees are busy (no required attendees are busy)
    * in busyTimes (which should have non-overlapping elements) that have atmost minOptBusy
-   * busy optional attendees. Returns the end time of this new block or -1 if it is not possible. 
+   * busy optional attendees. Returns the end time of this new block or -1 if it is not possible.
    * Populates blockOptBusy with all optional attendees who are busy during the returned block.
    */
   private int createCombinedBlock(
-      TimeRange block, TreeSet<TimeRange> busyTimes, long duration, HashSet<String> blockOptBusy, int minOptBusy) {
+      TimeRange block,
+      TreeSet<TimeRange> busyTimes,
+      long duration,
+      HashSet<String> blockOptBusy,
+      int minOptBusy) {
     // Stores all time ranges later than this range
     Iterator<TimeRange> sub = busyTimes.tailSet(block, false).iterator();
     // Stores the start time of the larger time block
@@ -50,7 +54,7 @@ public final class FindMeetingQuery {
         break;
       }
       blockOptBusy.addAll(next.getOptBusy());
-      if(blockOptBusy.size() > minOptBusy) {
+      if (blockOptBusy.size() > minOptBusy) {
         blockOptBusy.removeAll(next.getOptBusy());
         break;
       }
@@ -160,7 +164,9 @@ public final class FindMeetingQuery {
           maxOptAttendTimes = new ArrayList<>();
           maxOptAttendTimes.add(curr);
           prevEnd = blockEnd;
-        } else if (curr.duration() >= duration && optBusy.size() == minOptBusy && thisStart >= prevEnd) {
+        } else if (curr.duration() >= duration
+            && optBusy.size() == minOptBusy
+            && thisStart >= prevEnd) {
           // make sure blocks don't overlap
           maxOptAttendTimes.add(curr);
         }

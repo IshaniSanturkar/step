@@ -36,7 +36,6 @@ public final class FindMeetingQueryTest {
   private static final String PERSON_D = "Person D";
   private static final String PERSON_E = "Person E";
 
-
   // All dates are the first day of the year 2020.
   private static final int TIME_0800AM = TimeRange.getTimeInMinutes(8, 0);
   private static final int TIME_0830AM = TimeRange.getTimeInMinutes(8, 30);
@@ -715,8 +714,8 @@ public final class FindMeetingQueryTest {
   @Test
   public void combineBlocksButStillConsiderExisting() {
     // Since no time works for all optional and required attendees, return the times
-    // that work for as many optional (3) and all required attendees. This tests that 
-    // an existing slot where 3 optional attendees can't make it is chosen over a 
+    // that work for as many optional (3) and all required attendees. This tests that
+    // an existing slot where 3 optional attendees can't make it is chosen over a
     // combined one where 4 optional attendees can't make it
     //
     // Events           : |-----A-----|                    |-----A-----|
@@ -779,7 +778,7 @@ public final class FindMeetingQueryTest {
     // Optional Events  :              |--B--||-D-|
     // Optional Events  :              |--C--||-E-|
     // Day              : |------------------------------|
-    // Options          :              |--1--|    
+    // Options          :              |--1--|
 
     Collection<Event> events =
         Arrays.asList(
@@ -808,8 +807,7 @@ public final class FindMeetingQueryTest {
 
     Collection<TimeRange> actual = query.query(events, request);
     Collection<TimeRange> expected =
-        Arrays.asList(
-            TimeRange.fromStartDuration(TIME_0800AM, DURATION_60_MINUTES));
+        Arrays.asList(TimeRange.fromStartDuration(TIME_0800AM, DURATION_60_MINUTES));
 
     Assert.assertEquals(expected, actual);
   }
@@ -821,7 +819,7 @@ public final class FindMeetingQueryTest {
     // Events             : |--C--|                         |--C--|
     // Optional Events    :        |-A-||-B-||-A-||-B-||-A-|
     // Day                : |-------------------------------------|
-    // Options            :        |-----------1-----------|   
+    // Options            :        |-----------1-----------|
 
     Collection<Event> events =
         Arrays.asList(
@@ -860,8 +858,7 @@ public final class FindMeetingQueryTest {
 
     Collection<TimeRange> actual = query.query(events, request);
     Collection<TimeRange> expected =
-        Arrays.asList(
-            TimeRange.fromStartEnd(TIME_0800AM, TIME_1030AM, false));
+        Arrays.asList(TimeRange.fromStartEnd(TIME_0800AM, TIME_1030AM, false));
 
     Assert.assertEquals(expected, actual);
   }
